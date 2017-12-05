@@ -16,8 +16,8 @@ knitr::opts_chunk$set(
 
 This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (forthcoming) 2017
 
-* [Rex W. Douglass, University of California San Diego](www.rexdouglass.com)
-* [Kristen Harkness](https://kristenharkness.com/)
+* [Dr. Rex W. Douglass](www.rexdouglass.com)(University of California San Diego)
+* [Dr. Kristen Harkness](https://kristenharkness.com/)(University of St. Andrews)
 
 ### Installation
 
