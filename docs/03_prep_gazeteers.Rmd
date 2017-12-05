@@ -17,6 +17,8 @@ This file cleans and compiles a large number of kenya gazeteers for further down
 ```{r }
 # !diagnostics off
 
+library(MeasuringLandscapeCivilWar)
+devtools::load_all()
 
 gc()
 # sudo dnf install libcurl-devel
@@ -352,7 +354,7 @@ p_points <- flatfiles_sf_roi %>%
   xlim(35.67, 38.19) + ylim(-1.43285, 0.54543)
 
 ggsave(
-  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/flatfiles_sf_roi_facet_source_dataset_points.png",
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/paper/figures/flatfiles_sf_roi_facet_source_dataset_points.png",
   plot = p_points, width = 12, height = 10
 )
 p_points
@@ -367,7 +369,7 @@ p_notpoints <- flatfiles_sf_roi %>%
   xlim(35.67, 38.19) + ylim(-1.43285, 0.54543) + theme_bw()
 
 ggsave(
-  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/flatfiles_sf_roi_facet_source_dataset_notpoints.png",
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/paper/figures/flatfiles_sf_roi_facet_source_dataset_notpoints.png",
   plot = p_notpoints, width = 12, height = 6
 )
 p_notpoints
@@ -392,7 +394,7 @@ p_combs_lat <- flatfiles_sf_roi %>%
   select(latitude, source_dataset) %>%
   ggplot(aes(x = latitude - round(latitude), col = as.factor(source_dataset))) + geom_histogram(bins = 1000) + facet_wrap(~source_dataset, scales = "free")
 ggsave(
-  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/p_combs_lat.pdf",
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/paper/figures/p_combs_lat.pdf",
   plot = p_combs_lat, width = 12, height = 6
 )
 p_combs_lat
@@ -403,7 +405,7 @@ p_combs_long <- flatfiles_sf_roi %>%
   select(longitude, source_dataset) %>%
   ggplot(aes(x = longitude - round(longitude), col = as.factor(source_dataset))) + geom_histogram(bins = 1000) + facet_wrap(~source_dataset, scales = "free")
 ggsave(
-  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/p_combs_long.pdf",
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/paper/figures/p_combs_long.pdf",
   plot = p_combs_long, width = 12, height = 6
 )
 p_combs_long
