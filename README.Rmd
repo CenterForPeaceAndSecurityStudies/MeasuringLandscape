@@ -32,9 +32,9 @@ devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
 
 The analysis and figures in the paper and statistical appendix are produced in a number of R Notebooks
 
-[01 Prep Events Counts](https://rexdouglass.github.io/MeasuringLandscape/01_prep_events_counts.nb.html)
-
-[02 Prep Events Locations](https://rexdouglass.github.io/MeasuringLandscape/02_prep_events_locations.nb.html)
+* [01 Prep Events Counts](https://rexdouglass.github.io/MeasuringLandscape/01_prep_events_counts.nb.html)
+* [02 Prep Events Locations](https://rexdouglass.github.io/MeasuringLandscape/02_prep_events_locations.nb.html)
+* [03 Prep Gazeteers](https://rexdouglass.github.io/MeasuringLandscape/03_prep_gazeteers.nb.html)
 
 
 ### Citation
