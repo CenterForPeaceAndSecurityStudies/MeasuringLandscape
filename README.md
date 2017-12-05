@@ -3,22 +3,30 @@
 MeasuringLandscapeCivilWar
 ==========================
 
-The goal of MeasuringLandscapeCivilWar is to ...
+This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (forthcoming) 2017
+
+[Rex W. Douglass, University of California San Diego](www.rexdouglass.com) [Kristen Harkness](www.rexdouglass.com)(<https://kristenharkness.com/>)
+
+### Installation
+
+You can install the package MeasuringLandscapeCivilWar from github with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
+```
+
+### Replication Code and Analysis
+
+The analysis and figures in the paper and statistical appendix are produced in a number of R Notebooks
+
+[01 Prep Events Counts](https://rexdouglass.github.io/MeasuringLandscape/01_prep_events_counts.nb.html) [02 Prep Events Locations](https://rexdouglass.github.io/MeasuringLandscape/02_prep_events_locations.nb.html)
 
 ### Citation
 
 Please cite this compendium as:
 
 > Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 04 Dec 2017. Online at <https://doi.org/xxx/xxx>
-
-### Installation
-
-You can install MeasuringLandscapeCivilWar from github with:
-
-``` r
-# install.packages("devtools")
-devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
-```
 
 ### Licenses
 
@@ -27,10 +35,3 @@ devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
 **Code:** See the [DESCRIPTION](DESCRIPTION) file
 
 **Data:** [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse
-
-MeasuringLandscape
-==================
-
-Replication code to accompany the paper Measuring the Landscape of Civil War
-
-[01\_prep\_events\_counts](https://rexdouglass.github.io/MeasuringLandscape/01_prep_events_counts.nb.html)
