@@ -42,3 +42,10 @@ devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
 $\textbf{Data:}$ [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse
 
 
+# MeasuringLandscape
+Replication code to accompany the paper Measuring the Landscape of Civil War
+
+[01_prep_events_counts](https://rexdouglass.github.io/MeasuringLandscape/01_prep_events_counts.nb.html)
+
+
+
