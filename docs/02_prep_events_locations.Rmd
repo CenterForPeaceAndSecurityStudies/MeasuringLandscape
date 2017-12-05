@@ -4,6 +4,8 @@ output:
   html_notebook:
     toc: true
     toc_float: true
+editor_options: 
+  chunk_output_type: inline
 ---
 
 # Loads
@@ -76,22 +78,30 @@ events$map_coordinate_clean <- events$map_coordinate %>% str_replace_all("[[:pun
 
 ## Convert Coordinates to lat long
 
-```{r }
+```{r ,results=FALSE, warning=FALSE, comment=FALSE}
+
+#This takes
 
 cat("\014")
-
+print("Starting Converting Coordinates, may take some time")
 for(i in 1:nrow(events)){
-  print(i)
-  temp <- events[i,] %$% EAGS2LatLong(band=map_coordinate_clean_text_band,
-                                      block=map_coordinate_clean_text_block,
-                                      subblock=map_coordinate_clean_text_subblock,
-                                      easting=map_coordinate_clean_number_easting , 
-                                      northing=map_coordinate_clean_number_northing)
-  events$map_coordinate_clean_latitude[i] <- temp$latitude
-  events$map_coordinate_clean_longitude[i] <- temp$longitude
+  # print(i)
+  suppressMessages({
+    temp <- events[i,] %$% EAGS2LatLong(band=map_coordinate_clean_text_band,
+                                        block=map_coordinate_clean_text_block,
+                                        subblock=map_coordinate_clean_text_subblock,
+                                        easting=map_coordinate_clean_number_easting , 
+                                        northing=map_coordinate_clean_number_northing)
+    events$map_coordinate_clean_latitude[i] <- temp$latitude
+    events$map_coordinate_clean_longitude[i] <- temp$longitude
+  })
   #print(is.na(events$map_coordinate_clean_latitude[i]))
 }
+print("Finished Converting Coordinates")
 
+```
+
+```{r}
 
 #(temp <- events %>% mutate(map_coordinate_clean_row=1:n()) %>% filter(is.na(map_coordinate_clean_latitude) & !is.na(map_coordinate_clean)) %>% select(starts_with("map_coordinate_clean")) ) %>% distinct() %>% print(n=40) #visualize errors
 #dim(temp) #195 coordinates don't convert.
@@ -634,8 +644,9 @@ eventsnames_sf <- events_sf %>% select("name_cleaner", "geometry") %>% setNames(
 # Output Cleaned Files
 
 ```{r}
-saveRDS(events, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata")
 
-saveRDS(events_sf, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/events_sf.Rdata")
+saveRDS(events, glue(getwd(), "/../inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata"))
+
+saveRDS(events_sf, glue(getwd(), "/../inst/extdata/events_sf.Rdata"))
 
 ```

@@ -5,7 +5,7 @@ cat("\014")
 
 # EGSToLatLng(band="G",block="A",subblock="F", easting=310 , northing=885)
 EAGS2LatLong <- function(band, block, subblock, easting, northing) {
-  try({
+  temp <- try({
     # Convert the band into a final easting offset
     long0 <- list(
       "D" = 17.5,
@@ -122,7 +122,7 @@ EAGS2LatLong <- function(band, block, subblock, easting, northing) {
     if (is.finite(latitude) & is.finite(longitude)) {
       return(list(latitude = latitude, longitude = longitude))
     } # In an edge case latitude is numeric(0)
-  })
+  }, silent = T)
 
   return(list(latitude = NA, longitude = NA)) # If anything errors out return NA
 }

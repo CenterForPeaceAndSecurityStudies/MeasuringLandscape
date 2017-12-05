@@ -4,6 +4,8 @@ output:
   html_notebook:
     toc: true
     toc_float: true
+editor_options: 
+  chunk_output_type: inline
 ---
 
 This is the entry point for the paper "Measuring the Landscape of Civil War." In this file, a raw csv file of the events dataset created for the Mau Mau rebellion is loaded and processed.
@@ -946,7 +948,8 @@ events %>% crosstab(target_clean_1_agghigh, initiator_clean_1_agghigh) %>% adorn
 # Output Cleaned File
 
 ```{r}
-saveRDS(events, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata")
+print(glue(getwd(), "/inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata"))
+saveRDS(events, glue(getwd(), "/../inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata"))
 
 ```
 
