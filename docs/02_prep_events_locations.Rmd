@@ -271,7 +271,7 @@ events <- events %>%
 
 This section applies lots of rule based hand cleaning to the original text labels
 
-```{r, cache=T }
+```{r, cache=T ,eval=F, results=FALSE, warning=FALSE, comment=FALSE}
 
 #Rule list
 rulelist <- list(
