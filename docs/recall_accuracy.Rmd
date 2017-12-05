@@ -1,0 +1,161 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r }
+# !diagnostics off
+gc()
+#sudo dnf install libcurl-devel
+#install.packages('devtools', dependencies=T)
+library(devtools)
+devtools::session_info('DT')
+if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
+
+p_load(mosaic, stringr,stringi)
+p_load(lubridate,stringr)
+p_load(janitor)
+p_load(digest)
+p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
+p_load(rgeos) #yum install -y geos-devel
+p_load(rgdal) #dnf install gdal* , sudo yum install proj*
+p_load(digest)
+p_load(ggmap) #sudo dnf install libjpeg*
+p_load(data.table)
+p_load(bookdown)
+p_load(feather)
+p_load(stringdist)
+p_load(sf)
+p_load(tidyverse)
+p_load(viridis)
+p_load(rvest)
+p_load(tidyverse)
+library(dplyr)
+library(plyr)
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+```{r}
+
+#Reload from scratch each time in case we subset sometehing weirdly
+georef_all_dt <- readRDS( file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/georef_all_dt.Rds")
+
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$event_hash %in% georef_all_dt$event_hash) #3,927 events with atleast one gazeteer suggestion
+
+#Exclude all distance = 0 obs, those are self matches
+georef_all_dt <- subset(georef_all_dt, 
+                        !is.na(name_cleaner) & # must have a name
+                        (is.na(distance_km) | distance_km!=0)  ) #Can be either missing or not zero. Only thing we drop is zero because that's a self match
+
+#Hand Rule
+setkey(georef_all_dt, handrule)
+georef_all_dt_handrule <- georef_all_dt[,.SD[1], by=list(event_hash) ]
+georef_all_dt_handrule_summary <- georef_all_dt_handrule[,list(
+                                               rule="Hand Rule",
+                                              distance_rmse=sqrt(mean(distance_km^2, na.rm=T)) ,
+                                              source_dataset_count=.N
+                                              )
+                                        ]
+#Ensemble Rule
+setkey(georef_all_dt, rule_ensemble)
+georef_all_dt_ensemble <- georef_all_dt[,.SD[1], by=list(event_hash) ]
+georef_all_dt_ensemble_summary <- georef_all_dt_ensemble[,list(
+                                               rule="Ensemble Rule",
+                                              distance_rmse=sqrt(mean(distance_km^2, na.rm=T)) ,
+                                              source_dataset_count=.N
+                                              )
+                                        ]
+
+#compare the two
+table(
+paste(georef_all_dt_ensemble$event_hash, georef_all_dt_ensemble$place_hash)[!is.na(georef_all_dt_ensemble$X2)] %in%  
+    paste(georef_all_dt_handrule$event_hash, georef_all_dt_handrule$place_hash)[!is.na(georef_all_dt_handrule$X2)]  
+)
+
+#Minimum distance by event-source
+georef_all_dt_bysource <- georef_all_dt[,
+                                        list(distance_min=min(distance_km, na.rm=T) ),
+                                        by=list(event_hash, source_dataset)] ; dim(georef_all_dt_bysource)
+georef_all_dt_bysource[!is.finite(distance_min), distance_min:=NA]
+
+#Minimum distance and recall by source
+georef_all_dt_bysource_summary <- georef_all_dt_bysource[,
+                                                    list(
+                                                      distance_rmse=sqrt(mean(distance_min^2, na.rm=T)) ,
+                                                      source_dataset_count=.N),
+                                                      by=list(source_dataset)
+                                                ]
+
+georef_all_dt_byfuzzy <- georef_all_dt[
+                                      ,list(distance_min=min(distance_km, na.rm=T) ),
+                                      by=list(event_hash, fuzzy)] ;
+georef_all_dt_byfuzzy[!is.finite(distance_min), distance_min:=NA]
+
+
+georef_all_dt_byfuzzy_summary <- georef_all_dt_byfuzzy[,
+                                                       list(distance_rmse=sqrt(mean(distance_min^2, na.rm=T)) ,
+                                                      source_dataset_count=.N),
+                                                      by=list(fuzzy) ]
+
+georef_all_dt_byselfreference <- georef_all_dt[,list(distance_min=min(distance_km, na.rm=T) ),
+                                               by=list(event_hash, SelfReference)] ; dim(georef_all_dt_bysource)
+
+georef_all_dt_byselfreference[!is.finite(distance_min), distance_min:=NA]
+georef_all_dt_byselfreference_summary <- georef_all_dt_byselfreference[,list(
+                                                      distance_rmse=sqrt(mean(distance_min^2, na.rm=T)) ,
+                                                      source_dataset_count=.N),
+                                                      by=list(SelfReference)
+                                                ]
+
+
+georef_all_dt_bygeometry_type <- georef_all_dt[,list(distance_min=min(distance_km, na.rm=T) ),by=list(event_hash, geometry_type
+                                                                                            )] ; dim(georef_all_dt_bysource)
+georef_all_dt_bygeometry_type[!is.finite(distance_min), distance_min:=NA]
+georef_all_dt_bygeometry_type <- georef_all_dt_bygeometry_type[,list(
+                                                      distance_rmse=sqrt(mean(distance_min^2, na.rm=T)) ,
+                                                      source_dataset_count=.N),
+                                                      by=list(geometry_type)
+                                                ]
+
+
+
+
+
+recall_accuracy <- rbindlist(list(
+  georef_all_dt_handrule_summary %>% mutate(label="Hand Rule") %>% mutate(Type="Rule"),
+  georef_all_dt_ensemble_summary %>% mutate(label="Ensemble Rule") %>% mutate(Type="Rule"),
+  georef_all_dt_bysource_summary %>% mutate(label=source_dataset) %>% mutate(Type="Source Gazetteer"),
+  georef_all_dt_byfuzzy_summary %>% mutate(label=ifelse(fuzzy, "Fuzzy","Exact")) %>% mutate(Type="Match Type"),
+  georef_all_dt_byselfreference_summary %>% mutate(label=ifelse(SelfReference, "Match To Other Events","No Match To Other Events")) %>% mutate(Type="Allow Match To Other Events"),
+  georef_all_dt_bygeometry_type %>% mutate(label=geometry_type) %>% mutate(Type="Geometry Type")
+))
+
+p_load(ggrepel, tools)
+p1 <- ggplot(recall_accuracy %>% mutate(label=toTitleCase(gsub("_"," ",label))),
+       aes(x=distance_rmse,
+           y=source_dataset_count / 10469 ,
+           label=label,
+           color=Type)) + 
+       geom_text_repel(size=3) + 
+       #coord_trans(x = "log10", y = "log10") + 
+       theme_bw() + 
+       xlab("Root Mean Squared Distance from Observed Coordinate (km)") + 
+       ylab("Recovery Rate") #+ 
+       #ggtitle("Recall and Accuracy by Georeferencing Strategy")
+
+p1
+ggsave(plot=p1,
+       file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/paper/RecallBias.pdf", width=12, height=6)
+
+#This works but I need to add some additional categories
+#original coordinates
+#district
+
+
+
+```

@@ -1,0 +1,808 @@
+---
+title: "Distribution of Violence"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+    number_sections: yes
+    theme: readable
+    toc: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+This file trains an ensemble of gazeteers for imputing lat/longs to a textual description.
+Input: a cleaned events dataset, and gaz_all.Rdata
+Output: 
+
+
+# Clean up several different gazetteers
+
+```{r, cache=T }
+#path <- "C:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/"
+#path <- "/dyson2/cloud/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/"
+path <- "D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/"
+library(pacman)
+
+path_dropbox <- "D:/Dropbox (UCSD_MATH)/"
+
+
+p_load(digest,rgdal,rgeos,ggmap,ClustOfVar)
+
+fromscratch=F
+
+```
+
+# Load Files
+
+```{r, cache=T }
+
+#load(file="D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/data/kenya_jpr_final_gaz_all.Rdata") #gaz_all
+load(file="D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/data/kenya_jpr_final_events_clean.Rdata") #events
+load(file="D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/data/kenya_jpr_final_events_locations_interpolated.Rdata")
+load(file="D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/code/hex_all_list.Rdata")
+
+events_locations_interpolated$locationtext_ruleclean <- NULL
+events_locations_interpolated$documentdistrict_clean <- NULL
+events_locations_interpolated$mapcoordinate_clean_longitude <- NULL
+events_locations_interpolated$mapcoordinate_clean_latitude <- NULL
+events <- merge(events, events_locations_interpolated,by="eventid_number",  all.x=T, all.y=F)
+
+
+```
+
+
+
+# Functions for sampling and imputing locations
+
+```{r , eval=T}
+
+events$locationtext_ruleclean_documentdistrict_clean <- with(events, paste(locationtext_ruleclean, documentdistrict_clean, sep=";"))
+
+sample_shared_text <- function(events){
+  #Randomly sampled shared text points.
+  events$latitude_sharedtext_sample <- NA
+  events$longitude_sharedtext_sample <- NA
+  for(i in 1:nrow(events)){
+    temp <- subset(events, locationtext_ruleclean==events$locationtext_ruleclean[i] & documentdistrict_clean==events$documentdistrict_clean[i] &
+                            !is.na(mapcoordinate_clean_longitude))
+    if(nrow(temp)>0){
+      #print(i)
+      sampl <- sample(nrow(temp))[1]
+      events$latitude_sharedtext_sample[i]  <- temp$mapcoordinate_clean_latitude[sampl]
+      events$longitude_sharedtext_sample[i] <- temp$mapcoordinate_clean_longitude[sampl]
+    }
+  }
+  return(events)
+}
+
+
+
+#Sample based on shared district.
+sample_shareddistrict <- function(events){
+
+  events$latitude_shareddistrict_sample  <- NA
+  events$longitude_shareddistrict_sample  <- NA
+  for(i in 1:nrow(events)){
+    temp <- subset(events, documentdistrict_clean==events$documentdistrict_clean[i] & !is.na(mapcoordinate_clean_longitude))
+    if(nrow(temp)>0){
+      #print(i)
+      sampl <- sample(nrow(temp))[1]
+      events$latitude_shareddistrict_sample[i]  <- temp$mapcoordinate_clean_latitude[sampl]
+      events$longitude_shareddistrict_sample[i] <- temp$mapcoordinate_clean_longitude[sampl]
+    }
+  }
+  return(events)
+}
+
+
+sample_best <- function(events){
+
+  events$best_latitude <- NA
+  events$best_longitude <- NA
+  
+  condition <- is.na(events$best_latitude); table(condition)
+  events$best_latitude[condition] <- events$mapcoordinate_clean_latitude[condition]
+  events$best_longitude[condition] <- events$mapcoordinate_clean_longitude[condition]
+  
+  condition <- is.na(events$best_latitude); table(condition)
+  events$best_latitude[condition] <- events$latitude_sharedtext_sample[condition] 
+  events$best_longitude[condition] <- events$longitude_sharedtext_sample[condition]
+  
+  condition <- is.na(events$best_latitude); table(condition)
+  events$best_latitude[condition] <- events$latitude_ensemble[condition] 
+  events$best_longitude[condition] <- events$longitude_ensemble[condition]
+  
+  condition <- is.na(events$best_latitude); table(condition)
+  events$best_latitude[condition] <- events$latitude_shareddistrict_sample[condition]
+  events$best_longitude[condition] <- events$longitude_shareddistrict_sample[condition]
+  condition <- is.na(events$best_latitude); table(condition)
+
+  return(events)
+}
+
+events <- sample_shared_text(events)
+events <- sample_shareddistrict(events)
+events <- sample_best(events)
+
+plot(events$best_longitude, events$best_latitude, pch='.')
+points(events$mapcoordinate_clean_longitude, events$mapcoordinate_clean_latitude, pch='.', col="red")
+
+p <- ggplot() + geom_point(data=events,aes(x=best_longitude,y=best_latitude), colour="black", alpha=.1) +
+  geom_point(data=events,aes(x=mapcoordinate_clean_longitude,y=mapcoordinate_clean_latitude), colour="red", alpha=.1) +
+  geom_rug(data=events,aes(x=best_longitude,y=best_latitude, alpha=.5), sides="bl", colour="black", alpha=.1) + 
+  geom_rug(data=events,aes(x=mapcoordinate_clean_longitude,y=mapcoordinate_clean_latitude), sides="bl", colour="red", alpha=.1) +
+  coord_cartesian(ylim=c(-2,1), xlim=c(35.5,38.5), expand=F) + xlab('Longitude') + ylab('Latitude') + ggtitle('Georeferenced vs Observed Coordinates') +   theme_bw()
+if(fromscratch) {
+  ggsave(plot=p, file='D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/plots/georeferenced_vs_observed_coordinates.png',
+         height=12, width=24)
+}
+
+```
+
+#Calculate and Plot Region of Interest
+
+
+```{r}
+library(MASS)
+library(cluster)
+samples <- data.matrix(na.omit(events[,c( 'best_longitude','best_latitude')]) )
+coverage=.95#Coverage is the percent of points that it should cover
+fit <- cov.mve(samples, quantile.used = nrow(samples) * coverage)
+
+points_in_ellipse <- samples[fit$best, ]
+ellipse_boundary <- predict(ellipsoidhull(points_in_ellipse))
+p_roi <- ggplot() + geom_point(data=data.frame(ellipse_boundary), aes(x=V1,y=y), col="red") + 
+  geom_point(data=events, aes(x=best_longitude,y=best_latitude), col='black', size=.1)
+p_roi
+
+summary(ellipse_boundary)
+long_min = 35.67
+long_max = 38.19
+lat_min= -1.43285 
+lat_max = 0.54543
+
+# base R plot method
+#mapLL <- openproj(map)
+#plot(mapLL)
+#points(d)
+
+p_load("rgdal","maptools","ggplot2","plyr") # requires sp, will use proj.4 if installed
+kenyaborder <- readOGR(dsn = "D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Causes of Collective Punishment/writing/CostOfSilence_June/data/gis_data", layer = "KEN_adm0")
+
+kenyaborder@data$id = rownames(kenyaborder@data)
+kenyaborder.points = fortify(kenyaborder, region="id")
+kenyaborder.df = join(kenyaborder.points, kenyaborder@data, by="id")
+
+#centroids <- aggregate(agzones.df, by=list(agzones.df$LANGUAGE), mean)
+
+p_kenyamap <- ggplot(kenyaborder, aes(long,lat,group=group,fill=NULL)) + 
+  geom_polygon(fill="white") + geom_path(color="black") +
+  geom_point(data=data.frame(ellipse_boundary), aes(x=V1,y=y, group=NULL), col="blue") + 
+  geom_point(data=events, aes(x=best_longitude,y=best_latitude, group=NULL), col='red', size=.1) +
+  xlab("") + ylab("") + coord_equal() + theme_nothing() #theme_bw() 
+  #
+  #with(centroids, annotate(geom="text", x = long, y=lat, label = Group.1, size = 5)) +
+  #  coord_cartesian(xlim=c(33.52558,38.9169),ylim=c(-2.282177 ,1.282024), expand=F) +
+  #theme(legend.position="none")
+p_kenyamap
+
+ggsave(plot=p_kenyamap, file='D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/plots/p_kenyamap.png',
+       height=6, width=6)
+
+
+
+
+```
+
+
+
+```{r}
+
+p_load(OpenStreetMap)
+p_load(ggplot2)
+
+map <- openmap(c(lat_max,long_min),c(lat_min ,long_max), 8,'osm') #stamen-toner
+
+map=openproj(map, projection = "+proj=longlat")   #Convert projection to lat long
+
+p_openstreetmap <- autoplot(map) + 
+  geom_point(data=events, aes(x=best_longitude,y=best_latitude, group=NULL), col='red', size=.1, shape=4) +
+   coord_equal(xlim=c(long_min, long_max), ylim=c(lat_min ,lat_max) , expand=F) +
+   xlab("") + ylab("") + theme_nothing() #coord_cartesian() +
+
+ggsave(plot=p_openstreetmap, 
+       file='D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/plots/p_openstreetmap.png',
+       height=10, width=12,
+       #dpi=600
+       )
+
+p_load(cowplot)
+p_openstreetmap_kenyamap <- ggdraw() +
+  draw_plot(p_openstreetmap, 0, 0, 1, 1) +
+  draw_plot(p_kenyamap, x =.7, y=0, width=.3, height=.4)
+
+
+ggsave(plot=p_openstreetmap_kenyamap, 
+       file='D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/plots/p_openstreetmap_kenyamap.png',
+       height=6, width=8,
+       #dpi=600
+       )
+
+```
+
+
+
+
+# Events with coordinates are different than those without
+
+```{r}
+
+plot_rf_marginal_partial <- function(rf , variable , outcome="TRUE", replace=F,decreasing=T,
+                                          subset_row=T, gg_marginal=NULL, min_n=NULL) {
+  
+  p_load(ggplot2, ggRandomForests,gridExtra,randomForestSRC)
+
+  var_outcome <- paste0("yhat.",outcome)
+  gg_marginal <- gg_variable(rf)
+  subset_row=T
+  
+  if(!is.null(min_n)){
+    temp <- table(gg_marginal[,variable])
+    temp <- temp[temp>min_n]
+    levels_keep <- names(temp)
+    subset_row <- gg_marginal[,variable] %in% levels_keep #replace subset row with something specific
+
+    condition <- rf$xvar[,variable] %in% levels_keep
+    rf$xvar <- rf$xvar[condition,  ]
+    rf$xvar[,variable] <- droplevels(rf$xvar[,variable])             
+  }
+
+  temp <- aggregate(gg_marginal[subset_row,var_outcome], by=list(gg_marginal[subset_row,variable]), FUN=mean)
+  newlevels <- as.character(temp[order(temp[,2],decreasing=decreasing),1])
+  gg_marginal[,variable] <- factor(gg_marginal[,variable], levels= newlevels  ) #The levels will NA anything outside of the row subset, that's fine
+
+  p1 <- plot(gg_marginal[subset_row,], xvar=variable) + coord_flip() +
+    ggtitle("Marginal Probability (Ignoring Other Covariates)") + 
+    theme(legend.position="none") + ylab(paste0("Predicted Prob of ", rf$yvar.names, "=",outcome ))  + theme_bw()
+
+  filename_partial <- paste0("gg_partial_",rf$yvar.names,"_",variable,".Rdata")
+  
+  if( !file.exists(paste0(path, "/r_objects/",filename_partial) ) | replace) {
+    #Have to pick the right outcome, it's selecting false by default
+    #subsetting isn't enough, have to prune xvar of the copy of the RF
+
+    partial_gg_marginal <- plot.variable(rf, xvar.names = variable, partial=TRUE, show.plots = F, which.class ="TRUE") #Don't have to subset now because subsetted the xvar above
+    gg_partial <- gg_partial(partial_gg_marginal, xvar=variable)
+    saveRDS(gg_partial, file=paste0(path, "/r_objects/",filename_partial))
+  }
+  gg_partial <- readRDS(file=paste0(path, "/r_objects/",filename_partial))
+  temp <- aggregate(gg_partial$yhat, by=list(gg_partial[,variable]), FUN=mean)
+  gg_partial[,variable] <- factor(gg_partial[,variable], levels= temp[order(temp[,2], decreasing=decreasing),1])
+  gg_partial$yhat <- gg_partial$yhat - min(temp$x)
+  
+  p2 <- plot(gg_partial) + coord_flip() + ggtitle("Predicted Change in Probability") +
+              ylab(paste0("Predicted Prob of ", rf$yvar.names, "=",outcome )) + theme_bw() #+
+              #stat_summary(fun.y = "mean", colour = "red", size = 2, geom = "point")
+  
+  names(gg_partial) <- c('yhat','xvar')
+  p3 <- ggplot(gg_partial, aes(x=xvar, y=yhat)) + coord_flip() + stat_summary(fun.data = "mean_cl_boot", colour = "red") + theme_bw() + ylab(paste0("Predicted Prob of ", rf$yvar.names, "=",outcome )) + xlab("")
+  
+  
+  p_final <- grid.arrange(p1, p2, ncol=2, widths=c(5, 5))
+  return(p_final)
+}
+
+
+```
+
+# Prepare training data
+
+```{r}
+
+
+#head(events)
+events$mapcoordinate_clean_missing <- is.na(events$mapcoordinate_clean_latitude)
+table(events$mapcoordinate_clean_missing)
+
+#events$initiator_clean_1_agghigh
+#events$target_clean_1_agghigh
+#events$type_clean_agghigh
+
+p_load(stringi)
+events$mapcoordinate_characterlength <- stri_length(as.character(events$mapcoordinate))
+table(events$mapcoordinate_characterlength)
+events$mapcoordinate_characterlength_8OR10 <- NA
+events$mapcoordinate_characterlength_8OR10[events$mapcoordinate_characterlength==8] <- "8"
+events$mapcoordinate_characterlength_8OR10[events$mapcoordinate_characterlength==10] <- "10"
+events$mapcoordinate_characterlength_8OR10 <- as.factor(events$mapcoordinate_characterlength_8OR10)
+table(events$mapcoordinate_characterlength_8OR10)
+
+events$locationtext_ruleclean_missing <- is.na(events$locationtext_ruleclean) | events$locationtext_ruleclean==''
+
+#table(events$locationtext_ruleclean_missing,
+#      events$mapcoordinate_clean_missing)
+events$mapcoordinate_locationtext_missing <- ""
+
+events$mapcoordinate_locationtext_missing[events$locationtext_ruleclean_missing | events$mapcoordinate_clean_missing] <- "Either Missing" 
+events$mapcoordinate_locationtext_missing[events$locationtext_ruleclean_missing & events$mapcoordinate_clean_missing] <- "Both Missing" 
+events$mapcoordinate_locationtext_missing[!events$locationtext_ruleclean_missing & !events$mapcoordinate_clean_missing] <- "Neither Missing" 
+table(events$mapcoordinate_locationtext_missing)
+
+library(randomForestSRC)
+vars_factor <- c("mapcoordinate_locationtext_missing",
+                 "mapcoordinate_clean_missing","mapcoordinate_characterlength_8OR10",
+                 "documentdistrict_clean",
+                 "type_clean_agglow","type_clean_aggmed","type_clean_agghigh",
+                 "target_clean_1_agglow","target_clean_1_aggmed","target_clean_1_agghigh",
+                 "initiator_clean_1_agglow","initiator_clean_1_aggmed","initiator_clean_1_agghigh",
+                 "documentdate_best_year",
+                 "document_unit_type",
+                 "documentdate_type","mapcoordinate_clean","eventdate_clean_date_year",
+                 "locationtext_ruleclean_suffix")
+
+events$killed_total <-  log( rowSums(cbind( as.numeric(events$governmentkilled) , as.numeric(events$rebelskilled) ), na.rm=T) + 1)
+
+vars_numeric <- c("killed_total","governmentkilled_clean","rebelskilled_clean"#,
+                 #"rugged_gaz_ensemble",
+                 #"roads_gaz_ensemble",
+                 #"pop_density_gaz_ensemble"
+                 )
+
+with(events, table(mapcoordinate_clean=="", mapcoordinate_clean_missing))
+
+vars <- c(vars_factor, vars_numeric)
+
+#setdiff(vars, names(events))         
+train <- events[,vars]
+
+
+train[,vars_factor] <- lapply(train[,vars_factor], factor )
+train[,vars_numeric] <- lapply(train[,vars_numeric], FUN=function(x) log(as.numeric(as.character(x))+1 ) )
+
+
+#dim(train) 
+
+#head(train)
+#table(train$documentdate_best_year)
+
+#lapply(train[,vars_factor], table, useNA="always")
+
+train[,vars_factor] <- lapply(train[,vars_factor], FUN=function(x) {
+                      condition <- is.na(x) | x=="" ; 
+                      x <- as.character(x)
+                      x[condition] <-'missing'
+                      return(factor(x))
+                      })
+
+```
+
+# Bivariate comparisons
+
+```{r}
+with(events, table(mapcoordinate_clean_missing,type_clean_agglow) )
+with(events, table(mapcoordinate_clean_missing,type_clean_aggmed) )
+with(events, table(mapcoordinate_clean_missing,type_clean_agghigh) )
+
+with(events, table(documentdistrict_clean,mapcoordinate_clean_missing, useNA = "always") )
+with(events, table(documentdate_best_year,mapcoordinate_clean_missing, useNA = "always") )
+
+with(events, table(target_clean_1_agglow, mapcoordinate_clean_missing, useNA = "always") )
+with(events, table(initiator_clean_1_agglow, mapcoordinate_clean_missing, useNA = "always") )
+with(events, table(type_clean_agglow, mapcoordinate_clean_missing, useNA = "always") )
+
+
+```
+
+
+
+# Predict missing coordinates
+
+```{r}
+p_load(randomForestSRC)
+
+dim(train)
+table(train$documentdistrict_clean, train$mapcoordinate_clean_missing)
+
+table(train$document_unit_type)
+table(train$documentdate_type)
+
+#Definitely not independent but not huge leverage
+mixedVarSim(train$mapcoordinate_clean_missing, train$documentdistrict_clean) #low correlation
+chi2 = chisq.test(train$mapcoordinate_clean_missing, train$documentdistrict_clean, correct=F)
+c(chi2$statistic, chi2$p.value)
+
+model <- glm(mapcoordinate_clean_missing ~documentdistrict_clean,family=binomial(link='logit'),data=train)
+summary(model)
+p_load(Zelig, ZeligChoice, ZeligEI)
+z5 <- zlogit$new()
+z5$help()
+
+train$mapcoordinate_clean_missing_logical <- train$mapcoordinate_clean_missing==T
+z.out <- zelig(mapcoordinate_clean_missing_logical ~ documentdistrict_clean, model = "logit", data = train)
+summary(z.out)
+table(train$documentdistrict_clean, train$mapcoordinate_clean_missing)
+
+x.out <- setx(z.out, documentdistrict_clean = "Nairobi" )
+s.out <- sim(z.out, x = x.out)
+plot(s.out)
+
+if(fromsratch){
+rf_mapcoordinate_clean_missing <- rfsrc( 
+                mapcoordinate_clean_missing  ~ 
+                documentdistrict_clean   + 
+                document_unit_type + 
+                documentdate_best_year + 
+                documentdate_type + 
+                eventdate_clean_date_year +
+                
+                #target_clean_1_agglow + 
+                target_clean_1_aggmed + 
+                #target_clean_1_agghigh + 
+                #initiator_clean_1_agglow +  
+                
+                initiator_clean_1_aggmed + 
+                #initiator_clean_1_agghigh +  
+                #type_clean_agglow + 
+                type_clean_aggmed + 
+                #type_clean_agghigh + 
+                killed_total +
+                locationtext_ruleclean_suffix #+
+                #rugged_gaz_ensemble + 
+                #roads_gaz_ensemble +
+                #pop_density_gaz_ensemble
+                ,data = train,
+                ,na.action = "na.imput"
+                ,ntree =100 ,
+                ,importance="permute",
+                ,proximity=F #, 
+                #,nsplit=6
+                ) #set nsplit to 6 and the accuracy stays the same but training time goes down considerably
+
+  save(rf_mapcoordinate_clean_missing, file= paste0(path,'/data/rf_mapcoordinate_clean_missing.Rdata'))
+} else {
+  load( file= paste0(path,'/data/rf_mapcoordinate_clean_missing.Rdata'))
+}
+rf_mapcoordinate_clean_missing #lower accuracy
+#plot(rf_mapcoordinate_clean_missing)
+rf_mapcoordinate_clean_missing$importance[order(rf_mapcoordinate_clean_missing$importance[,1]),]
+
+
+#plot.variable(rf_mapcoordinate_clean_missing, partial = T, which.class="TRUE", xvar="documentdistrict_clean", show.plots=T)
+#plot.variable(rf_mapcoordinate_clean_missing, partial = T, which.class="TRUE", xvar="type_clean_aggmed", show.plots=T)
+
+
+
+```
+
+```{Roll my own prediction}
+p_load(data.table)
+
+rexrfpredict <- function(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="documentdistrict_clean",minsize=100) {
+  uniquevalues <- table(train[,var])
+  uniquevalues <- names(uniquevalues[uniquevalues>100])
+  
+  predictions_list <- list()
+  for(q in uniquevalues){
+    testdata <- train
+    testdata[,outcome] <- NULL
+    testdata[,var] <- as.factor(q)
+    predictions_list[[q]] <- data.frame(predict.rfsrc(rf, newdata=testdata, importance=F, na.action="na.impute", proximity=F)$predicted)
+    predictions_list[[q]]$xvar <- q
+    predictions_list[[q]]$yvar <- outcome 
+  }
+  predictions <- rbindlist(predictions_list)
+  
+  #boxplot(TRUE.~xvar, predictions) #I thought I understood how this works but I clearly don't.
+  temp <- aggregate(predictions, by=list(predictions$xvar), FUN=median)
+  
+  predictions$xvar <- factor(predictions$xvar, levels=  temp$xvar[order(temp$TRUE.)])
+  p_load(ggplot2)
+  p <- ggplot(predictions, aes(x=xvar,y=TRUE.)) +  geom_boxplot(notch=T) + coord_flip()  + theme_bw() +
+    theme(axis.text=element_text(size=8), plot.margin = unit(c(0,0,0,0), "lines")) + xlab('') + ylab('')
+  
+  return(p)
+}
+
+a <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="documentdistrict_clean",minsize=100)
+b <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="eventdate_clean_date_year",minsize=100)
+c <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="documentdate_best_year",minsize=100)
+d <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="documentdate_type",minsize=100)
+e <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="locationtext_ruleclean_suffix",minsize=100)
+f <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="type_clean_aggmed",minsize=100)
+g <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="initiator_clean_1_aggmed",minsize=100)
+h <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="target_clean_1_aggmed",minsize=100)
+i <- rexrfpredict(rf=rf_mapcoordinate_clean_missing,
+                          outcome="mapcoordinate_clean_missing",var="document_unit_type",minsize=100)
+
+
+p_load(cowplot)
+final <- plot_grid(
+          a+ggtitle('District'),
+          b+ggtitle('Event Year'),
+          c+ggtitle('Document Year'),
+          d+ggtitle('Reporting Period'),
+          e+ggtitle('Location Suffix'),
+          f+ggtitle('Event Type'),
+          g+ggtitle('Event Initiator'),
+          h+ggtitle('Event Target'),
+          i+ggtitle('Reporting Office'),
+          ncol = 3, align = "hv" ) #,rel_heights=heights)
+save_plot(filename=paste0(path, '/plots/rf_mapcoordinate_clean_missing.png'), 
+       plot = final, base_height=8, base_width=10)
+                
+
+
+
+```
+
+
+# RF Any Events
+
+```{r}
+
+load( file="D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/code/hextest.Rdata")
+
+#hex_all_list[[1]]
+
+
+
+#rf=rebelsgovernment_killedwounded_clean_log_list[[1]][[1]][[1]]
+p_load(Metrics)
+reduction_in_error <- function(rf) {
+  condition <- !is.na(rf$yvar)
+  intercept=mean(rf$yvar, na.rm=T)
+  rmse_intercept = rmse(rf$yvar[condition], intercept) 
+  rmse_rf = rmse( rf$predicted.oob[condition] , rf$yvar[condition] )
+  difference <- rmse_rf-rmse_intercept
+  difference_perc <- difference/rmse_intercept
+  return(difference_perc)
+}
+
+p_load(randomForestSRC)
+applyRF <- function(form,i, train=NULL){
+    print(i)
+    if(is.null(train)) {train=hex_all_list[[i]]}
+    results=rfsrc( 
+      form,
+      data =train ,
+      na.action = "na.imput", ntree =100 ,
+      importance="permute",
+      proximity=F,
+      nsplit=6)
+    return(results)
+}
+
+
+rfrun <- function(form,i){
+ print(i)
+ rf_list <- lapply(names(hex_all_list),  FUN=function(i) applyRF(form,i) )
+ reduction_error_list <- sapply(rf_list, reduction_in_error )
+ reduction_error_df <- data.frame(names(hex_all_list),reduction_error_list)
+ return( list(rf_list, reduction_error_df ) )
+}
+
+form_rebelsgovernment_killedwounded_clean_log <- as.formula(rebelsgovernment_killedwounded_clean_log ~ pop_log + rugged_log+ roads_log + type + District + LANGUAGE + Tribe + LANDUSE + rain_log + forest_log)
+
+
+p_load(data.table)
+rebelsgovernment_killedwounded_clean_log_list <-  lapply(1:10, FUN=function(i) rfrun(form_rebelsgovernment_killedwounded_clean_log,i)) 
+rebelsgovernment_killedwounded_clean_log_df<-data.frame(rbindlist(lapply(rebelsgovernment_killedwounded_clean_log_list, FUN=function(x)x[[2]])))
+rebelsgovernment_killedwounded_clean_log_df[,1] <- as.numeric(as.character(rebelsgovernment_killedwounded_clean_log_df[,1]))
+rebelsgovernment_killedwounded_clean_log_df[,2] <- as.numeric(as.character(rebelsgovernment_killedwounded_clean_log_df[,2]))
+
+p_optimal_unit_of_aggregation <- ggplot(rebelsgovernment_killedwounded_clean_log_df,
+       aes(x=as.factor(names.hex_all_list./0.008),
+           y=as.numeric(reduction_error_list))) + geom_boxplot(notch=T) + 
+           ylab("Reduction in Error from Naive Baseline (%)") + xlab("Hexagon Area (km)") + ggtitle("Optimal Unit of Aggregation")
+p_optimal_unit_of_aggregation
+ggsave(file='D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/plots/optimal_unit_of_aggregation.png', 
+       plot = p_optimal_unit_of_aggregation, height=6, width=11)
+
+
+#Now redo the whole thing with spatial hold outs
+#https://cran.r-project.org/web/packages/sperrorest/sperrorest.pdf
+p_load(sperrorest)
+outofsample_error_reduction <- function(data, kfolds, q) {
+  train=data[kfolds!=q,]
+  test=data[kfolds==q,]
+  rf=applyRF(form=form_rebelsgovernment_killedwounded_clean_log,i=NULL, train=train)
+  prediction=predict.rfsrc(rf, newdata=test, na.action="na.impute", outcome="train")
+  oob_rsq <- rev(prediction$err.rate)[1]
+  prediction$predicted
+  condition <- !is.na(prediction$yvar)
+  intercept=mean(rf$yvar, na.rm=T)
+  rmse_intercept = rmse(prediction$yvar[condition], intercept) 
+  rmse_rf = rmse( prediction$predicted[condition] , prediction$yvar[condition] )
+  difference <- rmse_rf-rmse_intercept
+  difference_perc <- difference/rmse_intercept
+  return(difference_perc)
+}
+
+#Loop over hexlist
+singlespatialpull <- function(x){
+  print(x)
+  outofsample_error_reduction_list <- list()
+  for(i in names(hex_all_list)) {
+    print(i)
+    data=hex_all_list[[i]] #test #
+    kfolds <- partition.kmeans(data, coords = c("hex_longitude", "hex_latitude"), nfold = 10 ,return.factor = T)$'1'
+    
+    outofsample_error_reduction_list[[i]] <- list()
+    #loop over kfolds
+    for(q in unique(kfolds)){
+       outofsample_error_reduction_list[[i]][[q]] <- outofsample_error_reduction(data, kfolds, q)
+    }
+  }
+  outofsample_error_reduction <- lapply(outofsample_error_reduction_list, FUN=function(x) mean(unlist(x)))
+  outofsample_error_reduction_df <- data.frame(cellsize=names(outofsample_error_reduction), reduction=unlist(outofsample_error_reduction) )
+  return(outofsample_error_reduction_df)
+}
+
+if(fromscratch) {
+  outofsample_error_reduction_df_list <- lapply(1:10, FUN=function(x) singlespatialpull(x) )
+  outofsample_error_reduction_df_all <- data.frame( rbindlist(outofsample_error_reduction_df_list) )
+  save(outofsample_error_reduction_df_all, file="D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/code/outofsample_error_reduction_df_all.Rdata")
+} else {
+  load(file="D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/code/outofsample_error_reduction_df_all.Rdata")
+}
+
+
+
+p_optimal_unit_of_aggregation_spatial <- ggplot(outofsample_error_reduction_df_all,
+       aes(x=as.factor(as.numeric(as.character(cellsize))/0.008),
+           y=as.numeric(reduction))) + geom_boxplot(notch=T) + 
+           ylab("Reduction in Error from Naive Baseline (%)") + xlab("Hexagon Area (km)") + ggtitle("Optimal Unit of Aggregation")
+p_optimal_unit_of_aggregation_spatial
+ggsave(file='D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/plots/p_optimal_unit_of_aggregation_spatial.png', 
+       plot = p_optimal_unit_of_aggregation_spatial, height=6, width=11)
+
+
+#Combined
+p_optimal_unit_of_aggregation_spatial_both <- ggplot() + 
+         geom_boxplot(data=outofsample_error_reduction_df_all, 
+                      aes(x=as.factor(as.numeric(as.character(cellsize))/0.008), y=as.numeric(reduction)),
+                      notch=T, col="grey") + 
+          geom_boxplot(data=rebelsgovernment_killedwounded_clean_log_df,
+                       aes(x=as.factor(names.hex_all_list./0.008), y=as.numeric(reduction_error_list)),notch=T) + 
+           ylab("Reduction in Error from Naive Baseline (%)") + xlab("Hexagon Area (km)") + ggtitle("Optimal Unit of Aggregation")+ coord_flip()
+p_optimal_unit_of_aggregation_spatial_both 
+ggsave(file='D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/JPR Paper/plots/p_optimal_unit_of_aggregation_spatial_both.png', 
+       plot = p_optimal_unit_of_aggregation_spatial_both, height=6, width=5)
+
+
+
+
+train_best <- hex_all_list[[as.character(17*.008)]]
+
+#train_best <- hex_all_list[[as.character(27*.008)]]
+
+train_best$rugged_log
+train_best$forest_log
+
+rf_rebelsgovernment_killedwounded_clean_log <- rfsrc( 
+                form_rebelsgovernment_killedwounded_clean_log,
+                data = train_best,
+                na.action = "na.imput", ntree =300 ,
+                importance="permute",
+                proximity=F) 
+rf_rebelsgovernment_killedwounded_clean_log #lower accuracy
+plot(rf_rebelsgovernment_killedwounded_clean_log)
+#save(rf_match_distance_meters_log, file= paste0(path,'/data/rf_match_distance_meters_log.Rdata'))
+
+```
+
+
+
+```{r}
+
+rexrfpredict2 <- function(rf,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="documentdistrict_clean",minsize=10) {
+  
+  asnumeric=class(rf$xvar[,var])=="numeric"
+  uniquevalues <- table(rf$xvar[,var])
+  uniquevalues <- names(uniquevalues[uniquevalues>=minsize])
+  
+  predictions_list <- list()
+  for(q in uniquevalues){
+    testdata <- rf$xvar
+    testdata[,var] <- as.factor(as.character(q))
+    if(asnumeric){ testdata[,var] <- as.numeric(q) }
+    predictions_list[[q]] <- data.frame(predict.rfsrc(rf, newdata=testdata, importance=F, na.action="na.impute", proximity=F)$predicted)
+    predictions_list[[q]]$xvar <- q
+    predictions_list[[q]]$yvar <- outcome 
+  }
+  predictions <- data.frame(rbindlist(predictions_list))
+  
+  #boxplot(TRUE.~xvar, predictions) #I thought I understood how this works but I clearly don't.
+  predictions[,1] <- as.numeric(predictions[,1])
+  names(predictions)[1] <- "yhat"
+  
+  
+  if(asnumeric) { 
+    p <- ggplot(predictions, aes(x=as.numeric(xvar),y=exp(as.numeric(yhat)) ) ) +  stat_smooth() + xlab('') + ylab('') +geom_rug(sides="b") +
+         coord_cartesian(ylim=c(0,40))
+  } else {
+      temp <- aggregate(predictions, by=list(predictions$xvar), FUN=median)
+      predictions$xvar <- factor(predictions$xvar, levels=  temp$Group.1[order(temp$yhat)])
+      p_load(ggplot2)
+      p <- ggplot(predictions, aes(x=xvar,y=exp(yhat) )) +  geom_boxplot(notch=T) + coord_flip(ylim=c(0,40))  + theme_bw() +
+        theme(axis.text=element_text(size=8), plot.margin = unit(c(0,0,0,0), "lines")) + xlab('') + ylab('') 
+        
+  }
+
+
+  
+  return(p)
+}
+
+
+```
+
+
+
+
+
+```{r}
+
+minsize=1
+a <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="Tribe",minsize=minsize)
+
+b <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="District",minsize=minsize)
+
+c <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="rain_log",minsize=0)
+
+d <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="pop_log",minsize=minsize)
+
+e <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="LANDUSE",minsize=minsize)
+
+f <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="roads_log",minsize=0)
+
+g <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="LANGUAGE",minsize=minsize)
+
+h <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="type",minsize=minsize)
+
+i <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="rugged_log",minsize=0)
+
+k <- rexrfpredict2(rf=rf_rebelsgovernment_killedwounded_clean_log,
+                          outcome="rebelsgovernment_killedwounded_clean_log",var="forest_log",minsize=0)
+
+
+p_load(cowplot)
+final <- plot_grid(
+          c+ggtitle('Rain (Log)'),
+          e+ggtitle('Landuse'),
+          d+ggtitle('Population (Log)'),
+          a+ggtitle('Tribe'),
+          b+ggtitle('District'),
+          g+ggtitle('Language'),
+          f+ggtitle('Distance to Roads (Log)'),
+          k+ggtitle('Forest (Log)'),
+          i+ggtitle('Ruggedness (Log)'),
+          #h+ggtitle('Type'),
+          ncol = 3, align = "h" ) #)
+
+save_plot(filename=paste0(path, '/plots/rf_rebelsgovernment_killedwounded_clean_log.png'), 
+       plot = final, base_height=12, base_width=12)
+
+
+```
+

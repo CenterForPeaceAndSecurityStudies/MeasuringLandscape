@@ -1,0 +1,973 @@
+---
+title: "Match Locations to Gazeteer and Show Differences"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+    number_sections: yes
+    theme: readable
+    toc: yes
+---
+
+```{r }
+# !diagnostics off
+
+
+gc()
+#sudo dnf install libcurl-devel
+#install.packages('devtools', dependencies=T)
+library(devtools)
+devtools::session_info('DT')
+
+if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
+
+p_load(mosaic, stringr,stringi)
+p_load(lubridate,stringr)
+p_load(janitor)
+p_load(digest)
+p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
+p_load(rgeos) #yum install -y geos-devel
+p_load(rgdal) #dnf install gdal* , sudo yum install proj*
+p_load(digest)
+p_load(ggmap) #sudo dnf install libjpeg*
+p_load(data.table)
+p_load(bookdown)
+p_load(feather)
+p_load(stringdist)
+p_load(sf)
+p_load(tidyverse)
+p_load(viridis)
+p_load(rvest)
+p_load(tidyverse)
+#Need the development version for geom_sf
+#devtools::install_github("tidyverse/ggplot2")
+#This is much slower than other plotting I've been doing. Not great.
+#library(ggplot2)
+#flatfiles_sf %>% ggplot() +
+#  geom_sf(size=.1) +
+#  #scale_fill_viridis("Area") +
+#  ggtitle("Gazeteer Points (All)") +
+#  theme_bw()
+
+#devtools::load_all(".")
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+It is based on an events dataset built and cleaned in another file.
+
+```{r}
+
+library(MeasuringLandscapeCivilWar)
+#Load Events
+events <- readRDS(system.file("extdata", "MeasuringLandscapeCivilWar_events_cleaned.Rdata", package = "MeasuringLandscapeCivilWar")) %>% 
+             mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #create a hash id to referec
+
+dim(events)
+
+table(!is.na(events$location_text),
+      !is.na(events$map_coordinate_clean_latitude))
+library(dplyr)
+library(plyr)
+events_text_unique <- ddply(events, .(location_text), summarize,
+      map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
+      )
+table(events_text_unique$map_coordinate_has>0)
+
+
+events_sf <- events  %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
+                  distinct()
+
+sort(unique(unlist(strsplit(events_sf$name_cleaner,"")))) #ok only number and lowercase letters from now on
+
+
+#Avoid creating geometries where one of the two is NA
+events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
+events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
+
+events_sf <- events_sf  %>% st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"), crs = 4326,agr = "constant", remove=F, na.fail =F)
+
+valid <- st_is_valid(events_sf$geometry); table(valid)
+
+
+library(dplyr)
+library(plyr)
+events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
+                                     .(location_text), transform,
+      map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
+      )
+
+#Load Gazeteers
+flatfiles_sf <- readRDS(system.file("extdata", "flatfiles_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
+dim(flatfiles_sf)
+flatfiles_dt <- as.data.table(flatfiles_sf)
+setkey(flatfiles_dt,place_hash)
+
+flatfiles_sf_roi <- flatfiles_sf %>% filter(region_of_interest_intersects==T)
+
+
+```
+
+Main Summary statistics
+Summary statistics
+
+```{r}
+
+#Has coordinate
+table( !is.na( st_coordinates(events_sf)[,1] ) ) / nrow(events_sf)
+table( !is.na( naevents_sf$me_cleaner & naevents_sf$name_clean"") / nrow(events_sf)
+       
+table( !is.na( st_coordinates(events_sf)[,1] ) ,
+       !is.na(events_sf$name_cleaner) )
+
+table(events_sf$name_clean %in% flatfiles_sf$name_clean) / nrow(events_sf)
+
+
+
+```
+
+```{r}
+
+#Spell check
+#This just checks to see if there's something in b that's within n letters of a, returns true or false
+p_load(stringdist)
+spellcheck <- function(a,b,n=1, distmethod="osa"){ 
+  return(
+    sapply(a, FUN=function(q) {
+                             print(q)
+                             return( max(stringdist(q, b, method ="osa", nthread=48)<=n)==1  ) 
+    })
+  )
+}
+
+flatfiles_sf$source_dataset_events <- flatfiles_sf$source_dataset %in% c('events','events_poly')
+
+events_sf$match_notmissing <- !is.na(events_sf$name_cleaner)
+
+
+
+events_sf$match_exact <- events_sf$name_cleaner %in% flatfiles_sf$name_cleaner[!flatfiles_sf$source_dataset_events] #oh ha, you have to exclude events
+events_sf$match_exact[is.na(events_sf$name_cleaner)] <- NA
+table(events_sf$match_exact ) #4,439 match exactly
+
+#One character away from something in the flatfiles
+events_sf$match_edit_n1 <- spellcheck( events_sf$name_cleaner , flatfiles_sf$name_cleaner[!flatfiles_sf$source_dataset_events], n=1) #takes a couple min
+table(events_sf$match_edit_n1 )
+
+events_sf$match_edit_n2 <- spellcheck( events_sf$name_cleaner , flatfiles_sf$name_cleaner[!flatfiles_sf$source_dataset_events], n=2) #takes a couple min
+table(events_sf$match_edit_n2 )
+
+temp <- as.data.frame(events_sf)
+
+```
+
+# 
+
+So the name of the game here is to model the cost reward function for bending the search text to match one ore more entries in the gazeteer
+
+Define the cost function as the minimum, average, median, and max distance that a certain amount of bending would cause.
+
+Where bending could be a single kind of change or linearly weighted set of changes
+
+So what does that mean? I think it means creating a events_locations diad dataset, calculating
+
+If we're being generous what we can do is take the best match for each cluster. This would let us punt on trying all the permutations of match rule and picking the right gaz match.
+
+So as long as some transformation will get you to within spitting distance of some alternative name of a cluster, we'll take it
+
+This is tricky because distance could be off for lots of reasons
+1) It's not really a match and you're forcing it
+2) It is a match, but it's a huge entity and the points are going to be all spread out from it
+
+We can't do every pair, it's half a billion combinations. We could sample X close by, and Y far away
+549,004,829 it's half a billion observations
+
+Automatically defining a match is a total bitch
+The closest point in the gaz may not be the right one
+Within some ball, there might be several matches, and so the right one is hard to distinguish among the rest of the noise
+It's small enough we could hand label it.
+Pick the 10 closest and then personally decide whether they're a match or not.
+Which is a problem with alternate names but maybe not if we're thinkin about simantically close
+
+```{r}
+#Create some UTM versions because we want to be precise about distances in meters
+crs_m <- "+proj=utm +zone=27 +datum=NAD83 +units=m +no_defs" 
+flatfiles_sf_utm_roi_centroid <-  st_centroid(
+                                              st_transform( subset(flatfiles_sf, region_of_interest_intersects), crs=crs_m)
+                                  ) ; dim(flatfiles_sf_utm_roi_centroid)
+
+events_sf_utm <-  st_transform(
+                              events_sf,
+                           crs=crs_m) ; dim(events_sf_utm)
+
+
+#We're not doing this anymore we're sampling
+#This is going to be our main pairwise dataset, I think we'll add columns to it as necessary rather than just try to rbind the two main ones over and over again
+#events_flatfiles <- as.data.table( expand.grid(event_hash = events_sf_utm$event_hash,
+#                                               place_hash = flatfiles_sf_utm_roi_centroid$place_hash) ) #this takes a while, might want to mcapply over a
+#
+#
+#dim(events_flatfiles) #549,004,829 it's half a billion observations
+#
+
+#You know, centroids should be enough. If the river or polygon is much bigger than this then I shouldn't be merging it anyway
+p_load(RANN)
+coords_events <- st_coordinates(events_sf_utm)
+coords_events[!is.finite(coords_events)] <- NA
+condition_events <- !is.na(coords_events[,1]); table(condition_events)
+
+coords_flatfiles <- st_coordinates(flatfiles_sf_utm_roi_centroid)
+coords_flatfiles[!is.finite(coords_flatfiles)] <- NA
+condition_flatfiles <- !is.na(coords_flatfiles[,1]); table(condition_flatfiles)
+
+nearest_gaz <- nn2(
+                 data  = na.omit(coords_flatfiles),
+                 query = na.omit(coords_events) ,
+                 k = 10, #wow this actually ended up mattering
+                 #treetype = c("kd", "bd"),
+                 searchtype = "standard",
+                 #radius = 4000 #meters
+               ) #damn that's fast
+
+#table(nearest$nn.dists>100) #These are missing, no match within the radius
+#summary(nearest_gaz$nn.dists[nearest_gaz$nn.dists<100])
+nearest_long <- as.data.table(nearest_gaz$nn.idx)
+nearest_long$event_hash <- events_sf_utm$event_hash[condition_events]
+library(reshape2)
+m_within <- melt(nearest_long, id.vars=c("event_hash"))
+#m_within$variable <- NULL
+m_within$place_hash <- flatfiles_sf_utm_roi_centroid$place_hash[condition_flatfiles][m_within$value]
+m_within$value <- NULL
+
+setkey(flatfiles_dt, place_hash)
+
+events_dt <- as.data.table(events_sf)
+setkey(events_dt, event_hash)
+
+m_within$name_cleaner_a <-  events_dt[m_within$event_hash, ]$name_cleaner
+m_within$name_cleaner_b <-  flatfiles_dt[m_within$place_hash, ]$name_cleaner
+
+setkey(m_within, event_hash, variable)
+
+m_within$rex_match <- NA
+m_within$rex_match[m_within$name_cleaner_a==m_within$name_cleaner_b] <- 1
+
+m_within <- subset(m_within, !duplicated(paste(name_cleaner_a,name_cleaner_b)))
+m_within$string_dist_osa <-  stringdist(m_within$name_cleaner_a, m_within$name_cleaner_b, method ="osa", nthread=48)
+
+m_within <- subset(m_within, !is.na(name_cleaner_a) & !is.na(name_cleaner_b) )
+ 
+write.csv(m_within, 
+          "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/event_flatfile_matches_for_hand_labeling.csv")
+
+```
+
+
+```{r}
+
+handlabeled <- fread('/home/rexdouglass/Downloads/event_flatfile_matches_for_hand_labeling - event_flatfile_matches_for_hand_labeling.csv', data.table=T) 
+handlabeled <- subset(handlabeled, name_cleaner_a!="" & name_cleaner_b!="")
+handlabeled$exact_match <- handlabeled$name_cleaner_a== handlabeled$name_cleaner_b
+dim(handlabeled)
+
+temp <- handlabeled %>% group_by(name_cleaner_a) %>% summarize_at('rex_match', sum, na.rm = TRUE)
+dim(temp)
+
+#Remove the identicals. That's giving it a false confidence
+handlabeled <- subset(handlabeled, name_cleaner_a != name_cleaner_b)
+table(handlabeled$rex_match)
+
+handlabeled <- rbindlist(list(handlabeled, neg1), fill=T)
+
+
+# I think our move here now is to supplement it with lots and lots of randomly sampled zeros that are sure to be more than 10km away
+outside_roi <- subset(flatfiles_dt, !region_of_interest_within)$place_hash #one of those things that should take no time but is getting hung up for some reason
+#Intentionally throws a warning
+neg_count <- 200000 #how many artificial negative examples to include
+neg1 <- data.table( event_hash=events_sf_utm$event_hash[!is.na(events_sf_utm$name_cleaner)],
+                    place_hash=sample(outside_roi, size=neg_count, replace = T) ) #intentionally letting it recycle to match places length
+neg1$name_cleaner_a <-  events_dt[neg1$event_hash, ]$name_cleaner
+neg1$name_cleaner_b <-  flatfiles_dt[neg1$place_hash, ]$name_cleaner
+neg1$rex_match <- 0
+dim(neg1)
+
+#Do it again after the bing
+handlabeled <- subset(handlabeled, name_cleaner_a!="" & name_cleaner_b!="")
+dim(handlabeled)
+#Remove the identicals. That's giving it a false confidence
+handlabeled <- subset(handlabeled, name_cleaner_a != name_cleaner_b)
+
+table(handlabeled$rex_match)
+#
+#model <- load_model_hdf5( filepath="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/cnn_distance.hdf5") 
+#a_characters <-generate_sequences(handlabeled$name_cleaner_a, maxlength=20, mask=0, intcutoff=256)
+#b_characters <-generate_sequences(handlabeled$name_cleaner_b, maxlength=20, mask=0, intcutoff=256)
+#cnn_prediction <- predict(model, x=list( as.matrix(a_characters), as.matrix(b_characters) ), verbose=1)
+
+#intermediate_layer_model <- keras_model(inputs =  model$input,
+#                                        outputs = get_layer(model, "dot_4")$output)
+
+#cnn_prediction_cosine <- predict(intermediate_layer_model,
+#                                 x=list( as.matrix(a_characters), as.matrix(b_characters) )
+#                                 )
+
+#handlabeled$cnn_prediction <- intermediate_output
+#handlabeled$cnn_prediction_cosine <- cnn_prediction_cosine
+
+#generate features
+p_load(stringdist)
+handlabeled[,Jaro:=stringsim(name_cleaner_a,name_cleaner_b,"jw", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,Optimal_String_Alignment:=stringsim(name_cleaner_a,name_cleaner_b,"osa", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,Levenshtein:=stringsim(name_cleaner_a,name_cleaner_b,"lv", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,Damerau_Levenshtein:=stringsim(name_cleaner_a,name_cleaner_b,"dl", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,Longest_Common_Substring:=stringsim(name_cleaner_a,name_cleaner_b,"lcs", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,q_gram:=stringsim(name_cleaner_a,name_cleaner_b,"qgram", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,Cosine:=stringsim(name_cleaner_a,name_cleaner_b,"cosine", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,Jaccard:=stringsim(name_cleaner_a,name_cleaner_b,"jaccard", nthread=48)] #wow that was instantanous for a million comparisons
+handlabeled[,First_Mistmatch:=firstmismatch(name_cleaner_a,name_cleaner_b),] #wow that was instantanous for a million comparisons
+
+handlabeled$name_cleaner_a_nchar <- nchar(handlabeled$name_cleaner_a)
+handlabeled$name_cleaner_b_nchar <- nchar(handlabeled$name_cleaner_b)
+handlabeled$name_cleaner_ab_nchar_diff <- abs(handlabeled$name_cleaner_a_nchar-handlabeled$name_cleaner_b_nchar)
+
+#Load the ngram corpus and use it to look up things
+#Takes a while to load even with fst
+p_load(fst)
+if(fromscratch){
+  csv_dt_grams_all <- read.fst('/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/csv_dt_grams_all.fst',as.data.table =T) #this is expensive
+  head(csv_dt_grams_all)
+  setkey(csv_dt_grams_all,bigram) #this is going to take a while, and then we're going to pull every single flatfile and event name_cleaner and save that as a smaller file for next time
+  csv_dt_grams_places <- csv_dt_grams_all[bigram %in% unique(c(events_dt$name_cleaner,flatfiles_sf$name_cleaner)),]
+  dim(csv_dt_grams_places) #20k matches
+  fwrite(csv_dt_grams_places,'/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/csv_dt_grams_places.fst')
+}
+csv_dt_grams_places <- fread('/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/csv_dt_grams_places.fst')
+
+csv_dt_grams_places_a <- csv_dt_grams_places
+names(csv_dt_grams_places_a) <- paste0(names(csv_dt_grams_places),"_a")
+csv_dt_grams_places_b <- csv_dt_grams_places
+names(csv_dt_grams_places_b) <- paste0(names(csv_dt_grams_places),"_b")
+
+handlabeled_merged <- merge(handlabeled, csv_dt_grams_places_a, by.x="name_cleaner_a", by.y="bigram_a", all.x=T)
+handlabeled_merged <- merge(handlabeled_merged, csv_dt_grams_places_b, by.x="name_cleaner_b", by.y="bigram_b", all.x=T)
+
+handlabeled_merged$weights <- 1
+handlabeled_merged$weights[handlabeled_merged$rex_match==1] <- sum(handlabeled_merged$rex_match==0, na.rm=T)/sum(handlabeled_merged$rex_match==1, na.rm=T)
+table(handlabeled_merged$weights)
+
+p_load(FFTrees)
+vars_id <- c("name_cleaner_a","name_cleaner_b",'test')
+vars_weights <- c("weights")
+vars_y <- c("rex_match")
+vars_x <- c("Jaro","Optimal_String_Alignment","Levenshtein","Damerau_Levenshtein","Longest_Common_Substring","q_gram","Cosine","Jaccard","First_Mistmatch",
+           "name_cleaner_a_nchar","name_cleaner_b_nchar","name_cleaner_ab_nchar_diff",#"cnn_prediction_cosine",
+           "count_a","year_min_a","year_median_a","year_mean_a","year_max_a" ,  "ngram_a","count_b","year_min_b","year_median_b","year_mean_b","year_max_b" , "ngram_b"   
+           )
+vars_id_y_x_weights <- c(vars_id,vars_y,vars_x,vars_weights)
+
+#id_test <- sample(unique(handlabeled$name_cleaner_a),500)
+#need to save these now and never create them again. We're evaluating multiple models and if we ever do a different split we'll be cheating
+#saveRDS(id_test, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/id_test.Rds")
+id_test <- readRDS( file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/id_test.Rds")
+
+
+handlabeled_merged$test <- F
+handlabeled_merged$test[handlabeled_merged$name_cleaner_a %in% id_test | handlabeled_merged$name_cleaner_b %in% id_test] <- T
+table(handlabeled_merged$test)
+
+xy_all <- subset(handlabeled_merged, !is.na(rex_match))[,vars_id_y_x_weights,with=F]
+xy_train <- subset(xy_all, !name_cleaner_a %in% id_test & !name_cleaner_b %in% id_test)
+xy_test <- subset(xy_all, name_cleaner_a %in% id_test | name_cleaner_b %in% id_test)
+dim(xy_test)
+dim(xy_train)
+# 
+# alt.fft <- FFTrees(formula = rex_match ~ Jaro + Optimal_String_Alignment + Levenshtein + Damerau_Levenshtein + 
+#                      Longest_Common_Substring + q_gram + Cosine + Jaccard + First_Mistmatch + 
+#                      name_cleaner_a_nchar + name_cleaner_b_nchar + name_cleaner_ab_nchar_diff +
+#                      count_a + year_min_a + year_median_a + year_mean_a + year_max_a + ngram_a + count_b + year_min_b + year_median_b + year_mean_b + year_max_b + ngram_b,
+#                       data = xy_train,
+#                       data.test = xy_test,
+#                       main = "Toponym Match",
+#                       decision.labels = c("Not Match", "Match"),
+#                       comp = FALSE,
+#                       goal="bacc",
+#                       goal.chase="bacc")
+# print(alt.fft)
+# 
+# plot(alt.fft, 
+#      data="test",
+#      tree="best.test")
+# 
+# handlabeled$prediction_FFTrees <- predict(alt.fft, data=handlabeled)
+# handlabeled$prediction_correct <- handlabeled$prediction_FFTrees==handlabeled$rex_match
+#  
+# table(handlabeled$rex_match,handlabeled$prediction_FFTrees)
+
+
+```
+
+```{r}
+
+#install.packages("drat", repos="https://cran.rstudio.com")
+#drat:::addRepo("dmlc")
+#install.packages("xgboost", repos="http://dmlc.ml/drat/", type = "source")
+#install.packages("xgboost")
+
+library(xgboost)
+dtrain <- xgb.DMatrix(data=as.matrix( as.data.frame(xy_train)[,vars_x] ), label = as.numeric(as.data.frame(xy_train)$rex_match) )
+dtest <- xgb.DMatrix(data= as.matrix(as.data.frame(xy_test)[,vars_x] ), label = as.numeric(as.data.frame(xy_test)$rex_match) )
+xb <- xgboost(data=dtrain, nrounds=100, weight=xy_train$weights , objective = "binary:logistic", nthread = 48, verbose=T )
+
+predictions <- predict(xb, xgb.DMatrix(data=as.matrix( as.data.frame(xy_all)[,vars_x] ) ) )
+
+handlabeled_merged$prediction_xb[!is.na(handlabeled_merged$rex_match)] <- predictions
+handlabeled_merged$prediction_xb_correct <- (handlabeled_merged$prediction_xb>.5) == handlabeled_merged$rex_match
+
+table(handlabeled_merged$prediction_xb>.5, handlabeled_merged$rex_match)
+table(handlabeled_merged$prediction_xb_correct) #only gets 75 wrong?
+
+with(subset(handlabeled_merged, test), table(prediction_xb>.5, rex_match) )
+with(subset(handlabeled_merged, test), table(prediction_xb_correct) )
+#55 / (30145+55) #2 errors out of a thousand
+#Sounds good but when making 500,000 million comparisons that's
+#500000*0.002 #1000 errors
+
+importance <- xgb.importance(feature_names=vars_x, model = xb)
+xgb.plot.importance(importance)
+
+p_load(precrec)
+eval1 <- evalmod(scores = predict(xb, dtest), labels = as.numeric(as.data.frame(xy_test)$rex_match))
+eval2 <- evalmod(scores = as.numeric(predict(alt.fft, xy_test)), labels = as.numeric(as.data.frame(xy_test)$rex_match))
+
+# model <- load_model_hdf5( filepath="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/cnn_distance.hdf5") 
+# a_characters <-generate_sequences(xy_test$name_cleaner_a, maxlength=20, mask=0, intcutoff=256)
+# b_characters <-generate_sequences(xy_test$name_cleaner_b, maxlength=20, mask=0, intcutoff=256)
+# intermediate_output <- predict(model, x=list(
+#   as.matrix(a_characters),
+#   as.matrix(b_characters)
+# ), verbose=1)
+# eval3 <- evalmod(scores = as.numeric(intermediate_output), labels = as.numeric(as.data.frame(xy_test)$rex_match))
+
+
+msmdat1 <- mmdata(list(
+                        predict(xb, dtest)#,
+                        #as.numeric(predict(alt.fft, xy_test))
+                      ),
+                  as.numeric(as.data.frame(xy_test)$rex_match),
+                  modnames = c("xb")
+                  )
+mscurves <- evalmod(msmdat1)
+autoplot(mscurves)
+mscurves
+
+
+```
+
+
+
+
+#
+# Modeling Toponym Similarity
+#
+
+```{r}
+
+#Train xboost on its own random sample
+fromscratch=F
+if(fromscratch){
+  
+  id_test <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/id_test.Rdata")
+  all_examples_xboost <- create_geonames_xy_set(id_test=id_test) #generate a batch of training data [stochastic]
+  xb=linker_xboost(all_examples=all_examples_xboost)
+  importance_matrix <- xgb.importance(model = xb)
+  print(importance_matrix)
+  xgb.plot.importance(importance_matrix = importance_matrix)
+  
+  #And then have both predictn on a new third one that neither has seen
+  all_examples <- linker_keras_predict()
+  all_examples$pred_xboost <- predict(xb, newdata=as.matrix( all_examples[,xb$feature_names, with=F] ))
+
+  saveRDS(all_examples,
+              file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/all_examples_predictions.Rdata")
+} 
+
+all_examples <- readRDS(file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/all_examples_predictions.Rdata")
+
+#Examine the cosine function
+ggplot(all_examples, aes(x=keras_cosine_distance,y=pred_cov)) + geom_smooth() + geom_point(alpha=.1)
+
+hist(all_examples$keras_cosine_distance, breaks=100)
+hist(all_examples$pred_cov, breaks=50)
+
+
+
+all_examples$pred_cov_prediction <- all_examples$pred_cov > .5
+all_examples$pred_xboost_prediction <- all_examples$pred_xboost > .5
+all_examples$pred_null_prediction <- 0
+
+all_examples$pred_null_prediction_correct <- all_examples$pred_null_prediction==all_examples$same
+all_examples$pred_cov_prediction_correct <- all_examples$pred_cov_prediction==all_examples$same
+all_examples$pred_xboost_prediction_correct <- all_examples$pred_xboost_prediction==all_examples$same
+
+#Accuracy
+all_examples %>% crosstab(traintest, pred_null_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+all_examples %>% crosstab(traintest, pred_xboost_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+all_examples %>% crosstab(traintest, pred_cov_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+
+#Precision
+#all_examples[same==T] %>% crosstab(traintest, pred_null_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+#  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+all_examples[same==T] %>% crosstab(traintest, pred_xboost_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+all_examples[same==T] %>% crosstab(traintest, pred_cov_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+
+#Recall
+#all_examples[same==F] %>% crosstab(traintest, pred_null_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+#  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+all_examples[same==F] %>% crosstab(traintest, pred_xboost_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+all_examples[same==F] %>% crosstab(traintest, pred_cov_prediction_correct) %>% setNames(c("traintest","Incorrect","Correct")) %>% arrange(Incorrect) %>%
+  adorn_crosstab(., denom = "row", digits = 1, rounding = "half up")
+
+
+p_load(precrec)
+s3 <- evalmod(scores = list(all_examples$pred_null_prediction[all_examples$condition_test],
+                            all_examples$pred_xboost[all_examples$condition_test],
+                            all_examples$pred_cov[all_examples$condition_test]),
+              labels = all_examples$same[all_examples$condition_test],
+              modnames = c("null","xboost","cov_lstm"))
+s3
+autoplot(s3)
+
+p_load(ggjoy)
+ggplot(all_examples, aes(x = pred_cov,
+                         y = type,
+                         group = type)) + geom_joy()
+
+table(all_examples$pred_cov_prediction_correct, all_examples$pred_xboost_prediction_correct)
+table(all_examples$pred_cov_prediction, all_examples$same)
+table(all_examples$type, all_examples$pred_cov_prediction==all_examples$same)
+all_examples$pred_cov_residual <- all_examples$pred_cov- all_examples$same
+
+
+```
+
+# Now use the covnet to project my gazeteer and my event strings into the same space
+
+```{r}
+
+events_sf_projected <- linker_keras_project(unique(events_sf$name_cleaner))
+flatfiles_sf_projected <- linker_keras_project(strings_to_project=unique(flatfiles_sf$name_cleaner))
+
+name_cleaner_all <- unique(c(events_sf$name_cleaner,flatfiles_sf$name_cleaner)) ; length(name_cleaner_all)
+name_cleaner_all_projected <- linker_keras_project(strings_to_project=name_cleaner_all) #Let's do them all combined and then build a distance matrix and then subset to under our threshold
+
+p_load(LSAfun)
+neighbors(x=events_sf_projected,n=5,tvectors=tvectors,breakdown=FALSE)
+data(wonderland)
+neighbors("cheshire",n=20,tvectors=wonderland) 
+neighbors("kalou",n=20,tvectors=name_cleaner_all_projected) 
+
+
+#it literally won't do it
+p_load('proxy') # Let's be honest, you've never heard of this before.
+d_cos <- proxy::dist(name_cleaner_all_projected[1:30000],
+                     method="cosine") #calculate the square cosine but we want negatives
+
+
+
+#explaination of how to do cosine distance correctly
+#https://stackoverflow.com/questions/6597005/why-can-cosine-similarity-between-two-vectors-be-negative
+
+#One easy gut check is to project the training data and see if they have the humps
+#That's too many to do here though
+
+#p_load(lsa)
+#d_cos <- lsa::cosine(t(name_cleaner_all_projected)) #downside is slow
+#Looks all normally distributed, no humps
+#Does have negatives though
+#Maybe because there are really few genuine matches?
+
+
+library(reshape2)
+d_cos_m_pairwise <- melt(as.matrix(d_cos))
+d_cos_m_pairwise <- subset(d_cos_m_pairwise, value< -.4)
+
+
+p_load(FastKNN)
+#k.nearest.neighbors(i=1, distance_matrix=d_cos, k = 5)
+
+d_cos_m <- as.matrix(d_cos)
+
+d_cos_m_temp <- d_cos_m[rownames(d_cos_m) %in% events_sf$name_cleaner,
+                        colnames(d_cos_m) %in% flatfiles_sf$name_cleaner]
+temp <- data.frame(rownames(d_cos_m_temp), minid=apply(d_cos_m_temp,1, which.min))
+temp$nn1 <- rownames(d_cos_m_temp)[temp$minid]
+temp$nn1_d <- sapply(1:nrow(d_cos_m_temp), FUN=function(i) d_cos_m_temp[i,temp$minid[i]])
+
+for(i in 1:nrow(d_cos_m_temp)){
+  d_cos_m_temp[i,temp$minid[i]]<-NA
+}
+temp$minid2=apply(d_cos_m_temp,1, which.min)
+temp$nn2 <- rownames(d_cos_m_temp)[temp$minid2]
+temp$nn2_d <- sapply(1:nrow(d_cos_m_temp), FUN=function(i) d_cos_m_temp[i,temp$minid2[i]])
+
+
+#Nope this still looks wrong
+#The matches don't make sense
+
+
+p_load(RANN)
+intermediate_output=name_cleaner_all_projected
+if(!require(devtools)) install.packages("devtools") # If not already installed
+devtools::install_github("RGLab/Rtsne.multicore")
+library(Rtsne.multicore) # Load package
+tsne_out <- Rtsne.multicore(intermediate_output, num_threads=48, check_duplicates=F, verbose=T) # Run TSNE
+#plot(tsne_out$Y,type="n") # Plot the result
+#text(tsne_out$Y,label=rownames(intermediate_output), cex=.5)
+
+p_load(scatterD3)
+temp <- as.data.frame(tsne_out$Y)
+temp$names <- rownames(intermediate_output)
+temp <- subset(temp, !duplicated(names))
+scatterD3(data = temp, x = V1, y = V2, lab = names)
+
+nn2(data, query = data, k = min(10, nrow(data)), treetype = c("kd", "bd"),
+searchtype = c("standard", "priority", "radius"), radius = 0, eps = 0)
+
+
+
+
+#Ok nearest neighbor in euclidian is not the same thing
+#Here's nearest neighbor with just euclidian
+p_load(RANN)
+events_sf_projected_nearest <- nn2(data=flatfiles_sf_projected, query=events_sf_projected, k = 5)
+temp <- data.frame(rownames(events_sf_projected))
+temp$nn1 <- paste(rownames(flatfiles_sf_projected)[events_sf_projected_nearest$nn.idx[,1]])
+temp$nn1_d <- events_sf_projected_nearest$nn.dists[,1]
+temp$nn2 <- paste(rownames(flatfiles_sf_projected)[events_sf_projected_nearest$nn.idx[,2]])
+temp$nn2_d <- events_sf_projected_nearest$nn.dists[,2]
+
+
+temp$nn3 <- paste(rownames(flatfiles_sf_projected)[events_sf_projected_nearest$nn.idx[,3]])
+temp$nn4 <- paste(rownames(flatfiles_sf_projected)[events_sf_projected_nearest$nn.idx[,4]])
+temp$nn5 <- paste(rownames(flatfiles_sf_projected)[events_sf_projected_nearest$nn.idx[,5]])
+
+
+p_load(sos)
+findFn("knn", maxPages=10, sortby="MaxScore")
+
+
+```
+
+
+
+
+Empirically Who is closer
+
+One takeaway from this is this is really hard. Even when we allow for anything that sounds remotely close to our event string, and we cheat, and we're limited to the region of interest, and we have 10 gazeteers, we're still only within 1km 25% of the time, 5km 50% of the time, 20km 75% of time time, etc.
+
+```{r}
+
+
+ab_dt_labeled <- unique(subset(ab_dt, !is.na(y_distance_m) & source_dataset!="events" & geometry_type=="POINT")) #First kill those with no distance
+top_bysource <- ab_dt_labeled %>% filter(geometry_type=="POINT") %>% group_by(name_cleaner,source_dataset) %>% top_n(1, wt=-y_distance_m) %>% 
+  filter(!duplicated(paste(name_cleaner,source_dataset)))
+top_any <- top_bysource %>% filter(geometry_type=="POINT") %>% group_by(name_cleaner) %>% top_n(1, wt=-y_distance_m)   %>% filter(!duplicated(name_cleaner))
+
+
+p1 <- bind_rows(top_any %>% mutate(source_dataset="[ANY]"),
+top_bysource) %>% 
+  ggplot(aes(x=(y_distance_m+1)/1000,
+             col=source_dataset,
+             linetype=source_dataset )) +
+  stat_ecdf(geom = "step", pad = FALSE) + 
+  scale_x_continuous(trans='log10', breaks = c(.1,.5,1,2,4,10,25,50,100,250)) + xlab('Smallest Distance to Gazeteer Match (km)') + 
+  ylab("Cumulative Distribution") + theme_bw() + ggtitle("Best Case Shortest Distance (Points)") +
+   coord_cartesian(xlim=c(0.1,250)) 
+p1
+
+ggsave("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/best_case_cdf.pdf",plot=p1,
+       width=6.5, height=5)
+
+#Closest suggestion by source
+top_any$source_dataset %>% 
+  tabyl( sort = TRUE) %>% 
+  adorn_crosstab(., denom = "all",  show_n = T, digits = 0, show_totals=T) 
+
+```
+
+#Now let's do polygons
+
+```{r}
+
+ab_dt_labeled_poly <- subset(ab_dt, !is.na(y_distance_m) & source_dataset!="events" & geometry_type!="POINT") #First kill those with no distance
+ab_dt_labeled_poly <- unique(ab_dt_labeled_poly)
+
+top_bysource_poly <- ab_dt_labeled_poly %>% group_by(name_cleaner,source_dataset) %>% top_n(1, wt=-y_distance_m)  %>% filter(!duplicated(paste(name_cleaner,source_dataset)))
+top_any_poly <- top_bysource_poly %>% group_by(name_cleaner) %>% top_n(1, wt=-y_distance_m)  %>% filter(!duplicated(name_cleaner))
+
+p2 <- bind_rows(top_any_poly %>% mutate(source_dataset="[ANY]"),
+top_bysource_poly) %>% 
+  ggplot(aes(x=(y_distance_m+1)/1000, #have to do plus one because you're logging
+             col=source_dataset,
+             linetype=source_dataset )) +
+  stat_ecdf(geom = "step", pad = FALSE) + 
+  scale_x_continuous(trans='log10', breaks = c(.1,.5,1,2,4,10,25,50,100,250)) + xlab('Smallest Distance to Gazeteer Match (km)') + 
+  ylab("Cumulative Distribution") + theme_bw() + ggtitle("Best Case Shortest Distance (Polygons)") +
+   coord_cartesian(xlim=c(0.1,250)) 
+p2
+
+ggsave("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/best_case_cdf_poly.pdf",plot=p2,
+       width=8, height=5)
+
+p_load(cowplot)
+p_combined <- plot_grid(p1, p2, labels = c("A", "B"))
+save_plot(plot=p_combined, filename= "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/best_case_cdf_combined.pdf", base_height = 5, base_width = 12)
+
+
+```
+
+
+
+```{r}
+
+outcomes <- c("y_distance_m",'y_distance_m_less2k','y_distance_m_rank')
+
+ids <- c(
+  "name_cleaner",
+  'name_cleaner_stemmed',
+  'name_cleaner_suffix',
+  "name_cleaner.1",
+  'name_cleaner_stemmed.1',
+  'name_cleaner_suffix.1'
+)
+
+p_load(dummies)
+#xy_all$y_distance_m_less2k <- xy_all$y_distance_m<=2000
+
+xy_points <- xy_all[geometry_type %in% "POINT" & !source_dataset %in% "events", ]
+xy_points <- xy_points %>% arrange(-y_distance_m)  %>%
+    group_by(name_cleaner) %>% mutate(y_distance_m_rank = rank(y_distance_m, ties.method = "first"))
+xy_points$y_distance_m_less2k <- xy_points$y_distance_m<=2000
+
+temp <- xy_points %>% filter(y_distance_m_rank==1) %>% 
+  select(ids,"feature_code_txt","source_dataset", "y_distance_m","y_distance_m_rank")  %>% 
+  arrange(name_cleaner,y_distance_m) 
+#xy_points$y_distance_m_log <- log(xy_points$y_distance_m+1)
+#xy_points$y_distance_m <- NULL
+
+
+features <- c(
+  "ab_equal_suffix",
+  "ab_equal_stemmed",
+  "ab_equal",
+  "ab_firstmatch_perc",
+  "ab_firstmatch",
+  "ab_osa",
+  "ab_lv",
+  "ab_dl",
+  "ab_lcs",
+  "ab_qgram",               
+  "ab_cos",
+  "ab_jaccard",
+  "ab_jw",
+  
+  "ab_osa_stemmed",
+  "ab_lv_stemmed",
+  "ab_dl_stemmed"  ,        
+  "ab_lcs_stemmed",
+  "ab_qgram_stemmed",
+  "ab_cos_stemmed",
+  "ab_jaccard_stemmed",
+  "ab_jw_stemmed" ,
+  
+  "ab_osa_suffix" ,         
+  "ab_lv_suffix",
+  "ab_dl_suffix",
+  "ab_lcs_suffix",
+  "ab_qgram_suffix",
+  "ab_cos_suffix",
+  "ab_jaccard_suffix" ,     
+  "ab_jw_suffix" ,
+  
+  #"source_dataset",
+  
+  #"feature_code_txt"
+  
+  grep('source_dataset|feature_code_txt|name_cleaner_suffix|name_cleaner_suffix.1', names(xy_points), value=T)
+
+)
+
+x_points <- xy_points[,features]
+x_points <- dummy.data.frame(data=as.data.frame(x_points),
+                               names = c('source_dataset','feature_code_txt', 'name_cleaner_suffix','name_cleaner_suffix.1'),
+                               drop=T) 
+
+sort(sapply(x_points, FUN=function(x) sum(is.finite(x)))/nrow(x_points))
+x_points[,1:ncol(x_points)] <- lapply(x_points, FUN=function(x) {x[!is.finite(x)] <- NA; return(x)})
+head(sort(sapply(x_points, FUN=function(x) sum(is.finite(x)))/nrow(x_points)),100)
+
+y_points <- as.data.frame(xy_points[,"y_distance_m_less2k"])
+
+dim(x_points)
+names(x_points)
+dim(y_points)
+names(y_points)
+
+
+id_predict <- unique(subset(xy_points, is.na(y_distance_m))$name_cleaner )
+id_labeled <- unique(subset(xy_points, !is.na(y_distance_m))$name_cleaner )
+id_test <- sample(id_labeled,size=300)
+id_train <- setdiff(id_labeled,id_test) 
+
+condition_train <- xy_points$name_cleaner %in% id_train  & !is.na(xy_points$y_distance_m) & xy_points$y_distance_m_rank<=20; table(condition_train)
+x_points_train <- x_points[condition_train,]; dim(x_points_train)
+y_points_train <- y_points[condition_train,,drop=F]; dim(y_points_train)
+y_points_train$y_distance_m_less2k <- as.factor(y_points_train$y_distance_m_less2k)
+
+condition_test <- xy_points$name_cleaner %in% id_test  & !is.na(xy_points$y_distance_m) & xy_points$y_distance_m_rank<=20; table(condition_test)
+x_points_test <- x_points[condition_test,]; dim(x_points_test)
+y_points_test <- y_points[condition_test,,drop=F]; dim(y_points_test)
+y_points_test$y_distance_m_less2k <- as.factor(y_points_test$y_distance_m_less2k)
+
+#install.packages("drat", repos="https://cran.rstudio.com")
+#drat:::addRepo("dmlc")
+#install.packages("xgboost", repos="http://dmlc.ml/drat/", type = "source")
+library(xgboost)
+
+
+dtrain <- xgb.DMatrix(data=as.matrix( x_points_train ),
+                      label = as.numeric(y_points_train$y_distance_m_less2k)-1 )
+dtest <- xgb.DMatrix(data=as.matrix( x_points_test ),
+                      label = as.numeric(y_points_test$y_distance_m_less2k )-1 )
+
+xb <- xgb.train(data = dtrain ,
+                         max_depth = 6,
+                         eta = .1,
+                         #booster = "gblinear",
+                         nthread = 48,
+                         nrounds = 2000,
+                         #nfold = 5,
+                         objective = "binary:logistic", 
+                         early_stopping_rounds=50,
+                         verbose=T,
+                         watchlist = list(validation1=dtest)
+                     )
+
+pred_xb <- predict(xb, as.matrix( x_points_test ) )
+boxplot(pred_xb~y_points_test$y_distance_m_less2k)
+
+#data.frame(y_obs=xy_points_test$y_distance_m_log,yhat=pred) %>% 
+#        ggplot(aes(x=y_obs,y=yhat)) + geom_point() + geom_smooth()
+
+importance_matrix <- xgb.importance(model = xb)
+importance_matrix$Gain_perc <- importance_matrix$Gain/max(importance_matrix$Gain)
+
+#tokeep <- importance_matrix$Feature[importance_matrix$Gain_perc>0.001]
+#todrop <-   importance_matrix$Feature[importance_matrix$Gain_perc<=0.001]
+
+print(importance_matrix)
+xgb.plot.importance(importance_matrix = importance_matrix)
+
+
+p_load(randomForestSRC)
+rf <- rfsrc(y_distance_m_less2k~.,
+            data=cbind(y_points_train,x_points_train),
+            na.action="na.impute")
+print(rf)
+boxplot(rf$predicted.oob[,2]~y_points_train$y_distance_m_less2k)
+pred_rf <- predict(rf, x_points_test,
+            na.action="na.impute")
+boxplot(pred_rf$predicted[,2]~y_points_test$y_distance_m_less2k)
+
+rf_noboot <- rfsrc(y_distance_m_less2k~.,
+            data=cbind(y_points_train,x_points_train),
+            na.action="na.impute", 
+            bootstrap="none")
+pred_rf_noboot <- predict(rf_noboot, x_points_test,
+            na.action="na.impute")
+
+p_load(precrec)
+s3 <- evalmod(scores = list(pred_xb,
+                            pred_rf$predicted[,2],
+                            pred_rf_noboot$predicted[,2]),
+              labels = y_points_test$y_distance_m_less2k,
+              modnames = c("xboost", "rf", "rf no bootstrap"))
+s3
+autoplot(s3)
+
+
+```
+
+Take our xboost model and make predictions for linking
+
+```{r}
+
+pred_xb_all <- predict(xb, as.matrix( x_points ) )
+xy_points$prediction_less2k_xboost <- pred_xb
+
+ab_dt$prediction_point_less2k_xboost <- NULL
+ab_dt[geometry_type %in% "POINT" & !source_dataset %in% "events", "prediction_point_less2k_xboost"] <- pred_xb_all
+
+
+
+```
+
+
+```{r}
+
+hist(ab_dt$y_distance_m)
+table(ab_dt$y_distance_m<1000)
+table(ab_dt$y_distance_m<2000)
+
+table(subset(ab_dt, source_dataset !="events")$y_distance_m<1000)
+
+ab_dt <- rbindlist(ab_df_list, fill=T)
+dim(ab_dt) 1,063,704
+
+head(ab_dt)
+names(ab_dt)
+
+length(unique(ab_dt$name_cleaner))
+setkeyv(ab_dt, c('location_text', 'y_distance_m'))
+
+temp <-head(ab_dt,1000)
+
+#We could count anything under 2km as a win and then predict the probability that it's under 2k
+
+```
+
+Recall/Distance Plot
+
+This shows the number of points recovered and the avg expected distance to the true location on the X and Y in percent and meters.
+
+```{r}
+
+
+
+```
+
+Bias Plots
+
+This shows the accuracy of a random forest model predicting whether
+Y axis) Whether in terms of all the left hand variables, this observation was georeferenced or not
+X axis) Whether in terms of all the covariates, whether this geocoding was an original point or a synthetic one or not
+
+You want the point in the bottom left with the worst accuracy on both.
+
+```{r}
+
+
+```
+
+
+
+

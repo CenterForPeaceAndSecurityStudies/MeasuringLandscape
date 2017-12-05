@@ -1,0 +1,430 @@
+---
+title: "Create, Clean, and Compile Text Corpus"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+    number_sections: yes
+    theme: readable
+    toc: yes
+---
+
+
+This file cleans and compiles a text corpus from the Kenya Gazette
+
+
+```{r }
+# !diagnostics off
+gc()
+#sudo dnf install libcurl-devel
+#install.packages('devtools', dependencies=T)
+library(devtools)
+devtools::session_info('DT')
+
+if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
+
+p_load(mosaic, stringr,stringi)
+p_load(lubridate,stringr)
+p_load(janitor)
+p_load(digest)
+p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
+p_load(rgeos) #yum install -y geos-devel
+p_load(rgdal) #dnf install gdal* , sudo yum install proj*
+p_load(digest)
+p_load(ggmap) #sudo dnf install libjpeg*
+p_load(data.table)
+p_load(bookdown)
+p_load(feather)
+p_load(re2r)
+p_load(sf)
+sf_extSoftVersion()
+#sudo dnf install gdal-devel proj-devel proj-epsg proj-nad geos-devel udunits2-devel
+#sudo dnf install liblwgeom
+#library(devtools)
+#Need to install this in order to install liblwgeom.h, in order to use st_make_valid()
+#sudo dnf --enablerepo=updates-testing install postgis-devel
+#install_github("r-spatial/sf")
+p_load(fst)
+p_load(tidyverse)
+p_load(viridis)
+p_load(rvest)
+p_load(tidyverse)
+#Need the development version for geom_sf
+#devtools::install_github("tidyverse/ggplot2")
+#This is much slower than other plotting I've been doing. Not great.
+#library(ggplot2)
+#flatfiles_sf %>% ggplot() +
+#  geom_sf(size=.1) +
+#  #scale_fill_viridis("Area") +
+#  ggtitle("Gazeteer Points (All)") +
+#  theme_bw()
+
+#devtools::load_all(".")
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+```
+
+It is based on an events dataset built and cleaned in another file.
+
+```{r}
+
+library(data.table)
+files_csv <- list.files("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Kenya_Gazette/scraped_pdfs_csv_500", full.names=T,
+                    pattern = ".csv")
+csv_dt <- rbindlist(lapply(files_csv, fread, sep="\t"))
+csv_dt[,text_google_vision_api_lower:=tolower(csv_dt$text_google_vision_api),]
+csv_dt[,text_google_vision_api_lower:=gsub("-"," ",text_google_vision_api_lower),] #we're going to treet - as spaces
+
+csv_dt$text_google_vision_api_lower
+
+csv_dt$year <- as.numeric(substring(csv_dt$document, nchar(csv_dt$document)-7,nchar(csv_dt$document)-4))
+dim(csv_dt) #167,551 pages of text
+
+csv_dt_Burgaret <- subset(csv_dt,re2_detect(text_google_vision_api_lower, "burgaret", parallel = T))
+stringr::str_extract(csv_dt_Burgaret$text_google_vision_api_lower, "([^\\s]+\\s){5}burgaret(\\s[^\\s]+){5}") #https://stackoverflow.com/questions/34403346/extract-a-sample-of-words-around-a-particular-word-using-stringr-in-r
+
+searchstring = "kalou"
+temp_catch <- subset(csv_dt,re2_detect(text_google_vision_api_lower, searchstring, parallel = T))
+stringr::str_extract(temp_catch$text_google_vision_api_lower, paste0("([^\\s]+\\s){5}",searchstring,"(\\s[^\\s]+){5}")) 
+#https://stackoverflow.com/questions/34403346/extract-a-sample-of-words-around-a-particular-word-using-stringr-in-r
+
+searchstring = "kalou"
+temp_catch <- subset(csv_dt,re2_detect(text_google_vision_api_lower, searchstring, parallel = T))
+results <- stringr::str_extract(temp_catch$text_google_vision_api_lower, paste0("([^\\s]+\\s){0}",searchstring,"(\\s[^\\s]+){1}")) 
+sort(table(results))
+#https://stackoverflow.com/questions/34403346/extract-a-sample-of-words-around-a-particular-word-using-stringr-in-r
+
+
+
+#So what is this an example of? Burgaret is a spelling variant of BURGURET. Only burguret appears in the gaz, but both appear in the gazet. 
+
+
+#So I think the move here is to try to match ngrams to gaz entries
+#If an ngram doesn't doesn't have a gaz match, start making changes to it pushing it in the direction of of an ngram that does have a match. You could try making the fewest changes necessary, and breaking ties based on who has the most gaz matches. Or you could optimize some tradeoff between gaz matches and edits.
+
+#You could do this excercise for every ngram. See how much work it would take to get it in terms of something that does have a gaz match
+#You can then weight all the possible matches and empirically find the one that's the longest with the fewest edits tends to be the most right.
+
+#And there's some trade off so "burgaret estate" has no gaz matches and 1 gazet match. burgaret spelled wrong has lots of gazet matches but no gaz matches. One letter edit away and it becomes a two word with both lots of gaz matches and lots of gazet matches. That leads to a match which we can check against ground truth and benchmark how work it is to make that trade off.
+```
+
+Ok we actually have enough to do a very rough text based gazeteer hiarchy. 
+
+```{r}
+
+
+searchstring = "district"
+temp_catch <- subset(csv_dt,re2_detect(text_google_vision_api_lower, searchstring, parallel = T))
+results <- stringr::str_extract(temp_catch$text_google_vision_api_lower, paste0("([^\\s]+\\s){5}",searchstring,"(\\s[^\\s]+){0}")) 
+sort(table(results), decreasing=T)
+
+
+re_districts <- re2_match_all(string=temp_catch$text_google_vision_api_lower, pattern="\\W\\w+\\W+district", parallel=T) %>% 
+                  unlist(sapply(., FUN=function(x) x$.match)) %>% table %>% as.data.frame() %>% arrange(desc(Freq) )
+head(re_districts); dim(re_districts)
+
+
+re_location <- re2_match_all(string=temp_catch$text_google_vision_api_lower, pattern="\\W\\w+\\W+location", parallel=T) %>% 
+                  unlist(sapply(., FUN=function(x) x$.match)) %>% table %>% as.data.frame() %>% arrange(desc(Freq) )
+head(re_location); dim(re_location)
+
+
+re_location_district <- re2_match_all(string=temp_catch$text_google_vision_api_lower, pattern="\\W\\w+\\W+location\\W\\w+\\W+district", parallel=T) %>% 
+                  unlist(sapply(., FUN=function(x) x$.match)) %>% table %>% as.data.frame() %>% arrange(desc(Freq) )
+head(re_location_district); dim(re_location_district)
+
+
+re_sublocation <- re2_match_all(string=temp_catch$text_google_vision_api_lower, pattern="\\W\\w+\\W+sub(\\W)*location", parallel=T) %>% 
+                  unlist(sapply(., FUN=function(x) x$.match)) %>% table %>% as.data.frame() %>% arrange(desc(Freq) )
+head(re_sublocation); dim(re_sublocation)
+
+re_sublocation_location <- re2_match_all(string=temp_catch$text_google_vision_api_lower, pattern="\\W\\w+\\W+sub(\\W)*location\\W\\w+\\W+location", parallel=T) %>% 
+                  unlist(sapply(., FUN=function(x) x$.match)) %>% table %>% as.data.frame() %>% arrange(desc(Freq) )
+head(re_sublocation_location); dim(re_sublocation_location)
+
+
+re_test <- re2_match_all(string=temp_catch$text_google_vision_api_lower, pattern="([^\\s]+\\s){5}bastard([^\\s]+\\s){5}", parallel=T) %>% 
+                  unlist(sapply(., FUN=function(x) x$.match)) %>% table %>% as.data.frame() %>% arrange(desc(Freq) )
+head(re_test); dim(re_test)
+
+```
+
+```{r}
+
+if(fromscratch){
+  
+    p_load(dplyr)
+    p_load(tidytext)
+    csv_dt_grams_1 <- csv_dt %>% select(c('text_google_vision_api_lower','year')) %>% unnest_tokens(bigram, text_google_vision_api_lower, token = "ngrams", n = 1) %>% as.data.table
+    csv_dt_grams_1_count <- csv_dt_grams_1[,list(
+             count=.N,
+             year_min=min(year, na.rm=T),
+             year_median=median(year, na.rm=T),
+             year_mean=mean(year, na.rm=T),
+             year_max=max(year, na.rm=T)
+             ), by="bigram"]
+    csv_dt_grams_1_count[,ngram:=1,]
+    temp1 <- head(csv_dt_grams_1_count,10000)
+    
+    csv_dt_grams_2 <- csv_dt %>% select(c('text_google_vision_api_lower','year')) %>% unnest_tokens(bigram, text_google_vision_api_lower, token = "ngrams", n = 2) %>% as.data.table #119,576,155
+    setkey(csv_dt_grams_2,bigram)
+    csv_dt_grams_2_count <- na.omit(csv_dt_grams_2)[,list(
+             count=.N,
+             year_min=min(year, na.rm=T),
+             year_median=median(year, na.rm=T),
+             year_mean=mean(year, na.rm=T),
+             year_max=max(year, na.rm=T)#,
+             #ngram=2 #wow this line breaks everything
+             ), by="bigram"]
+    csv_dt_grams_2_count[,ngram:=2,]
+    
+    dim(csv_dt_grams_2_count) #22,664,443
+    csv_dt_grams_2_count <- csv_dt_grams_2_count[order(count, decreasing=T)]
+    temp2 <- head(csv_dt_grams_2_count,100000)
+    
+    
+    csv_dt_grams_3 <- csv_dt %>% select(c('text_google_vision_api_lower','year')) %>% unnest_tokens(bigram, text_google_vision_api_lower, token = "ngrams", n = 3) %>% as.data.table
+    csv_dt_grams_3_count <- csv_dt_grams_3[,list(
+             count=.N,
+             year_min=min(year, na.rm=T),
+             year_median=median(year, na.rm=T),
+             year_mean=mean(year, na.rm=T),
+             year_max=max(year, na.rm=T)
+             ), by="bigram"]
+    csv_dt_grams_3_count[,ngram:=3,]
+    temp3 <- head(csv_dt_grams_3_count,10000)
+    
+    
+    csv_dt_grams_4 <- csv_dt %>% select(c('text_google_vision_api_lower','year')) %>% unnest_tokens(bigram, text_google_vision_api_lower, token = "ngrams", n = 4) %>% as.data.table
+    csv_dt_grams_4_count <- csv_dt_grams_4[,list(
+             count=.N,
+             year_min=min(year, na.rm=T),
+             year_median=median(year, na.rm=T),
+             year_mean=mean(year, na.rm=T),
+             year_max=max(year, na.rm=T)
+             ), by="bigram"]
+    csv_dt_grams_4_count[,ngram:=4,]
+    temp4 <- head(csv_dt_grams_4_count,10000)
+    
+    csv_dt_grams_all <- rbindlist(list(
+      csv_dt_grams_1_count,
+      csv_dt_grams_2_count,
+      csv_dt_grams_3_count,
+      csv_dt_grams_4_count
+    ))
+    dim(csv_dt_grams_all) #131,307,523
+    
+    p_load(fst)
+    setkey(csv_dt_grams_all, bigram) #takes a very long time
+    write.fst(csv_dt_grams_all,  path='/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/csv_dt_grams_all.fst',compress=100)
+    csv_dt_grams_1 <- NULL;gc() #These are huge and all we really want are the summary statistics
+    csv_dt_grams_2 <- NULL;gc()
+    csv_dt_grams_3 <- NULL;gc()
+    csv_dt_grams_4 <- NULL;gc()
+    
+    fromscratch_places=F
+    if(fromscratch_places){
+                #I think we can dramatically improve the speed of this by doing one pass with a match to any word and one long regex. Then we can just search that subset from now on.
+          
+          #https://www.regular-expressions.info/wordboundaries.html
+          all_names_full <- na.omit(unique(flatfiles_sf$name_cleaner));
+          all_names_1gram <- unique(unlist(strsplit(flatfiles_sf$name_cleaner," ")) ) #I'm also going to check individual words
+          
+          all_names <- unique(c(all_names_full,all_names_1gram))
+          
+          #"|on" #fuck me there's still punctuation in cleaner
+          
+          #exclude stop words, words fewer than 3, and suffixes
+          
+          p_load(tm)
+          exclude <- c(
+                        all_names[nchar(all_names)<=3],
+                        stopwords(kind = "en"), 
+                        unique(flatfiles_sf$feature_code_txt)
+          )
+          all_names <- all_names[!all_names %in% exclude]
+          sort(unique(unlist(strsplit(all_names,""))))
+          
+          all_names <- all_names[order(nchar(all_names))]
+          
+          all_names_bounded <- paste0("\\b",all_names,"\\b")
+          
+          
+          #Maybe further prune small words or stop words
+          
+          regex <- re2("\\btest1\\b|\\bbtest2\\b")
+          re2_match("test1 asdftest2asdfsf", regex)
+          
+          
+          regex1 <- re2(paste(all_names_bounded[1:30000],collapse="|")) 
+          regex1
+          condition_keep_troubleshooting2 <- re2_detect(string=csv_dt_grams_all$bigram[1:100000],
+                                                        pattern=regex1, parallel = T) ; table(condition_keep_troubleshooting2) 
+          csv_dt_grams_all$bigram[1:100000][condition_keep_troubleshooting2]
+          
+          "council's" %in% all_names
+          regex_troubleshooting <- re2(paste(all_names_bounded[8795],collapse="|")) #I guess boundary match 's also
+          condition_keep_troubleshooting <- re2_detect(string="council's",pattern=regex_troubleshooting, parallel = T) ; table(condition_keep_troubleshooting) 
+          
+          regex2 <- re2(paste(all_names_bounded[30000:length(all_names_bounded)],collapse="|")) #have to break it up into 2
+          regex2
+          
+          condition_keep1 <- re2_detect(string=csv_dt_grams_all$bigram,pattern=regex1, parallel = T) ; table(condition_keep1) #Took 10 minutes?
+          condition_keep2 <- re2_detect(string=csv_dt_grams_all$bigram,pattern=regex2, parallel = T) ; table(condition_keep2) #Took 10 minutes?
+          
+          condition_keep <- condition_keep1 | condition_keep2; table(condition_keep) #That shrinks it down to just 51,602,830 
+          
+          csv_dt_grams_places <- csv_dt_grams_all[condition_keep]
+          write.fst(csv_dt_grams_places,  path='/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/csv_dt_grams_places.fst',compress=100)
+    }
+    
+}
+
+p_load(fst)
+csv_dt_grams_all <- read.fst('/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/csv_dt_grams_all.fst',as.data.table =T) #this is expensive
+csv_dt_grams_places <- read.fst('/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/csv_dt_grams_places.fst',as.data.table =T) #this is expensive
+
+
+#Each of these lookups even with 48 cores is still 30 seconds each
+
+p_load(re2r)
+system.time( csv_dt_grams_all_baragwe    <- csv_dt_grams_all[re2_detect(string=bigram, pattern="baragwe", parallel = T)] )     #39 seconds
+system.time( csv_dt_grams_places_baragwe <- csv_dt_grams_places[re2_detect(string=bigram, pattern="baragwe", parallel = T)] )  #18.489 #Cuts the time in about half it looks like
+#Only appear in events and gazette, never in a gazetter
+#
+# I think our strategy here is to try to infer some of the structure automatically from the gazetter
+# So a common "BARAGWE LOCATION, KIRINYAGA DISTRICT" I think might give us the mapping from locations to districts
+# "Raimu Sub- location, Baragwe Location in Kirinyaga District"
+# "RAIMU SUB-LOCATION, BARAGWE LOCATION, KIRINYAGA DISTRICT"
+
+
+
+
+
+
+#This was faster but still appreciably slow
+#mara forest|mara forest reserve|trans-mara forest
+csv_dt_grams_mara <- csv_dt_grams_all[re2_detect(string=csv_dt_grams_all$bigram,pattern="mara ", parallel = T)] #we need to add some to the beginning and end to show it's a word on its own
+csv_dt_grams_mara_forest <- csv_dt_grams_all[re2_detect(string=csv_dt_grams_all$bigram,pattern="mara forest", parallel = T)] #takes a very long time
+
+
+csv_dt_grams_all_kalou <- csv_dt_grams_all[re2_detect(string=csv_dt_grams_all$bigram,pattern="kalou", parallel = T)] #takes a very long time
+
+csv_dt_grams_all_bastard <- csv_dt_grams_all[re2_detect(string=csv_dt_grams_all$bigram,pattern="bastard", parallel = T)] #takes a very long time
+
+csv_dt_grams_all_nairobi <- csv_dt_grams_all[re2_detect(string=csv_dt_grams_all$bigram,pattern="nairobi", parallel = T)] #takes a very long time
+
+
+
+
+
+flatfiles_kalou <- flatfiles[grepl("kal",flatfiles$name),]
+
+searchstring = "bastard"
+temp_catch <- subset(csv_dt,re2_detect(text_google_vision_api_lower, searchstring, parallel = T))
+results <- stringr::str_extract(temp_catch$text_google_vision_api_lower, paste0("([^\\s]+\\s){6}",searchstring,"(\\s[^\\s]+){6}")) 
+sort(table(results))
+
+
+
+#Switching back to name_clean because punctuation
+names_cleaner_grams_1 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 1) %>% group_by(location_text) %>% mutate(bigram_position = 1:n()) %>% mutate(bigram_size = 1) 
+names_cleaner_grams_2 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 2) %>% group_by(location_text) %>% mutate(bigram_position = 1:n())  %>% mutate(bigram_size = 2) 
+names_cleaner_grams_3 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 3) %>% group_by(location_text) %>% mutate(bigram_position = 1:n())  %>% mutate(bigram_size = 3) 
+names_cleaner_grams_4 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 4) %>% group_by(location_text) %>% mutate(bigram_position = 1:n())  %>% mutate(bigram_size = 4) 
+names_cleaner_grams_5 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 5) %>% group_by(location_text) %>% mutate(bigram_position = 1:n())  %>% mutate(bigram_size = 5) 
+names_cleaner_grams_6 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 6) %>% group_by(location_text) %>% mutate(bigram_position = 1:n())  %>% mutate(bigram_size = 6) 
+names_cleaner_grams_7 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 7) %>% group_by(location_text) %>% mutate(bigram_position = 1:n())  %>% mutate(bigram_size = 7) 
+names_cleaner_grams_8 <- as.data.frame(events_sf) %>% select(c('location_text','name_clean')) %>% distinct() %>% unnest_tokens(bigram, name_clean, token = "ngrams", n = 8) %>% group_by(location_text) %>% mutate(bigram_position = 1:n())  %>% mutate(bigram_size = 8) 
+
+
+
+names_cleaner_grams_all <- rbindlist(list(
+  names_cleaner_grams_1,
+  names_cleaner_grams_2,
+  names_cleaner_grams_3,
+  names_cleaner_grams_4,
+  names_cleaner_grams_5,
+  names_cleaner_grams_6,
+  names_cleaner_grams_7,
+  names_cleaner_grams_8
+
+))
+dim(names_cleaner_grams_all)
+head(names_cleaner_grams_all)
+
+
+names_cleaner_grams_all_ngram <- merge(as.data.table(names_cleaner_grams_all),
+                  csv_dt_grams_all,
+                  all.x=T, all.y=F,
+                  by.x=c("bigram"),
+                  by.y="bigram")
+dim(names_cleaner_grams_all_ngram)
+names_cleaner_grams_all_ngram$bigram_nchar <- nchar(names_cleaner_grams_all_ngram$bigram)
+
+names_cleaner_grams_all_ngram$gazette_match_distance = 0
+names_cleaner_grams_all_ngram$gazette_match_distance[is.na(names_cleaner_grams_all_ngram$count)] <- NA
+names_cleaner_grams_all_ngram <- names_cleaner_grams_all_ngram %>% arrange(location_text,bigram_size,bigram_position)
+
+
+#This pairs down the gaz matches to only those that contain at least one word matching a search ngram of any length
+library(parallel)
+gaznames <- flatfiles_sf$name_clean
+gaznames <- gaznames[flatfiles_sf$source_dataset!="events"] #lower overhead for mccapply to pass it just a vector and not the dataframe it belongs to
+library(re2r)
+regex <- re2( paste0("[ ^$]",
+              paste(na.omit(unique(names_cleaner_grams_all_ngram$bigram)), collapse="[ ^$]|[ ^$]"),
+              "[ ^$]"
+              ) ) #
+condition <- re2_detect(pattern=regex,
+                        string=flatfiles_sf$name_clean,
+                        parallel = T ); table(condition)
+flatfiles_sf_relevant <- flatfiles_sf[condition,]
+
+gaznames <- flatfiles_sf_relevant$name_cleaner
+counts_gazeters_exact <- mclapply(names_cleaner_grams_all_ngram$bigram, FUN=function(x) sum(
+                                                         str_count(gaznames,
+                                                                   pattern=fixed(tolower(x))
+                                                                   ), na.rm=T) ,
+                                                                       mc.cores=48) 
+names_cleaner_grams_all_ngram$counts_gazeters_exact <- counts_gazeters_exact
+#df$gazette_matches_count <- sapply(df$name_cleaner,
+#                                          FUN=function(x) sum(str_count(csv_dt$text_google_vision_api_lower,
+#                                                                        pattern=fixed(tolower(x))),
+#                                                              na.rm=T) )
+
+library(stringdist)
+#temp <- stringdistmatrix(names_cleaner_grams_all_ngram$bigram[1:10], flatfiles_sf$name_clean, method="osa", nthread=48) #can parallelize and do all at once if mem not a concern
+temp <- stringdist("kalou", flatfiles_sf$name_clean, method="osa", nthread=48) 
+#"kalou flats" it has a hard time with because it has to delete flats
+#it also has a hard time with ol kalou because you have to add stuff to it
+table(temp)
+sort(unique(flatfiles_sf$name_clean[temp==0]) )#Arn't any 1 away, one 2 away
+sort(unique(flatfiles_sf$name_clean[temp==1]) )#Arn't any 1 away, one 2 away
+sort(unique(flatfiles_sf$name_clean[temp==2]) )
+sort(unique(flatfiles_sf$name_clean[temp==3]) )
+sort(unique(flatfiles_sf$name_clean[temp==4]) )
+sort(unique(flatfiles_sf$name_clean[temp==5]) )
+sort(unique(flatfiles_sf$name_clean[temp==6]) )
+
+
+library(parallel)
+gaztexts <- csv_dt$text_google_vision_api_lower #lower overhead for mccapply to pass it just a vector and not the dataframe it belongs to
+counts <- mclapply(df$name_cleaner, FUN=function(x) sum(str_count(gaztexts, pattern=fixed(tolower(x))), na.rm=T) ,
+           mc.cores=48) 
+
+gaznames <- subset(flatfiles_sf, source_dataset!="events", select=name_cleaner)  #lower overhead for mccapply to pass it just a vector and not the dataframe it belongs to
+counts_gazeters <- mclapply(df$name_cleaner, FUN=function(x) sum(
+                                                         str_count(gaznames,
+                                                                   pattern=fixed(tolower(x))
+                                                                   ), na.rm=T) ,
+           mc.cores=48) 
+
+df$counts_gazette <- unlist(counts)
+df$counts_gazeters <- unlist(counts_gazeters)
+table(df$counts_gazette>0,df$counts_gazeters>0)
+
+
+```

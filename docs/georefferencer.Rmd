@@ -1,0 +1,565 @@
+---
+title: "Match Locations to Gazeteer and Show Differences"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+    number_sections: yes
+    theme: readable
+    toc: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+
+```{r }
+# !diagnostics off
+library(MeasuringLandscapeCivilWar)
+
+gc()
+#sudo dnf install libcurl-devel
+#install.packages('devtools', dependencies=T)
+library(devtools)
+devtools::session_info('DT')
+
+if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
+
+p_load(mosaic, stringr,stringi)
+p_load(lubridate,stringr)
+p_load(janitor)
+p_load(digest)
+p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
+p_load(rgeos) #yum install -y geos-devel
+p_load(rgdal) #dnf install gdal* , sudo yum install proj*
+p_load(digest)
+p_load(ggmap) #sudo dnf install libjpeg*
+p_load(data.table)
+p_load(bookdown)
+p_load(feather)
+p_load(stringdist)
+p_load(sf)
+p_load(tidyverse)
+p_load(viridis)
+p_load(rvest)
+p_load(tidyverse)
+library(dplyr)
+library(plyr)
+#Need the development version for geom_sf
+#devtools::install_github("tidyverse/ggplot2")
+#This is much slower than other plotting I've been doing. Not great.
+#library(ggplot2)
+#flatfiles_sf %>% ggplot() +
+#  geom_sf(size=.1) +
+#  #scale_fill_viridis("Area") +
+#  ggtitle("Gazeteer Points (All)") +
+#  theme_bw()
+
+#devtools::load_all(".")
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+
+```{r}
+
+events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
+dim(events_sf)
+
+table(!is.na(events_sf$location_text),
+      !is.na(events_sf$map_coordinate_clean_latitude))
+
+
+events_sf <- events  %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
+                  distinct() 
+
+sort(unique(unlist(strsplit(events_sf$name_cleaner,"")))) #ok only number and lowercase letters from now on
+
+#Avoid creating geometries where one of the two is NA
+events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
+events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
+
+events_sf <- events_sf  %>% st_as_sf(coords = c("map_coordinate_clean_longitude",
+                                                "map_coordinate_clean_latitude"), 
+                                     crs = 4326,agr = "constant",
+                                     remove=F, na.fail =F)
+
+
+```
+
+```{r}
+
+#Load toponym model
+p_load(xgboost)
+toponym_xb_model <- xgb.load(system.file("extdata", "toponym_xb_onlystring.bin", package = "MeasuringLandscapeCivilWar"))
+
+
+
+```
+
+```{r}
+
+#Load Gazeteers
+flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar")) %>% filter(!source_dataset %in% 'events_poly')
+dim(flatfiles_sf_roi)
+
+flatfiles_sf_roi_dt <- as.data.table(flatfiles_sf_roi)
+setkey(flatfiles_sf_roi_dt,place_hash)
+
+```
+
+
+Ok let's be methodical about this
+
+We're going to produce an E x G dataset
+
+Where the unit of observation is the event-gazeteer entry
+
+And the outcome is the distance between E and G (or intersection if polygons)
+
+Which we are going to try to model as a function of the properties of both E and G
+
+And then predict on for others
+
+
+--
+
+Some simplifications
+First we're not going to consider every G, we're only going to consider E-G pairs where the suggester flags for one or more of the items in a cluster
+
+So we need to first apply the suggester
+
+
+
+Pipeline
+
+```{r}
+
+#Step 1  Get Suggestions for Stems
+temp <- strip_postfixes(flatfiles_sf_roi$name_cleaner)
+flatfiles_sf_roi$name_cleaner_stem <- temp[[1]]
+flatfiles_sf_roi$name_cleaner_postfix <- temp[[2]]
+
+temp <- strip_postfixes(events_sf$name_cleaner)
+events_sf$name_cleaner_stem <- temp[[1]]
+events_sf$name_cleaner_postfix <- temp[[2]]
+
+names_and_stems <- rbind(
+                          as.data.frame(flatfiles_sf_roi)[,c('name_cleaner','name_cleaner_stem')],
+                          as.data.frame(events_sf)[,c('name_cleaner','name_cleaner_stem')]
+                        ) %>% unique() ; dim(names_and_stems)
+
+stemmed_ab <- unique(c(flatfiles_sf_roi$name_cleaner_stem, events_sf$name_cleaner_stem))
+stemmed_ab_grams <- qgram_hash(strings=stemmed_ab, n=2,k=1) ; dim(stemmed_ab_grams)
+stemmed_ab_suggestions <- lhs_getpairs(strings=stemmed_ab, grams=stemmed_ab_grams, bands_number=512, rows_per_band=16) ; dim(stemmed_ab_suggestions)
+
+#15,370,520 #It's 15 million because it considered matches within the gaz as well
+
+stemmed_ab_suggestions <- subset(stemmed_ab_suggestions , a!="" &  b!="") ; dim(stemmed_ab_suggestions)#drop empty stems. If not it'll crash first match later on
+
+stemmed_ab_suggestions_events <- rbindlist(list(
+  stemmed_ab_suggestions[,c('a','b','N')],
+  setnames(stemmed_ab_suggestions[,c('a','b','N')], c('b','a','N')  ), 
+  setnames(stemmed_ab_suggestions[,c('a','a','N')], c('a','b','N')  ) #make sure it's a suggestion for itself
+)) ; dim(stemmed_ab_suggestions_events)
+
+stemmed_ab_suggestions_events <- unique(stemmed_ab_suggestions_events) ; dim(stemmed_ab_suggestions_events)
+
+#Only keep if the a is a stem found in the events data
+stemmed_ab_suggestions_events <- subset(stemmed_ab_suggestions_events, a %in% unique(events_sf$name_cleaner_stem)) ; dim(stemmed_ab_suggestions_events)  #
+
+
+#Step 2 Pull all full
+ab_suggestions_events <- merge(stemmed_ab_suggestions_events,
+                                     setnames(names_and_stems, c("name_cleaner_a","name_cleaner_stem")) ,
+                                     by.x="a",
+                                     by.y="name_cleaner_stem",
+                                     all.x=T,
+                                     allow.cartesian=TRUE) ; dim(ab_suggestions_events)
+
+test <- ab_suggestions_events[a=="gura"]
+
+#Make sure the full name appears in the event data
+ab_suggestions_events <- subset(ab_suggestions_events, name_cleaner_a %in% unique( events_sf$name_cleaner)  ) ; dim(ab_suggestions_events)  #
+test <- ab_suggestions_events[a=="gura"]
+
+ab_suggestions_events <- merge(ab_suggestions_events,
+                                     setnames(names_and_stems, c("name_cleaner_b","name_cleaner_stem")) ,
+                                     by.x="b",
+                                     by.y="name_cleaner_stem",
+                                     all.x=T,
+                                     allow.cartesian=TRUE)  ; dim(ab_suggestions_events) #4,846,054
+
+ab_suggestions_events <- subset(ab_suggestions_events, name_cleaner_a %in% unique( events_sf$name_cleaner)  ) ; dim(ab_suggestions_events)  #
+
+test <- ab_suggestions_events[a=="gura"]
+
+
+ab_suggestions_events[,temp_q_cos:= stringsim(name_cleaner_a,name_cleaner_b,"cos", nthread=48,q=2),] #both fast and very good at sorting
+test <- ab_suggestions_events[a=="gura"]
+
+ab_suggestions_events <- ab_suggestions_events[temp_q_cos>.3] ; dim(ab_suggestions_events) #less than .3 is never match
+test <- ab_suggestions_events[a=="gura"]
+
+
+ab_suggestions_events_features <- toponym_add_features(ab_suggestions_events)
+
+vars_x_string <- c(
+"Jaro",
+"Optimal_String_Alignment"    ,
+"Levenshtein",
+"Damerau_Levenshtein"    ,
+ "Longest_Common_Substring"     ,
+"q_gram_1",
+"q_gram_2",
+"q_gram_3",
+"q_gram_4",
+"q_gram_5",
+'Cosine_1',
+'Cosine_2',
+'Cosine_3',
+'Cosine_4',
+'Cosine_5',
+"Jaccard"              ,
+ "First_Mistmatch"         ,
+"a_nchar"     ,
+"b_nchar"   ,
+"ab_nchar_diff"       ,             
+"dJaro",
+"dOptimal_String_Alignment"      ,
+"dLevenshtein"     ,
+"dDamerau_Levenshtein"  ,           
+"dLongest_Common_Substring",
+"dq_gram",
+"dCosine",
+"dJaccard"
+) 
+
+dpredict<-xgb.DMatrix(data= as.matrix(ab_suggestions_events_features[,vars_x_string, with=F]), missing = NA)
+
+#Step 4 Predict the likelihood that two strings are same
+ab_suggestions_events_features$toponym_xb_model_prediction <- predict( toponym_xb_model, dpredict )
+ab_suggestions_events_features$toponym_xb_model_prediction  <- 1/(1 + exp(-ab_suggestions_events_features$toponym_xb_model_prediction ))
+
+
+ab_suggestions_small <- ab_suggestions_events_features[,c('a','b','name_cleaner_a','name_cleaner_b','toponym_xb_model_prediction',"N")]
+ab_suggestions_directed <- ab_suggestions_small
+ab_suggestions_directed$a_event <- ab_suggestions_directed$name_cleaner_a %in% events_sf$name_cleaner
+ab_suggestions_directed <- subset(ab_suggestions_directed, a_event) #just to double check, should be no change
+ab_suggestions_directed$b_event <- ab_suggestions_directed$name_cleaner_b %in% events_sf$name_cleaner
+ab_suggestions_directed$b_event_coord <- ab_suggestions_directed$name_cleaner_b %in% flatfiles_sf_roi$name_cleaner[flatfiles_sf_roi$source_dataset %in% c('events') & !is.na(flatfiles_sf_roi$latitude)]
+ab_suggestions_directed$b_gaz_coord   <- ab_suggestions_directed$name_cleaner_b %in% flatfiles_sf_roi$name_cleaner[!flatfiles_sf_roi$source_dataset %in% c('events')  & !is.na(flatfiles_sf_roi$latitude) ]
+
+ab_suggestions_directed <- ab_suggestions_directed[a_event & (b_event_coord|b_gaz_coord)]
+ab_suggestions_directed <- ab_suggestions_directed[toponym_xb_model_prediction>.5 | name_cleaner_a==name_cleaner_b] #Only keep those with greater .5 chance of match
+
+ab_suggestions_directed[,toponym_xb_model_prediction_max:=max(toponym_xb_model_prediction), by=c('name_cleaner_a','b_gaz_coord')]
+ab_suggestions_directed_max_gaz_coord <- subset(ab_suggestions_directed, b_gaz_coord & toponym_xb_model_prediction==toponym_xb_model_prediction_max)
+ab_suggestions_directed_max_event_coord <- subset(ab_suggestions_directed, b_event_coord & toponym_xb_model_prediction==toponym_xb_model_prediction_max)
+
+#A non missing coordinate
+condition <- !is.na(st_coordinates(events_sf)[,1])
+table(condition)
+
+#An exact match to the gaz
+condition2 <- events_sf$name_cleaner %in% flatfiles_sf_roi$name_cleaner[!flatfiles_sf_roi$source_dataset %in% c('events','events_poly')]
+table(condition2)
+
+table(condition | condition2)
+
+#Fuzzy match to a gaz
+condition3 <- events_sf$name_cleaner %in% ab_suggestions_directed_max_gaz_coord$name_cleaner_a 
+table(condition3)
+
+table(condition | condition2 | condition3)
+table(condition | condition2 | condition3) / length(condition)
+
+#Exact match to another event
+condition4 <- events_sf$name_cleaner %in% flatfiles_sf_roi$name_cleaner[flatfiles_sf_roi$source_dataset %in% c('events') & !is.na(flatfiles_sf_roi$latitude) ]
+table(condition4)
+table(condition4) / length(condition)
+
+table(condition | condition2 | condition3 | condition4)
+table(condition | condition2 | condition3 | condition4) / length(condition)
+
+#Fuzzy match to event with coordinate
+condition5 <- events_sf$name_cleaner %in% ab_suggestions_directed_max_event_coord$name_cleaner_a 
+table(condition5)
+table(condition5) / length(condition)
+
+table(condition | condition2 | condition3 | condition4 | condition5)
+table(condition | condition2 | condition3 | condition4 | condition5) / length(condition)
+
+condition6 <- tolower(events_sf$document_district_clean) %in% flatfiles_sf_roi$name_cleaner[!flatfiles_sf_roi$source_dataset %in% c('events')]
+table(condition6)
+
+saveRDS(ab_suggestions_directed, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ab_suggestions_directed.Rds")
+
+```
+
+Given all of the above we want to produce a matching dataset broken out across 
+
+exact or fuzzy match
+place description or district/province
+
+
+```{r}
+
+#For when this inevitably crashes
+ab_suggestions_directed <- readRDS(file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ab_suggestions_directed.Rds")
+flatfiles_sf_roi_centroids <- flatfiles_sf_roi %>% filter(!is.na(latitude) | geometry_type != "POINT") %>% st_centroid()
+
+#Do some quick accounting
+
+
+#Create new dataset that includes
+#1) Diads chosen by fuzzy ab_suggestions_directed 
+#2) Diads of identical
+
+georef <- setnames( ab_suggestions_directed[,c('name_cleaner_a','name_cleaner_b')] , c('georef_a','georef_b') ) #So this is now a list of names that are either identical or fuzzy matches for one another
+georef$georef_a <- trimws(georef$georef_a)
+georef$georef_b <- trimws(georef$georef_b)
+georef <- unique(georef)
+#georef$georef_ab_identical <- georef$georef_a==georef$georef_b 
+
+table(events_sf$name_cleaner %in% georef$georef_a) #7,742 events with at least one gazeteer suggestion
+
+#This is mapping of events to identical and fuzzy
+georef2 <- as.data.frame(events_sf)[,c('event_hash', 'name_cleaner','document_district_clean','document_unit_type','document_date_best_year')] %>% 
+  left_join(georef, by = c("name_cleaner" = "georef_a")) %>% unique()  
+dim(georef2)
+
+table(events_sf$name_cleaner %in% georef2$name_cleaner) #All events are in here
+table(events_sf$name_cleaner %in% georef2$name_cleaner[!is.na(georef2$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$event_hash %in% georef2$event_hash) #All event hashes show up in here
+
+#This is mapping of gaz places to identical and fuzzy possible
+georef3 <- as.data.frame(flatfiles_sf_roi_centroids)[,c('place_hash','source_dataset','name_cleaner','geometry_type')] %>% left_join(georef, by = c("name_cleaner" = "georef_b")) %>% unique() 
+dim(georef3)
+
+#This is a mapping of events to gaz where either their exact or fuzzy counterparts matched each other
+georef_all <- georef2 %>% left_join(georef3, by = c("georef_b" = "name_cleaner")) %>% unique() 
+dim(georef_all)   #748149
+
+table(events_sf$name_cleaner %in% georef_all$name_cleaner) #All events are in here
+table(events_sf$name_cleaner %in% georef_all$name_cleaner[!is.na(georef_all$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$event_hash %in% georef_all$event_hash) #All event hashes show up in here
+
+table(georef_all$source_dataset)
+length(unique(georef_all$event_hash))
+georef_all$georef_a <- NULL
+
+```
+
+```{r}
+#Ok next up we add distance
+#crs_m <- "+proj=utm +zone=27 +datum=NAD83 +units=m +no_defs"  #this is toally wrong, stop using it
+#https://epsg.io/21037
+#EPSG:21037
+#Projected coordinate system
+#Arc 1960 / UTM zone 37S
+rownames(events_sf) <- events_sf$event_hash
+#events_sf_utm <- st_transform(events_sf[,c('event_hash',"geometry")], crs=21037) #
+#events_sf_utm <- st_sf(as.data.frame(events_sf_utm))
+#rownames(events_sf_utm) <- events_sf_utm$event_hash
+#It was slow as hell as a tbl, covert to just sf
+
+
+#flatfiles_sf_roi_centroids_utm <- st_transform(flatfiles_sf_roi_centroids[,c('place_hash',"geometry")], crs=21037)
+#rownames(flatfiles_sf_roi_centroids_utm) <- flatfiles_sf_roi_centroids_utm$place_hash
+
+#Try some smaller experiments and verify if and how long it takes to calculate distance since we've got a million of them
+#This takes a long time to calculate because there's a million of them
+
+#Instead, add a column for whether dimensions are zero and then que that column with the hash, much much better
+events_sf$isvalid <- !is.na(st_dimension(events_sf) )
+flatfiles_sf_roi_centroids$isvalid <- !is.na(st_dimension(flatfiles_sf_roi_centroids) )
+
+#What do we do, convert to data.table for the lookups?
+#condition1 <- events_sf[georef_all$event_hash,]$isvalid #still takes a while, because it's a million lookups.
+#condition2 <- flatfiles_sf_roi_centroids[georef_all$place_hash,]$isvalid #still takes a while, because it's a million lookups.
+#both_valid <- condition1 & condition2
+
+
+#a <-events_sf[georef_all$event_hash[both_valid][1:100],]
+#b <- flatfiles_sf_centroids[georef_all$place_hash[both_valid][1:100],]
+#st_crs(a)
+#st_crs(b)
+
+#Ok this isn't working and it would be slow anyway and we're using centroids anyway so just pull the coordinates and do my own damn calculation
+cords_events <- as.data.frame( st_coordinates(events_sf) )
+rownames(cords_events) <- rownames(events_sf)
+cords_flatfiles <- as.data.frame( st_coordinates(flatfiles_sf_roi_centroids) )
+rownames(flatfiles_sf_roi_centroids) <- flatfiles_sf_roi_centroids$place_hash
+rownames(cords_flatfiles) <- rownames(flatfiles_sf_roi_centroids)
+
+coords_dt <- as.data.table( cbind(cords_events[georef_all$event_hash,], cords_flatfiles[georef_all$place_hash,]))
+names(coords_dt) <- c("X1","Y1", "X2", "Y2")
+coords_dt[,distance_km:=sqrt((X2-X1)^2+(Y2-Y1)^2) * 111]
+
+hist(coords_dt$distance)
+georef_all$distance <- NULL
+georef_all_dt <- as.data.table(cbind(georef_all, coords_dt))
+
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$event_hash %in% georef_all_dt$event_hash) #All event hashes show up in here
+
+
+saveRDS(georef_all_dt, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/georef_all_dt.Rds")
+
+```
+
+
+
+```{r}
+#Calculate some features
+dim(georef_all_dt)
+georef_all_dt[!is.finite(distance_km),distance_km:=NA] 
+georef_all_dt[,SelfReference:=source_dataset=="events"]
+georef_all_dt[,fuzzy:=name_cleaner!=georef_b]
+#georef_all_dt <- subset(georef_all_dt,  distance_km=!0) #This excludes all self references , we need that here but not necessarily elsewhere
+
+
+
+georef_all_dt <- georef_all_dt %>% mutate(handrule1 = dplyr::recode(as.character(fuzzy), "TRUE" = 2, "FALSE" = 1)) 
+georef_all_dt <- georef_all_dt %>% mutate(handrule2 = dplyr::recode(as.character(SelfReference), "TRUE" = 1, "FALSE" = 2)) 
+table(georef_all_dt$geometry_type)
+georef_all_dt <- georef_all_dt %>% mutate(handrule3 = dplyr::recode(as.character(geometry_type), "POINT" = 1, "MULTIPOLYGON"=2, "POLYGON" = 3,"LINESTRING"=4)) 
+
+table(georef_all_dt$source_dataset, useNA="always") #why are their missing sources? A: Because there are events labels with no matching coordinates at all
+georef_all_dt <- georef_all_dt %>% 
+                 mutate(handrule4 = dplyr::recode(as.character(source_dataset),
+                                                  "events" = 1,
+                                                  "historical"=2,
+                                                  "nga"=3,
+                                                  "geonames" = 4,
+                                                  "gadm"=5,
+                                                  "livestock_points"=6,
+                                                  "bing"=7,
+                                                  "livestock_boundaries"=8,
+                                                  "wikidata"=9,
+                                                  "tgn"=10,
+                                                  "kenya_cadastral_district"=11,
+                                                  "kenya_district1962"=12,                                                 
+                                                  "google"=13,
+                                                  "openstreetmap"=14,
+                                                  "kenya_cadastral"=15
+                                                  )) 
+table(georef_all_dt$source_dataset,
+      georef_all_dt$handrule4, useNA="always")
+
+georef_all_dt$handrule <- paste(str_pad(georef_all_dt$handrule1, 2, pad = "0"),
+                                str_pad(georef_all_dt$handrule2,2, pad = "0"),
+                                str_pad(georef_all_dt$handrule3,2, pad = "0"),
+                                str_pad(georef_all_dt$handrule4, 2, pad = "0"),
+                                sep="_")
+
+setkey(georef_all_dt, handrule )
+temp <- subset(georef_all_dt,event_hash=="be37b40f")
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$event_hash %in% georef_all_dt$event_hash) #All event hashes show up in here
+
+saveRDS(georef_all_dt, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/georef_all_dt.Rds")
+
+
+```
+
+
+
+```{r}
+
+vars_y <- "distance_km"
+vars_x <- c("source_dataset","geometry_type","SelfReference","fuzzy",
+            "document_district_clean","document_unit_type","document_date_best_year")
+vars_all <- c(vars_x,vars_y)
+xy_all <- georef_all_dt[,vars_all,with=F]
+xy_all <- as.data.frame(xy_all)
+dim(xy_all)
+
+p_load(xgboost,dummies)
+
+
+hist(label)
+
+condition <- !is.na(xy_all$distance_km) & xy_all$distance_km!=0
+
+x_all <- xy_all[,vars_x]
+x_all <- dummy.data.frame(x_all)
+x_train <- x_all[condition,]
+ids <- georef_all_dt$name_cleaner[condition]
+ids_unique <- sample(sort(unique(ids)))
+chunks <- split(ids_unique, ceiling(seq_along(ids_unique)/ (length(ids_unique)/5)))
+fold1 <- which(ids %in% chunks[[1]])
+fold2 <- which(ids %in% chunks[[2]])
+fold3 <- which(ids %in% chunks[[3]])
+fold4 <- which(ids %in% chunks[[4]])
+fold5 <- which(ids %in% chunks[[5]])
+folds <- list(fold1,fold2,fold3,fold4,fold5)
+
+label <- log(xy_all$distance_km[condition])
+
+#label= label #
+condition <- !is.na(label)
+dtrain <- xgb.DMatrix(data=as.matrix( x_train ), label = label, missing = NA )
+dpredict <- xgb.DMatrix(data=as.matrix( x_all ), missing = NA )
+
+param <- list("objective" ="reg:linear", #"objective" = logregobj,
+           #"scale_pos_weight" = sumwneg / sumwpos,
+           "eta" = 0.3,
+           "max_depth" = 6,
+           "eval_metric" = "rmse",
+           "silent" = 1,
+           "nthread" = 48,
+           'maximize'=T)
+
+#choose folds by name so we're not cheating
+
+xb <- xgb.cv(params=param,
+                data=dtrain,
+                nrounds = 100,
+                early_stopping_rounds=10, 
+                #nfold=5,
+                folds=folds,
+                prediction=T)
+
+xb2 <- xgb.train(params=param,
+             data=dtrain,
+             nrounds = 100,
+             #early_stopping_rounds=10, 
+             #nfold=5,
+             prediction=T)
+ 
+importance_importance <- xgb.importance(feature_names=colnames(dtrain), model = xb2) #won't calculate on cv
+xgb.plot.importance(importance_importance)
+ 
+
+#predictions_train <- predict(xb2, dtrain)
+predictions_all <- predict(xb2, dpredict) #predict over everything 
+#Replace with cross validation predictions
+condition <- !is.na(xy_all$distance_km) & xy_all$distance_km!=0 #what was used to subset to train above
+cross_valid_predictions <-  xb$pred
+predictions_all[condition] <- cross_valid_predictions #but for the subset we trained on, only use predictions from out of sample folds.
+
+georef_all_dt$rule_ensemble <- exp(predictions_all)
+#plot(georef_all_dt$rule_ensemble, georef_all_dt$distance_km)
+georef_all_dt %>% ggplot(aes(x=log(distance_km), y=log(rule_ensemble) )) + geom_point()
+
+setkey(georef_all_dt, handrule )
+temp <- subset(georef_all_dt,event_hash=="be37b40f")
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
+
+saveRDS(georef_all_dt, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/georef_all_dt.Rds")
+
+
+```
+
+
+
+
+

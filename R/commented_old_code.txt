@@ -1,0 +1,744 @@
+```{r}
+p_pop <- gplot(pop_raster_roi) + geom_tile(aes(fill = log(value+1))) + theme_bw() +
+  scale_fill_gradient2("Pop.(Log)",  high="red", low="blue") +
+  #scale_fill_gradientn("Pop.(Log)", colours = terrain.colors(10))  +
+  coord_equal() + ylab("Latitude")+ xlab("Longitude") +
+  #coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) +
+  xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+
+ggsave(filename=glue('../figures/p_pop.png'), plot = p_pop , dpi=100)
+#base_height=1.5, base_width=3)
+
+p_pop
+
+```
+
+
+```{r}
+
+#Forest
+p_load(raster)
+
+p_load(ggplot2, cowplot)
+p_forest <- gplot(path_forest_roi) + geom_tile(aes(fill = log(value+1))) + theme_bw() +
+  scale_fill_gradient2("Pop.(Log)",  high="darkgreen", low="white") +
+  #scale_fill_gradientn("Pop.(Log)", colours = terrain.colors(10))  +
+  coord_equal() + ylab("Latitude")+ xlab("Longitude") +
+  #coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F)  +
+  xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+p_forest
+save_plot(filename='../figures/p_forest.png',
+          plot = p_forest ,
+          dpi=100)
+#base_height=1.5, base_width=3)
+
+
+
+```
+
+Please cite the following paper if you use any of this data:
+
+  Shaver, Andrew, David B. Carter, and Tsering W. Shawa. 2016. “Terrain Ruggedness and Land Cover: Improved Data for All Research Designs.” Conflict Management and Peace Science
+
+Terrain Ruggedness Datasets
+
+1.Terrain Ruggedness: 1 km x 1 km grid-square unit
+
+```{r}
+
+
+p_load(ggplot2)
+p_rugged <- gplot(raster_rugged) + geom_tile(aes(fill = log(value+1))) + theme_bw() +
+  scale_fill_gradient2("",  high="brown", low="white") +
+  #scale_fill_gradientn("Ruggedness", colours = terrain.colors(10))  +
+  coord_equal() + ylab("Latitude")+ xlab("Longitude") +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) + xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+p_rugged
+
+save_plot(filename=paste0(path, '/plots/p_rugged.png'),
+          plot = p_rugged ,
+          dpi=100)
+#base_height=1.5, base_width=3)
+
+```
+
+
+
+#Roads
+
+Road Engineers Office Public Works Department  in Nairobi, Februrary 1951, “Colony and Protectorate of Kenya Key Plan to Road Maps of the Colony Prepared to Scale 1:500,000.”
+
+```{r}
+
+
+
+p_load(raster,rgdal)
+
+ggplot(roads, aes(x=long, y=lat, group=group)) + geom_path() + theme_classic()
+
+
+#http://gis.stackexchange.com/questions/213225/processing-vector-to-raster-faster-with-r
+fromscratch=F
+if(fromscratch){
+  r.raster <- raster( xmn=33, xmx=43, ymn=-6, ymx=6)
+  res(r.raster) <- 0.01
+  r <- setValues(r, 0)
+  roads <- rasterize(roads, r.raster, 'ones', background=0) #
+
+  writeRaster(roads, filename='D:/Dropbox (UCSD_MATH)/RWD_Coathorships/DouglassHark_Big/IntroducingKenyaGeospatial/Kenya_Road_Map/ReffedToModernRoadMap/ModernRoads_TakingPropertiesFromRaster.tif', overwrite=TRUE)
+}
+
+
+path_roads <- 'D:/Dropbox (UCSD_MATH)//RWD_Coathorships/DouglassHark_Big/IntroducingKenyaGeospatial/Kenya_Road_Map/ReffedToModernRoadMap/ModernRoads_TakingPropertiesFromRaster_distance.tif'
+p_load(raster)
+raster_roads <- raster(path_roads)
+raster_roads
+
+raster_roads <- crop(raster_roads, regionofinterest)
+
+p_load(rasterVis )
+
+extent(cadastral)
+
+p_load(ggplot2)
+p_roads <- gplot(raster_roads) + geom_tile(aes(fill = log(value+1))) + theme_bw() +
+  scale_fill_gradient2("Dist to Roads",  high="darkgrey", low="white") +
+  #scale_colour_gradient2("Dist to Roads")  +
+  coord_equal() + ylab("Latitude")+ xlab("Longitude") +
+  geom_path(data=roads, aes(x=long, y=lat, group=group), col="black") +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) + xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+
+p_roads
+save_plot(filename=paste0(path, '/plots/p_roads.png'),
+          plot = p_roads ,
+          dpi=100)
+#base_height=1.5, base_width=3)
+
+```
+
+```{r}
+p_load(cowplot)
+p_covariates <- plot_grid(
+  p_pop +ggtitle('Population'),
+  p_rugged+ggtitle('Ruggedness'),
+  p_roads +ggtitle('Dist to Roads'),
+  ncol = 3, align = "vh" ) #
+p_covariates
+save_plot(filename=paste0(path, '/plots/covariates_spatial_distribution.png'),
+          plot = p_covariates, base_height=3, base_width=12)
+
+
+
+```
+
+
+## Tribe
+
+```{r}
+
+
+p_load("rgdal") # requires sp, will use proj.4 if installed
+p_load("maptools")
+p_load("ggplot2")
+p_load("plyr")
+
+path_tribes <- 'D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events//data/gis_data'
+tribes <- readOGR(dsn = path_tribes, layer = "kenya_tribes")
+
+tribes@data$id = rownames(tribes@data)
+tribes.points = fortify(tribes, region="id")
+tribes.df = join(tribes.points, tribes@data, by="id")
+
+centroids <- aggregate(tribes.df, by=list(tribes.df$Tribe), mean)
+
+p_tribes <- ggplot(tribes.df) +
+  aes(long,lat,group=group,fill=Tribe) +
+  geom_polygon() + geom_path(color="white") +
+  with(centroids, annotate(geom="text", x = long, y=lat, label = Group.1, size = 5)) +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) +
+  theme_bw() + theme(legend.position="none") + xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+p_tribes
+
+save_plot(filename=paste0(path, '/plots/p_tribes.png'),
+          plot = p_tribes ,
+          dpi=100)
+#base_height=1.5, base_width=3)
+
+```
+
+```{r}
+path_language <- 'D:/Dropbox (UCSD_MATH)/RWD_Coathorships/DouglassHark_Big/IntroducingKenyaGeospatial/GIS/Ethnicity'
+language <- readOGR(dsn = path_language, layer = "LanguagePolygons")
+
+language@data$id = rownames(language@data)
+language.points = fortify(language, region="id")
+language.df = join(language.points, language@data, by="id")
+
+centroids <- aggregate(language.df, by=list(language.df$LANGUAGE), mean)
+
+p_language <- ggplot(language.df) +
+  aes(long,lat,group=group,fill=LANGUAGE) +
+  geom_polygon() + geom_path(color="white") +
+  with(centroids, annotate(geom="text", x = long, y=lat, label = Group.1, size = 5)) +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) +
+  theme_bw() + theme(legend.position="none") + xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+
+p_language
+save_plot(filename=paste0(path, '/plots/p_language.png'),
+          plot = p_language ,
+          dpi=100)
+#base_height=1.5, base_width=3)
+
+```
+
+```{r, eval=F}
+#Not including
+agzones <- readOGR(dsn = "D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Causes of Collective Punishment/writing/CostOfSilence_June/data/gis_data", layer = "kenya_aczones")
+
+agzones@data$id = rownames(agzones@data)
+agzones.points = fortify(agzones, region="id")
+agzones.df = join(agzones.points, agzones@data, by="id")
+
+centroids <- aggregate(agzones.df, by=list(agzones.df$LANGUAGE), mean)
+
+p_language <- ggplot(language.df) +
+  aes(long,lat,group=group,fill=LANGUAGE) +
+  geom_polygon() + geom_path(color="white") +
+  with(centroids, annotate(geom="text", x = long, y=lat, label = Group.1, size = 5)) +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) +
+  theme_bw() + theme(legend.position="none") + xlab("") + ylab("")
+
+p_language
+
+
+```
+
+```{r}
+landuse <- readOGR(dsn = "D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Causes of Collective Punishment/writing/CostOfSilence_June/data/gis_data", layer = "kenya_landuse")
+
+landuse@data$id = rownames(landuse@data)
+landuse.points = fortify(landuse, region="id")
+landuse.df = join(landuse.points, landuse@data, by="id")
+
+centroids <- aggregate(landuse.df, by=list(landuse.df$LANDUSE), mean)
+
+p_landuse <- ggplot(landuse.df) +
+  aes(long,lat,group=group,fill=LANDUSE) +
+  geom_polygon() + geom_path(color="white") +
+  with(centroids, annotate(geom="text", x = long, y=lat, label = Group.1, size = 5)) +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) +
+  theme_bw() + theme(legend.position="none") + xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+
+p_landuse
+save_plot(filename=paste0(path, '/plots/p_landuse.png'),
+          plot = p_landuse ,
+          dpi=100)
+#base_height=1.5, base_width=3)
+
+```
+
+```{r}
+rainfall <- readOGR(dsn = "D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Causes of Collective Punishment/writing/CostOfSilence_June/data/gis_data", layer = "kenya_rainfall")
+
+rainfall@data$id = rownames(rainfall@data)
+rainfall.points = fortify(rainfall, region="id")
+rainfall.df = join(rainfall.points, rainfall@data, by="id")
+
+centroids <- aggregate(rainfall.df, by=list(rainfall.df$TYPE), mean)
+
+p_rainfall <- ggplot(rainfall.df) +
+  aes(long,lat,group=group,fill=as.numeric(TYPE)) +
+  geom_polygon() + geom_path(color="white") +
+  with(centroids, annotate(geom="text", x = long, y=lat, label = Group.1, size = 5)) +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) +
+  theme_bw() + theme(legend.position="none") + xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+
+#p_rainfall
+#save_plot(filename=paste0(path, '/plots/p_rainfall.png'),
+#       plot = p_rainfall ,
+#       dpi=100)
+#       #base_height=1.5, base_width=3)
+
+#Have to load different squares, and seperately for each month, and then sum and crop all of them
+p_load("rgdal") # requires sp, will use proj.4 if installed
+p_load("maptools")
+p_load("ggplot2")
+p_load("plyr")
+p_load(raster)
+
+pathpop <- "D:/Dropbox (UCSD_MATH)/Kenya Article Drafts/Violent Events/data/gis_data/"
+
+layer27 <- list()
+for(i in 1:12){
+  name <- paste0(pathpop,"prec",i,"_",27,".tif")
+  layer27[[i]] <- raster(name)
+}
+prec27 <- layer27[[1]] + layer27[[2]]+layer27[[3]] +layer27[[4]] +layer27[[5]] +layer27[[6]] +layer27[[7]] +layer27[[8]] +layer27[[9]] +layer27[[10]]+ layer27[[11]]+ layer27[[12]]
+
+layer37 <- list()
+for(i in 1:12){
+  name <- paste0(pathpop,"prec",i,"_",37,".tif")
+  layer37[[i]] <- raster(name)
+}
+prec37 <- layer37[[1]] + layer37[[2]]+layer37[[3]] +layer37[[4]] +layer37[[5]] +layer37[[6]] +layer37[[7]] +layer37[[8]] +layer37[[9]] +layer37[[10]]+ layer37[[11]]+ layer37[[12]]
+plot(prec37)
+
+raster_rain <- raster::merge(prec27,prec37)
+raster_rain <- crop(raster_rain, regionofinterest)
+
+p_load(ggplot2)
+p_rain <- gplot(raster_rain) + geom_tile(aes(fill = value )) + theme_bw() +
+  scale_fill_gradient2("",  high="darkblue", low="white") +
+  #scale_fill_gradientn("Rain", colours = terrain.colors(10))  +
+  #scale_colour_gradient2() +
+  coord_equal() + ylab("Latitude")+ xlab("Longitude") +
+  coord_equal(xlim=c(long_min, long_max),ylim=c(lat_min,lat_max), expand=F) + xlab("") + ylab("") +
+  theme_nothing() + theme(legend.position="none")
+p_rain
+
+save_plot(filename=paste0(path, '/plots/p_rain.png'),
+          plot = p_rain ,
+          dpi=100)
+#base_height=1.5, base_width=3)
+
+```
+
+```{r}
+
+p_load(cowplot)
+p_covariates2 <- plot_grid(
+  p_cadastral + ggtitle('Cadestral') ,
+  p_tribes +ggtitle('Tribes'),
+  p_language +ggtitle('Language'),
+  p_landuse+ggtitle('Land Use'),
+  p_rainfall +ggtitle('Rainfall'),
+  ncol = 3, align = "vh" ) #
+p_covariates2
+save_plot(filename=paste0(path, '/plots/covariates_spatial_distribution2.png'),
+          plot = p_covariates2, base_height=6, base_width=12)
+
+```
+
+
+
+
+#
+# p_load(broom)
+# fromscratch <- F
+# if (fromscratch) {
+#   ellipse_list <- list()
+#   for (q in unique(events_sf$name_cleaner)) {
+#     print(q)
+#     try({
+#       coords <- st_coordinates(events_sf[events_sf$name_cleaner %in% q, ])
+#       coords <- unique(na.omit(round(coords, 3)))
+#       if (nrow(coords) > 1) { # You can fail a couple of different ways. All exact points, points that are too close to each other
+#         sde <- to_sde(na.omit(coords), id = q)
+#         sde$df$name_cleaner_stemmed <- q
+#         sde$df$coords_unique <- nrow(unique(na.omit(round(coords, 3))))
+#         ellipse_list[[q]] <- to_polygon_df(sde$coords, ID = q, df = sde$df)
+#       }
+#     })
+#   }
+#
+#   ellipse_df <- rbindlist(lapply(ellipse_list, tidy))
+#
+#   ellipse_sf <- st_as_sf(do.call("rbind", ellipse_list), crs = 4326, agr = "constant") %>%
+#     select(id, geometry) %>%
+#     setNames(c("name", "geometry")) %>%
+#     mutate(source_dataset = "events_poly") %>%
+#     mutate(name = as.character(name))
+#
+#   saveRDS(ellipse_sf, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ellipse_sf.Rds")
+#   # st_write(ellipse_sf,
+#   #         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ellipse_sf.gpkg",
+#   #         delete_layer=T)
+# }
+
+
+# ellipse_sf <- readRDS(system.file("extdata", "ellipse_sf.Rds", package = "MeasuringLandscapeCivilWar"))
+
+# ellipse_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ellipse_sf.gpkg") #it's getting renamed on load an
+# wow reading and saving destroys this crs info
+# ellipse_sf <- st_read(system.file("extdata", "ellipse_sf.gpkg", package = "MeasuringLandscapeCivilWar")) %>%
+#    setNames(c("names","source_dataset","geometry")) %>%  #it's getting renamed on load an
+#     st_set_crs(4326) #Wow and renaming it breaks the geometry so you have to set it again. Uhg.
+
+# #Calculate some oval statistics
+# ellipse_list_areas <- sapply(ellipse_list, FUN=function(x) x@polygons[[1]]@area )
+# ellipse_list_bbox_area <- sapply(ellipse_list, FUN=function(x) { temp <- x@bbox; temp <- temp[,2]-temp[,1] ; temp <- abs(temp); return(temp[1]*temp[2] )  })
+# ellipse_list_areas_ratio <- ellipse_list_areas / ellipse_list_bbox_area
+# ellipse_list_coords_unique <- sapply(ellipse_list, FUN=function(x) x@data$coords_unique )
+#
+# ellipse_statistics_df <- list(
+#   ellipse_list_areas %>% data.frame() %>% set_names("ellipse_area") %>% rownames_to_column("name_cleaner_stemmed"),
+#   ellipse_list_bbox_area %>% data.frame() %>% set_rownames(gsub("\\.x$","", names(ellipse_list_bbox_area) )) %>% set_names("ellipse_bbox_area") %>% rownames_to_column("name_cleaner_stemmed"),
+#   ellipse_list_areas_ratio %>% data.frame()  %>% set_names("ellipse_area_ratio") %>% rownames_to_column("name_cleaner_stemmed"),
+#   ellipse_list_coords_unique %>% data.frame() %>% set_names("ellipse_coords_unique_count") %>% rownames_to_column("name_cleaner_stemmed")
+# ) %>% Reduce(function(dtf1,dtf2) full_join(dtf1,dtf2,by="name_cleaner_stemmed"), .)
+#
+# ellipse_statistics_df %>% summary()
+# table(ellipse_statistics_df$ellipse_coords_unique_count)
+# ellipse_statistics_df$ellipse_area
+# ellipse_statistics_df %>% ggplot(aes(log(ellipse_coords_unique_count),log(ellipse_area), label =name_cleaner_stemmed ))  + geom_text(size=2) + theme_bw() + geom_smooth()  + xlim(1,4)
+# ellipse_statistics_df %>% ggplot(aes(ellipse_coords_unique_count,log(ellipse_area), label =name_cleaner_stemmed )) + theme_bw() + geom_smooth()  + geom_text(size=1) + xlim(3,20)
+
+
+
+<!-- ```{r} -->
+
+<!-- #install.packages ("devtools")  -->
+<!-- #library (devtools)  -->
+<!-- #install_github ("AppliedDataSciencePartners / xgboostExplainer") -->
+
+<!-- xy_train <- temp_everything[['xy_train']] -->
+<!-- xy_test <- temp_everything[['xy_test']] -->
+
+<!-- dtrain <- xgb.DMatrix(data=as.matrix( as.data.frame(xy_train)[,vars_x] ), label = as.numeric(as.data.frame(xy_train)$rex_match), missing = NA ) -->
+<!-- dtest <- xgb.DMatrix(data=as.matrix( as.data.frame(xy_test)[,vars_x] ), label = as.numeric(as.data.frame(xy_test)$rex_match), missing =  NA ) -->
+
+<!-- library (xgboostExplainer) -->
+<!-- explainer = buildExplainer(toponym_xb_everything, dtrain, type = "binary", base_score = 0.5)  -->
+<!-- pred.breakdown = explainPredictions(toponym_xb_everything, explainer, dtest) -->
+
+<!-- showWaterfall(toponym_xb_everything, explainer, dtest, as.matrix( as.data.frame(xy_test)[,vars_x] ),  2, type = "binary") -->
+<!-- showWaterfall(toponym_xb_everything, explainer, dtest, as.matrix( as.data.frame(xy_test)[,vars_x] ),  8, type = "binary") -->
+
+<!-- #have to restrict to just vars_x -->
+<!-- p_load(lime) -->
+<!-- test <- as.data.frame(as.matrix(as.data.frame(xy_test)[,vars_x_everything]) ) -->
+<!-- test[test==NA] <- NA -->
+<!-- explainer <- lime(x=test , model=toponym_xb_everything2) -->
+
+
+<!-- condition <- (global_test$toponym_xb_everything>.5) == global_test$rex_match -->
+<!-- which_to_explain <- which(condition  %in% F)[1:10] -->
+
+<!-- #which_to_explain=17589 -->
+<!-- labels = paste( -->
+<!--   global_test$rex_match,": ", -->
+<!--   global_test$name_cleaner_a, -->
+<!--   " --- ", -->
+<!--   global_test$name_cleaner_b)[which_to_explain] -->
+
+<!-- labels <- factor(labels, levels=unique(labels)) -->
+
+<!-- #handlabeled[17589,] -->
+
+<!-- explanation <- lime::explain(as.data.frame(as.matrix(as.data.frame(global_test)[which_to_explain,vars_x_everything]) ),  -->
+<!--                              explainer  , -->
+<!--                         n_labels = 1, -->
+<!--                         n_features = 4 -->
+<!-- )  -->
+
+<!-- #p <- plot_features(explanation, ncol=1) -->
+
+<!-- #roll my own plot  -->
+<!-- plot_explain <- function(explanation, ncol=2, -->
+<!--                          labels=labels){ -->
+
+<!--       type_pal <- c("Supports", "Contradicts") -->
+<!--       explanation$type <- factor(ifelse(sign(explanation$feature_weight) ==  -->
+<!--           1, type_pal[1], type_pal[2]), levels = type_pal) -->
+
+
+<!--       description <- paste0(explanation$case, "_", explanation$label) -->
+<!--       desc_width <- max(nchar(description)) + 1 -->
+<!--       description <- paste0(format(description, width = desc_width),  -->
+<!--           explanation$feature_desc) -->
+<!--       explanation$description <- factor(description, levels = description[order(abs(explanation$feature_weight))]) -->
+
+<!--       explanation$case <- factor(explanation$case, unique(explanation$case)) -->
+
+<!--       explanation$case_label <- labels[explanation$case] -->
+
+<!--       explanation$probability <- format(explanation$label_prob,  -->
+<!--           digits = 2) -->
+<!--       p <- ggplot(explanation) + facet_wrap(~case_label + label +  -->
+<!--           probability, labeller = lime:::label_both_upper, scales = "free",  -->
+<!--           ncol = ncol) -->
+
+<!--       p + geom_col(aes_(~description, ~feature_weight, fill = ~type)) +  -->
+<!--           coord_flip() + scale_fill_manual(values = c("forestgreen", "firebrick"), drop = FALSE) +  -->
+<!--           scale_x_discrete(labels = function(lab) substr(lab,  -->
+<!--           desc_width + 1, nchar(lab))) + labs(y = "Weight", x = "Feature",  -->
+<!--           fill = "") + lime:::theme_lime() -->
+<!-- } -->
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+
+<!-- plot_features(result, ncol = 1) -->
+
+<!-- library (devtools)  -->
+<!-- #https://medium.com/applied-data-science/new-r-package-the-xgboost-explainer-51dd7d1aa211 -->
+<!-- install_github("AppliedDataSciencePartners/xgboostExplainer") -->
+
+<!-- library (xgboostExplainer) -->
+<!-- explainer = buildExplainer( -->
+<!--                            xb, -->
+<!--                            dtrain, -->
+<!--                            type = "binary", -->
+<!--                            base_score = base_score #calculated above, just the intercept, average response -->
+<!-- ) -->
+
+<!-- pred.breakdown = explainPredictions(xb, explainer, dtest) -->
+<!-- cat ('Breakdown Complete', '\ n')  -->
+<!-- weights = rowSums(pred.breakdown)  -->
+<!-- pred.xgb = 1 / (1 + exp (-weights))  -->
+<!-- cat (max (xgb.preds-pred.xgb) n ') -->
+<!-- idx_to_get = 802  -->
+<!-- test [idx_to_get, - "left"]  -->
+<!-- showWaterfall (xgb.model, explainer, xgb.test.data, data.matrix (test [, - 'left']), idx_to_get, type = "binary") -->
+
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- p_load(rpart) -->
+
+<!-- fit <- rpart(formula = as.factor(rex_match) ~  -->
+<!--                      exact_match + dOptimal_String_Alignment + dJaro +  dLevenshtein + dDamerau_Levenshtein +  -->
+<!--                      dLongest_Common_Substring +  dq_gram + dCosine + dJaccard + First_Mistmatch, -->
+<!--                   data = temp_everything[['xy_train']][,c("rex_match", vars_x_everything), with=F ] , -->
+<!--                 control=rpart.control(minsplit=20, cp=0.0015) -->
+<!--                ) -->
+
+<!-- p_load(partykit) -->
+<!-- plot(as.party(fit), type="simple", cex=.5) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- #eval1 <- evalmod(scores = predict(xb, dtest), labels = as.numeric(as.data.frame(xy_test)$rex_match)) -->
+<!-- #eval2 <- evalmod(scores = as.numeric(predict(alt.fft, xy_test)), labels = as.numeric(as.data.frame(xy_test)$rex_match)) -->
+
+
+
+
+
+<!-- #Fit a frugal tree first -->
+<!-- #See if we can't prune using only one string metric, and then finish calculating the rest -->
+<!-- p_load(FFTrees) -->
+<!-- alt.fft <- FFTrees(formula = rex_match ~  -->
+<!--                      exact_match + dOptimal_String_Alignment + dJaro +  dLevenshtein + dDamerau_Levenshtein +  -->
+<!--                      dLongest_Common_Substring +  dq_gram + dCosine + dJaccard + First_Mistmatch, -->
+<!--                   data = temp_everything[['xy_train']][,c("rex_match", vars_x_everything), with=F ], -->
+<!--                   data.test = temp_everything[['xy_test']][,c("rex_match", vars_x_everything) , with=F] , -->
+<!--                   main = "Toponym Match", -->
+<!--                   decision.labels = c("Not Match", "Match"), -->
+<!--                   comp = FALSE, -->
+<!--                   goal="wacc", -->
+<!--                   goal.chase="wacc", -->
+<!--                   cost.outcomes=c( -->
+<!--                      .1,  #hit -->
+<!--                      .1,  #false alarm -->
+<!--                      10, #miss -->
+<!--                      .1   #correct rejection -->
+<!--                   ) -->
+<!--                ) -->
+
+<!-- print(alt.fft) -->
+
+<!-- plot(alt.fft, -->
+<!--      data="test", -->
+<!--      tree="best.test") -->
+
+<!-- handlabeled$prediction_FFTrees <- predict(alt.fft, data=handlabeled) -->
+<!-- handlabeled$prediction_correct <- handlabeled$prediction_FFTrees==handlabeled$rex_match -->
+
+<!-- table(handlabeled$rex_match,handlabeled$prediction_FFTrees) -->
+
+<!-- ``` -->
+
+
+<!-- ```{r} -->
+
+<!-- #I'm not masking zeros right now anyway, so the embedding might be using them as is. Maybe just go ahead and add a column to the fron for zeros. -->
+<!-- generate_sequences <- function(text, maxlength=20, mask=0, intcutoff=256){ -->
+<!--   text <- paste0("^", text, "$") -->
+<!--   p_load(parallel) -->
+<!--   text_df <- rbindlist(mclapply( text, -->
+<!--                                  FUN=function(x) as.data.frame(t(utf8ToInt(x))) , -->
+<!--                                  mc.cores=detectCores() ) -->
+<!--                        , fill=T) -->
+<!--   text_df[is.na(text_df) | text_df>intcutoff] <- mask -->
+<!--   if(ncol(text_df) < maxlength) { -->
+<!--     text_df <- cbind(text_df, -->
+<!--                      matrix(0,nrow(text_df), -->
+<!--                             maxlength-ncol(text_df) -->
+<!--                             )) -->
+<!--   } -->
+<!--   text_df <- text_df[,1:maxlength] -->
+<!--   return(text_df) -->
+<!-- } -->
+
+<!-- p_load(keras) -->
+<!-- mask=0 -->
+<!-- intcutoff=256 -->
+<!-- maxlen=20 -->
+<!-- vocab_size=max(sequences_a_df)+1 -->
+<!-- CHARACTER_HIDDEN_SIZE= 15 -->
+<!-- xy_train <- temp_everything[['xy_train']] -->
+<!-- sequences_a_df <- generate_sequences(xy_train$name_cleaner_a, maxlength=maxlen,mask=mask,intcutoff=intcutoff) #takes about a minute+ -->
+<!-- sequences_b_df <- generate_sequences(xy_train$name_cleaner_a, maxlength=maxlen,mask=mask,intcutoff=intcutoff) -->
+
+<!-- sequences_a_df_test <- generate_sequences(xy_test$name_cleaner_a, maxlength=maxlen,mask=mask,intcutoff=intcutoff) #takes about a minute+ -->
+<!-- sequences_b_df_test <- generate_sequences(xy_test$name_cleaner_a, maxlength=maxlen,mask=mask,intcutoff=intcutoff) -->
+
+<!-- vars_x_cnn <- c("Jaro","Optimal_String_Alignment","Levenshtein","Damerau_Levenshtein","Longest_Common_Substring","q_gram","Cosine","Jaccard","First_Mistmatch", -->
+<!--                  "a_nchar","b_nchar","ab_nchar_diff") -->
+
+<!-- input_a <- layer_input(shape = c(maxlen)) -->
+<!-- input_b <- layer_input(shape = c(maxlen)) -->
+<!-- input_ab <- layer_input(shape = length(vars_x_cnn)) -->
+
+<!-- embed <- layer_embedding(input_dim = vocab_size+1, output_dim = CHARACTER_HIDDEN_SIZE, input_length = maxlen, mask_zero=F, embeddings_regularizer= NULL) -->
+
+<!-- convul10 <- layer_conv_1d(filters=50, kernel_size=10, padding = "same",activation = "relu", strides = 1) -->
+<!-- convul9 <- layer_conv_1d(filters=50, kernel_size=9, padding = "same",activation = "relu", strides = 1) -->
+<!-- convul8 <- layer_conv_1d(filters=50, kernel_size=8, padding = "same",activation = "relu", strides = 1) -->
+<!-- convul7 <- layer_conv_1d(filters=50, kernel_size=7, padding = "same",activation = "relu", strides = 1) -->
+<!-- convul6 <- layer_conv_1d(filters=50, kernel_size=6, padding = "same",activation = "relu", strides = 1) -->
+<!-- convul5 <- layer_conv_1d(filters=50, kernel_size=5, padding = "same",activation = "relu", strides = 1) -->
+<!-- convul4 <- layer_conv_1d(filters=50, kernel_size=4, padding = "same", activation = "relu",strides = 1) -->
+<!-- convul3 <- layer_conv_1d(filters=50, kernel_size=3, padding = "same", activation = "relu",strides = 1) -->
+<!-- convul2 <- layer_conv_1d(filters=50, kernel_size=2, padding = "same", activation = "relu",strides = 1) -->
+<!-- convul1 <- layer_conv_1d(filters=50, kernel_size=1, padding = "same", activation = "relu",strides = 1) -->
+
+<!-- encoded_a_max <- layer_concatenate(axis = -1, -->
+<!--                                    inputs=list( -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul1, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul2, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul3, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul4, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul5, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul6, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul7, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul8, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul9, -->
+<!--                                      input_a %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul10 -->
+<!--                                    ) ) %>% layer_global_max_pooling_1d() -->
+
+<!-- encoded_b_max <- layer_concatenate(axis = -1, -->
+<!--                                    inputs=list( -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul1, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul2, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul3, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul4, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul5, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul6, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul7, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul8, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul9, -->
+<!--                                      input_b %>% embed %>% layer_batch_normalization() %>% layer_dropout(0.0) %>% convul10 -->
+<!--                                    ) ) %>% layer_global_max_pooling_1d() -->
+
+
+<!-- #depth1 <- layer_dense(units = 1200, activation = 'relu', name="depth1")  -->
+<!-- depth2 <- layer_dense(units = 250, activation = 'relu', name="depth2")  -->
+<!-- depth3 <- layer_dense(units = 10, activation = 'linear',  name="depth3")  -->
+<!-- #depth7 <- layer_dense(units = 75, activation = 'relu',   name="depth7")  -->
+
+<!-- depthed_a <- encoded_a_max  %>% layer_batch_normalization() %>% depth2  %>% layer_batch_normalization() %>% depth3  -->
+<!-- depthed_b <- encoded_b_max  %>% layer_batch_normalization() %>% depth2 %>% layer_batch_normalization() %>% depth3  -->
+
+<!-- match <- layer_dot(list(depthed_a, depthed_b), axes = c(1,1), normalize = T ) -->
+
+<!-- #difflayer <- layer_multiply(inputs=list(encoded_a_max, encoded_b_max)) -->
+
+<!-- #final <- la#yer_concatenate(axis = -1, inputs=list(match, input_ab, difflayer )) %>% layer_batch_normalization() %>%  layer_dropout(0.5) %>%  -->
+<!--                             la#layer_dense(units = 300, activation = 'relu', name="encoded300") %>% layer_batch_normalization() %>% layer_dropout(0.5) %>%  -->
+<!--                             #yer_dense(units = 300, activation = 'relu', name="encoded300b") %>% layer_batch_normalization() %>% layer_dropout(0.5) %>%  -->
+
+<!-- #             difflayer %>% layer_dense(units = 1, activation = 'sigmoid', name="final" -->
+
+<!-- final <- match %>% layer_dense(units = 1, activation = 'sigmoid', name="final") -->
+
+<!-- model <- keras_model(inputs = list(input_a,input_b),outputs = final )  -->
+
+<!-- model %>% compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = c('accuracy')) -->
+
+<!-- model -->
+<!-- epochs=1 -->
+<!-- batch_size=512 -->
+
+<!-- classweights <- sort(unique(xy_train$weights), decreasing=F) -->
+
+<!-- #model <- load_model_hdf5( filepath="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/cnn_distance.hdf5") # for now load the long trained one #it's overfit -->
+<!-- input_ab_all <- xy_all[,vars_x_cnn, with=F] -->
+<!-- input_ab_all[,1:ncol(input_ab_all)] <- lapply(input_ab_all, as.numeric) -->
+<!-- input_ab_all <- scale(input_ab_all) -->
+<!-- #input_ab_all[is.na(input_ab_all)] <- 0 -->
+<!-- input_ab_train <- input_ab_all[!xy_all$test,] -->
+<!-- input_ab_test <- input_ab_all[xy_all$test,] -->
+
+
+<!-- for(i in 1:300){ -->
+
+<!--   epochs=50 -->
+<!--   history <- model %>% keras::fit( -->
+<!--     callbacks=callback_csv_logger(filename="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/keras_log_file.csv",  -->
+<!--                                   separator = ",", append = T), -->
+<!--     x= list(as.matrix(sequences_a_df), -->
+<!--             as.matrix(sequences_b_df)), -->
+<!--     y=xy_train$rex_match , #make sure this is numeric and not logical -->
+<!--     validation_data = list(list(as.matrix(sequences_a_df_test), as.matrix(sequences_b_df_test) ), -->
+<!--                            xy_test$rex_match), -->
+<!--     epochs = epochs, -->
+<!--     all_examples_size=batch_size, -->
+<!--     view_metrics=F, #, # turn off plotting I think it's bugged right now, -->
+<!--     class_weight=list('0'=classweights[1],'1'=classweights[2]) #turned off weights because I wasn't sure hwo to do them with -1 correctly -->
+<!--   ) -->
+
+<!--   save_model_hdf5(model, filepath="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/cnn_all_distance.hdf5", -->
+<!--                   overwrite = TRUE, include_optimizer = TRUE) -->
+<!-- } -->
+
+
+
+<!-- cnn_all_distance <- load_model_hdf5( filepath="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/cnn_all_distance.hdf5") # for now load the long trained one #it's overfit -->
+
+
+<!-- intermediate_output <- predict(cnn_all_distance, -->
+<!--                                list(as.matrix(sequences_a_df_test), -->
+<!--                                      as.matrix(sequences_b_df_test)) -->
+<!--                          , verbose=1) -->
+
+<!-- boxplot(intermediate_output ~ temp_everything[['xy_test']]$rex_match) -->
+
+<!-- hist(intermediate_output, breaks=50) -->
+
+<!-- summary(intermediate_output[temp_everything[['xy_test']]$rex_match==0]) -->
+<!-- summary(intermediate_output[temp_everything[['xy_test']]$rex_match==1]) -->
+
+<!-- ``` -->
+
+
+
+
+#mp_everything_extraneg <- create_training_dataset(vars_id, vars_weights, vars_y, vars_x_everything, neg_count=30000)
+#saveRDS(temp_everything_extraneg, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything_extraneg.Rds")
+#temp_everything_extraneg <- readRDS(file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything_extraneg.Rds")
+
+#temp_everything_extra <- create_training_dataset(vars_id=vars_id, vars_weights=vars_weights, vars_y=vars_y, vars_x=vars_x_everything, neg_count=10000, fromscratch=T)
+#saveRDS(temp_everything_extra, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything_extra.Rds")
+
+#temp_everything_extra_large <- create_training_dataset(vars_id=vars_id, vars_weights=vars_weights, vars_y=vars_y, vars_x=vars_x_everything, neg_count=100000, fromscratch=T)
+#saveRDS(temp_everything_uber_large, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything_extra_large.Rds")
+
+#temp_everything_uber_large <- create_training_dataset(vars_id=vars_id, vars_weights=vars_weights, vars_y=vars_y, vars_x=vars_x_everything, neg_count=1000000, fromscratch=F) #from scratch is irelevant because neg_count>0 triggers a new one
+#saveRDS(temp_everything_uber_large, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything_uber_large.Rds")
+

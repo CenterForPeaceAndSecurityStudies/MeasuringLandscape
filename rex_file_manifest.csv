@@ -1,0 +1,37 @@
+File,Type,Description,Paper Output,File Output,File Input
+rmd_file_manifest.txt,rmd,This file,,,
+clean_corpus.Rmd ,rmd,Cleans the Kenya gazette an makes avaialbe a ngram file for merging. Which is the subset of ngrams that share any of the unique words found in the gazeteers or events,,csv_dt_grams_places.fst,
+consolidate_locations.rmd,rmd,Adds a cluster ID to each of the gazeteer entries stored as ,,flatfiles_sf_with_clusters.Rds,
+clean_counts.Rmd,rmd,Modifies the events dataset to add columns converting raw counts into aggragtes or converint words to numbers,,MeasuringLandscapeCivilWar_events_cleaned.Rdata,
+clean_dates.Rmd,rmd,Modifies the events dataset to add data columns and clean them,,MeasuringLandscapeCivilWar_events_cleaned.Rdata,
+clean_locations.Rmd ,rmd,"Performs all of the raw location cleaning, converting coordinates",,stored as location_text_ruleclean,
+clean_gazeteers.Rmd,rmd,Cleans and combines all of the different gazeteers,Y,flatfiles_sf.Rdata,
+events_to_gazeteers.Rmd,rmd,Looks outdated and will be replaced by a new file,,,
+prepcovariates_and_hexagons.Rmd,rmd,,,,
+events_vs_covariates.Rmd,rmd,Old file that will need to be rewritten,,,
+georefferencer.Rmd,rmd,Estimates error between guess and truth and picks the best point to interpolate,,,
+suggester.Rmd,rmd,,,,
+toponym_matcher.Rmd,rmd,Trains a model that predicts the likelihood that two strings represent the same synthetic place. Evaluates the model and produces some accuracy plots. Save an xgboost model for reuse as.,,toponym_xb_model_everything2.bin,
+_main.Rmd  ,rmd,"Automatically generated, may or may not need",,,
+paper.Rmd ,rmd,"Also Automatically generated, may or may not need",,,
+,,,,,
+,,,,,
+stem_collapse_and_gaussians.r,r,Out dated,,,
+location_stemmer.r,r,"geonames_postfixes, creates a list of postfixes from geonames, 
+strip_postfixes – takes in a string and returns a list of two strings, stems, and postfixes",,,
+create_hexagons.r,r,create_hexagon_df – Creates a lattice of hexagons of a given size within a given region of interest,,,
+EAGS2LatLong.r  ,r,EAGS2LatLong Converts east africa grid block coordinates to latidue and longitude,,,
+supervised_toponym_match.r,r,"generate_sequences – old code for lstm
+toponym_add_distances_dt – takes in data table with columns a and b, and adds a wide veriety of string distance features and returns the data table
+toponym_add_features – adds both distances and some kenya gazetter features",,,
+first_match.r      ,r,"firstmismatch, given two strings efficiently counts the number of characters before the first mismatch between the two. Returns as a numeric vector",,,
+spatial_functions.r,r,"common_cleaning – to aply to all flight files on load
+rbind_sf – rbinding multiple SF files together like rbindlist
+Clusterify- takes in coordinates and a list of clusters they should belong to and returns a set of convex hulls
+to_hull_polygon – creates a convex hull from a single set of coordinates
+to_polygon_df – create an SP spatial polygons object from a set of coordinates
+to_sde – error cone estimates using sde from a set of a coordinates",,,
+suggester.r,r,"lhs_getpairs takes in strings and a sparse matrix, band numbers, and row numbers, and returns a list of suggested matches",,,
+,,"eval_lshr, calculates the precision and recall rates for matching using this method",,,
+qgram_hash.r,r,qgram_hash – returns a sparse matrix of grams and skip grams from a given set of strings,,,
+create_roi.r,r,create_roi creates a rectangular polygon of given coordinates and returns as an sf object in utm ,,,

@@ -1,0 +1,44 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# MeasuringLandscapeCivilWar
+
+The goal of MeasuringLandscapeCivilWar is to ...
+
+### Citation
+
+Please cite this compendium as:
+
+> Rex W. Douglass and Kristen Harkness, (`r format(Sys.Date(), "%Y")`). Measuring the Landscape of Civil War: Evaluating
+Geographic Coding Decisions with Historic Data from
+the Mau Mau Rebellion. Accessed `r format(Sys.Date(), "%d %b %Y")`. Online at <https://doi.org/xxx/xxx>
+
+### Installation
+
+You can install MeasuringLandscapeCivilWar from github with:
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
+```
+
+### Licenses
+
+**Text and figures:**  [CC-BY-4.0](http://creativecommons.org/licenses/by/4.0/)
+
+**Code:** See the [DESCRIPTION](DESCRIPTION) file
+
+$\textbf{Data:}$ [CC-0](http://creativecommons.org/publicdomain/zero/1.0/) attribution requested in reuse
+
+

@@ -1,0 +1,435 @@
+---
+  title: "Consolidating Locations"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+  number_sections: yes
+theme: readable
+toc: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+This file consolidates locations
+
+```{r }
+# !diagnostics off
+
+
+gc()
+#sudo dnf install libcurl-devel
+#install.packages('devtools', dependencies=T)
+library(devtools)
+devtools::session_info('DT')
+
+if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
+
+p_load(mosaic, stringr,stringi)
+p_load(lubridate,stringr)
+p_load(janitor)
+p_load(digest)
+p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
+p_load(rgeos) #yum install -y geos-devel
+p_load(rgdal) #dnf install gdal* , sudo yum install proj*
+p_load(digest)
+p_load(ggmap) #sudo dnf install libjpeg*
+p_load(data.table)
+p_load(bookdown)
+p_load(feather)
+
+p_load(sf)
+p_load(tidyverse)
+p_load(viridis)
+p_load(rvest)
+p_load(tidyverse)
+#Need the development version for geom_sf
+#devtools::install_github("tidyverse/ggplot2")
+#This is much slower than other plotting I've been doing. Not great.
+#library(ggplot2)
+#flatfiles_sf %>% ggplot() +
+#  geom_sf(size=.1) +
+#  #scale_fill_viridis("Area") +
+#  ggtitle("Gazeteer Points (All)") +
+#  theme_bw()
+
+#devtools::load_all(".")
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+
+```{r}
+library(MeasuringLandscapeCivilWar)
+#Load Gazeteers
+flatfiles_sf <- readRDS(system.file("extdata", "flatfiles_sf.Rdata", package = "MeasuringLandscapeCivilWar"))
+dim(flatfiles_sf)
+
+flatfiles_dt <- as.data.table(flatfiles_sf)
+setkey(flatfiles_dt,place_hash)
+
+```
+
+```{r}
+
+table(flatfiles_sf$geometry_type)
+#flatfiles_sf_points <- subset(flatfiles_sf,geometry_type %in% 'POINT' & !is.na(geometry_dimensions))
+#dim(flatfiles_sf_points) #138,162 unique points
+
+#flatfiles_sf_points <- flatfiles_sf_points %>% distinct(feature_code,latitude, longitude, name, source_dataset ,.keep_all=T) #ya for some unkown reason it doesn't do distinct well when geometry is included
+#we could do intersects or 
+
+#UTM zone 37N	16037
+#flatfiles_sf_points$name_cleaner_set <- sapply(strsplit(flatfiles_sf_points$name_cleaner, " "), FUN=function(x) paste(na.omit(sort(trimws( unlist(x[x!=""])))), collapse="_"))
+
+crs_m <- "+proj=utm +zone=27 +datum=NAD83 +units=m +no_defs" 
+flatfiles_sf_utm <- st_transform(flatfiles_sf, crs=crs_m) #actually takes a sec
+
+flatfiles_sf_utm_nonempty <- subset(flatfiles_sf_utm, !is.na(geometry_dimensions)) 
+flatfiles_sf_utm_nonempty_centroids <- st_centroid(flatfiles_sf_utm_nonempty)
+
+#http://georepository.com/projection_16037/UTM-zone-37N.html
+
+```
+
+# Tensor
+
+Consider a graph where points, lines, and polygons from each source are nodes
+
+They have edges between them for whether
+1) Their centroids are within Xkm of each other
+2) They intersect one another
+3) Their names are considered aliases of each other
+4) Their names are within some string distance of one another
+
+
+### Add an undirected edge for things with centroids within X km of each other
+
+```{r}
+
+#You know, centroids should be enough. If the river or polygon is much bigger than this then I shouldn't be merging it anyway
+p_load(RANN)
+nearest <- nn2(data=st_coordinates(flatfiles_sf_utm_nonempty_centroids),
+                 #query = data,
+                 k = 20, #wow this actually ended up mattering
+                 treetype = c("kd", "bd"),
+                 searchtype = "radius",
+                 radius = 4000 #meters
+               ) #damn that's fast
+
+table(nearest$nn.dists>100) #These are missing, no match within the radius
+summary(nearest$nn.dists[nearest$nn.dists<100])
+nearest_long <- as.data.table(nearest$nn.idx)
+nearest_long$a <- 1:nrow(nearest_long)
+library(reshape2)
+m_within <- melt(nearest_long, id.vars=c("a"))
+m_within$variable <- NULL
+m_within$b <- m_within$value
+m_within$value <- NULL
+m_within <- subset(m_within, a>0 & b>0 ) #Need this apparently
+m_within$place_hash_a <- flatfiles_sf_utm_nonempty_centroids$place_hash[m_within$a]
+m_within$place_hash_b <- flatfiles_sf_utm_nonempty_centroids$place_hash[m_within$b]
+
+#m$place_hash_ab <- paste(m$place_hash_a, m$place_hash_b, sep="_")
+#m$place_hash_ab <- sapply(m$place_hash_ab, FUN=function(x) 
+#                          strsplit(x, "_") %>% unlist() %>% sort() %>% paste(sep="_")
+#                       ) #this is taking way too long
+m_within$within10km <- T
+dim(m_within)
+
+```
+
+#Next spatial intersection
+
+```{r}
+
+#Takes a little while but not bad
+m_intersects <- st_intersects(flatfiles_sf_utm_nonempty,
+                              flatfiles_sf_utm_nonempty,
+                              sparse = TRUE)
+m_intersects_df <- rbindlist( 
+                            lapply(1:length(m_intersects), FUN=function(i) data.frame( a=i,
+                                                                                       b=m_intersects[[i]]
+                                                                                       )  
+                                   )
+                            )
+m_intersects_df$place_hash_a <- flatfiles_sf_utm_nonempty$place_hash[m_intersects_df$a]
+m_intersects_df$place_hash_b <- flatfiles_sf_utm_nonempty$place_hash[m_intersects_df$b]
+#m_intersects_df$place_hash_ab <- paste(m_intersects_df$place_hash_a, m_intersects_df$place_hash_b, sep="_")
+
+#m_intersects_df$name_cleaner_a <- flatfiles_sf_nonempty$name_cleaner[m_intersects_df$a]
+#m_intersects_df$name_cleaner_b <- flatfiles_sf_nonempty$name_cleaner[m_intersects_df$b]
+
+m_intersects_df$intersects <- T
+
+```
+
+
+```{r}
+
+m <- merge(
+           m_within[,c("place_hash_a","place_hash_b","within10km")],
+           m_intersects_df[,c("place_hash_a","place_hash_b","intersects")],
+           by=c("place_hash_a","place_hash_b"),
+           all.x=T, all.y=T
+           ) #This is now the list of all ids that intersect or have centroids within 10km
+setkey(flatfiles_dt, place_hash)
+m$name_cleaner_a <- flatfiles_dt[m$place_hash_a, ]$name_cleaner  #using the data table version because the sf was failing me horribly. Remember to set key
+m$name_cleaner_b <- flatfiles_dt[m$place_hash_b, ]$name_cleaner
+head(m)
+dim(m)
+setkey(m,place_hash_a,place_hash_b) #order it by id
+
+```
+
+Step 2 determine which of these are ever refered to as alternates for each other
+
+
+```{r}
+
+#Ok now check alternate names that are also close to one another
+head(m) #These are all within 10km of each other
+alternates <- paste(flatfiles_sf$name_cleaner, flatfiles_sf$name_alternates, sep=";") %>% 
+                    tolower() %>% 
+                    unique() %>% 
+                    na.omit() %>% 
+                    gsub("'s|`s","",., fixed=T) %>% 
+                    str_replace_all(., "[^;[:^punct:]]", "") %>% 
+                    trimws() %>% 
+                    gsub(";na","",., fixed=T)  %>% 
+                    gsub("  "," ",., fixed=T) %>% 
+                    trimws()
+  
+length(alternates)
+alternates_list <- strsplit(alternates, ";")
+alternates_list <- lapply(alternates_list, FUN=function(x) trimws(x))
+alternates_list <- lapply(alternates_list, unique)
+
+p_load(purrr)
+alternates_list <- keep(alternates_list, .p=function(x) length(x)>1)
+ 
+head(alternates_list)
+test <- as.data.table(t(combn(x=unique(alternates_list[[96]]), m=2, simplify = TRUE)))
+
+alternates_diads <- rbindlist(
+                                lapply(alternates_list,
+                                       FUN=function(q) as.data.table(t(combn(x=unique(trimws(q)),
+                                                                                              m=2,
+                                                                                              simplify = TRUE)
+                                                                                              )
+                                                                                      ))
+                                       )
+
+p_load(igraph)
+g <- graph_from_data_frame(alternates_diads, directed = F)
+point_cluster_name_alternate <- clusters(g)$membership
+point_cluster_dt <- data.table( name_cleaner=names(point_cluster_name_alternate),
+                                   cluster_alternates=point_cluster_name_alternate ) 
+setkey(point_cluster_dt,name_cleaner )
+#Two points are alternate for each other if they ever lay in the same cluster
+
+m$cluster_alternate_a <- NA
+m$cluster_alternate_a <- point_cluster_dt[m$name_cleaner_a,]$cluster_alternates # #I think we can do this lookup by name
+m$cluster_alternate_b <- NA
+m$cluster_alternate_b <- point_cluster_dt[m$name_cleaner_b,]$cluster_alternates  #I think we can do this lookup by name
+
+m$cluster_alternate_ab <- m$cluster_alternate_a == m$cluster_alternate_b | m$name_cleaner_a==m$name_cleaner_b
+m$cluster_alternate_ab[is.na(m$cluster_alternate_ab )] <- F
+table(m$cluster_alternate_ab)
+
+#flatfiles_sf_points <- flatfiles_sf_points %>% arrange(point_cluster_name_alternate) # be careful sorting and then rebuilding clusters breaks things
+#flatfiles_sf_points <- flatfiles_sf_points %>% arrange(point_cluster_10km_8sdist)
+
+```
+#Add features
+
+```{r}
+p_load(stringdist)
+m$a <- m$name_cleaner_a
+m$b <- m$name_cleaner_b
+
+m <- toponym_add_features(data=m) #requires the two columns to be called a and b appends all the columns necessary for toponym matching
+
+```
+
+# Calculate string distances
+
+```{r}
+
+p_load(xgboost)
+toponym_xb_model_everything2 <- xgb.load( "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/toponym_xb_model_everything2.bin")
+#bst1 <- xgb.Booster.complete(toponym_xb_model_everything2) #even with booster the object looks broken. It still predicts though which is spooky
+
+vars_id <- c("name_cleaner_a","name_cleaner_b",'test')
+vars_weights <- c("weights")
+
+vars_id <- c("name_cleaner_a","name_cleaner_b",'test','extranegative')
+vars_weights <- c("weights")
+vars_y <- c("rex_match")
+
+vars_x_string <- c(#"exact_match",               
+"Jaro",
+"Optimal_String_Alignment"    ,
+"Levenshtein",
+"Damerau_Levenshtein"    ,
+ "Longest_Common_Substring"     ,
+"q_gram_1",
+"q_gram_2",
+"q_gram_3",
+"q_gram_4",
+"q_gram_5",
+"Cosine"    ,
+"Jaccard"              ,
+ "First_Mistmatch"         ,
+"a_nchar"     ,
+"b_nchar"   ,
+"ab_nchar_diff"       ,             
+"dJaro",
+"dOptimal_String_Alignment"      ,
+"dLevenshtein"     ,
+"dDamerau_Levenshtein"  ,           
+"dLongest_Common_Substring",
+"dq_gram",
+"dCosine",
+"dJaccard"
+# "OM",
+# "OMloc",
+# "OMslen"
+# ,"OMspell",
+# "TWED",
+# "LCS",                 
+# "LCP",
+# "RLCP",
+# "NMS",
+# "NMSMST",                 
+# "SVRspell",
+# "CHI2"
+) 
+
+vars_x_stem <- paste0(vars_x_string, "_stemmed")
+
+vars_x_string_corpus <- c(
+"count_a",
+"year_min_a",                
+"year_median_a",
+"year_mean_a",
+"year_max_a",
+"ngram_a",                  
+"count_b",
+"year_min_b",
+"year_median_b",
+"year_mean_b",                
+"year_max_b",
+"ngram_b"
+)
+
+
+vars_x_stem_corpus <- paste0(vars_x_string_corpus, "_stemmed")
+vars_x_everything <-  c(vars_x_string, vars_x_stem, vars_x_string_corpus, vars_x_stem_corpus)     
+vars_x_onlystring <- c(vars_x_string)
+vars_x_stringcorpus <-  c(vars_x_string,  vars_x_string_corpus)     
+vars_x_string_and_stem <- c(vars_x_string, vars_x_stem)
+
+vars_id_y_x_weights <- c(vars_id,vars_y,vars_x,vars_weights)
+
+dtopredict <- xgb.DMatrix(data= as.matrix(as.data.frame(m)[,vars_x] ) )
+m$predictions_xb <- predict(toponym_xb_model_everything2, dtopredict )
+
+```
+
+
+# Now do final clustering
+
+```{r}
+
+p_load(igraph) 
+m_cutoff <- subset(m, #prediction_FFTrees | 
+                     (within10km | intersects) & #close by or overlapping
+                     predictions_xb>.5 #with very similar names
+                   ) 
+dim(m_cutoff)
+g <- graph_from_data_frame(m_cutoff[,c('place_hash_a','place_hash_b')], directed = F) #[,c('name_cleaner_a','name_cleaner_b')]
+clusters_final <- clusters(g)$membership
+clusters_final_dt <- data.table( place_hash=names(clusters_final),
+                                  clusters_final=clusters_final 
+                                 ) 
+setkey(clusters_final_dt, place_hash )
+#clusters_final_dt["1796b5631901e6be",]$clusters_final
+#table(flatfiles_sf$place_hash %in% clusters_final_dt$place_hash)
+flatfiles_sf$clusters_final <- clusters_final_dt[flatfiles_sf$place_hash,]$clusters_final
+
+flatfiles_sf$clusters_final[is.na(flatfiles_sf$clusters_final)] <- ( 1:length(flatfiles_sf$clusters_final[is.na(flatfiles_sf$clusters_final)]) ) *-1
+
+nrow(flatfiles_sf[flatfiles_sf$region_of_interest_intersects,]) #52,441 points in our ROI
+length( unique(flatfiles_sf$point_cluster_final[flatfiles_sf$region_of_interest_intersects]))  #15,800
+
+saveRDS(flatfiles_sf,
+        "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_with_clusters.Rds")
+
+```
+
+The 61% of historical gazeteer entries that couldn't be consolidated appear to be because of genuine novelty. 
+The 19% of livestock that couldn't be consolidated appear to be because of precision trunctaion, they all look rounded to the degree.
+59% of tgn
+56% of open streetmap
+
+
+```{r}
+
+table(flatfiles_sf$source_dataset, duplicated(flatfiles_sf$point_cluster_final)) #historical has the fewest clustered followed by openstreetmap
+
+flatfiles_sf %>% mutate(clusters_final_dupe = duplicated(clusters_final)) %>% as.data.frame() %>% 
+  crosstab(source_dataset, clusters_final_dupe)  %>% adorn_crosstab(.,denom = "row", show_n = T, digits = 1, show_totals=T)
+
+
+```
+
+```{r}
+
+flatfiles_sf %>% filter(region_of_interest_intersects) %>%
+  st_write("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_roi.gpkg",
+                      delete_layer = T)
+
+flatfiles_sf_clustered <- flatfiles_sf %>% group_by(clusters_final) %>% summarize_if(is.character, funs( paste(na.omit(unique(.)) ,collapse="|") ) )
+dim(flatfiles_sf_clustered)
+saveRDS(flatfiles_sf_clustered,
+        "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_clustered.Rds")
+
+flatfiles_sf_points_clustered %>% # filter(region_of_interest_intersects) %>%
+  st_write("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_clustered.gpkg",
+                      delete_layer = T)
+
+
+flatfiles_sf_points_clustered_convex_hull <- st_convex_hull(flatfiles_sf_points_clustered)
+
+#p_convex
+flatfiles_sf_points_clustered_convex_hull %>% 
+  st_write("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_points_clustered_convex_hull.gpkg",
+                      delete_layer = T)
+
+#This doesn't plot well with both points and poly
+#p_convex <- flatfiles_sf_points_clustered_convex_hull %>% ggplot() + geom_sf(alpha = 0.1, size=1)  + ggtitle("") + guides(color=FALSE) +
+#  xlim(35.67,38.19) + ylim(-1.43285,0.54543 )
+#ggsave(filename='/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/p_convex.pdf',
+#       plot=p_convex, width = 12, height = 12) #takes soooo longggg
+
+
+```
+
+# Summarize some facts about our consolidate points
+
+```{r}
+
+temp <- strsplit(flatfiles_sf_points_clustered$source_dataset, "|", fixed=T)
+
+table(sapply(temp, length))
+summary(sapply(temp, length))
+
+
+
+
+
+```

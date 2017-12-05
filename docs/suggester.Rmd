@@ -1,0 +1,272 @@
+---
+title: "Match Locations to Gazeteer and Show Differences"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+    number_sections: yes
+    theme: readable
+    toc: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r }
+# !diagnostics off
+
+
+gc()
+#sudo dnf install libcurl-devel
+#install.packages('devtools', dependencies=T)
+library(devtools)
+devtools::session_info('DT')
+
+if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
+
+p_load(mosaic, stringr,stringi)
+p_load(lubridate,stringr)
+p_load(janitor)
+p_load(digest)
+p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
+p_load(rgeos) #yum install -y geos-devel
+p_load(rgdal) #dnf install gdal* , sudo yum install proj*
+p_load(digest)
+p_load(ggmap) #sudo dnf install libjpeg*
+p_load(data.table)
+p_load(bookdown)
+p_load(feather)
+p_load(stringdist)
+p_load(sf)
+p_load(tidyverse)
+p_load(viridis)
+p_load(rvest)
+p_load(tidyverse)
+library(dplyr)
+library(plyr)
+#Need the development version for geom_sf
+#devtools::install_github("tidyverse/ggplot2")
+#This is much slower than other plotting I've been doing. Not great.
+#library(ggplot2)
+#flatfiles_sf %>% ggplot() +
+#  geom_sf(size=.1) +
+#  #scale_fill_viridis("Area") +
+#  ggtitle("Gazeteer Points (All)") +
+#  theme_bw()
+
+#devtools::load_all(".")
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+
+```{r}
+
+events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar"))  #create a hash id to referec
+dim(events_sf)
+
+table(!is.na(events_sf$location_text),
+      !is.na(events_sf$map_coordinate_clean_latitude))
+
+
+events_sf <- events_sf  %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
+                  distinct() 
+
+sort(unique(unlist(strsplit(events_sf$name_cleaner,"")))) #ok only number and lowercase letters from now on
+
+#Avoid creating geometries where one of the two is NA
+events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
+events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
+
+events_sf <- events_sf  %>% st_as_sf(coords = c("map_coordinate_clean_longitude",
+                                                "map_coordinate_clean_latitude"), 
+                                     crs = 4326,agr = "constant",
+                                     remove=F, na.fail =F)
+
+```
+
+
+
+
+
+```{r}
+
+#Load toponym model
+p_load(xgboost)
+toponym_xb_model_everything2 <- xgb.load( "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/toponym_xb_onlystring.bin")
+
+flatfiles_sf_with_clusters <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_with_clusters.Rds")
+
+```
+
+
+Build the suggester
+
+```{r}
+
+#Load Hand Labeled Examples
+handlabeled <- fread('/home/rexdouglass/Downloads/event_flatfile_matches_for_hand_labeling - event_flatfile_matches_for_hand_labeling.csv', data.table=T) 
+
+#Remove exact matches because they're never interesting
+handlabeled$stemmed_a <- strip_postfixes(handlabeled$name_cleaner_a)[[1]]
+handlabeled$stemmed_b <- strip_postfixes(handlabeled$name_cleaner_b)[[1]]
+
+handlabeled_unique <- subset(handlabeled, stemmed_a!=stemmed_b) # very important we're dropping any with identical stems for evaluation
+table(handlabeled_unique$rex_match) #879 matches, 9455 nonmatches
+
+#Stem them
+handlabeled_unique$stemmed_a <- strip_postfixes(handlabeled_unique$name_cleaner_a)[[1]]
+handlabeled_unique$stemmed_b <- strip_postfixes(handlabeled_unique$name_cleaner_b)[[1]]
+handlabeled_unique$stemmed_ab <- sapply(lapply(strsplit(paste(handlabeled_unique$stemmed_a,
+                                                              handlabeled_unique$stemmed_b, sep="_"),
+                                                        "_"),
+                                               sort),
+                                        paste,
+                                        collapse="_")
+
+#handlabeled <- readRDS(file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything.Rds")[[1]]
+dim(handlabeled)
+handlabeled$a <- handlabeled$name_cleaner_a
+handlabeled$b <- handlabeled$name_cleaner_b
+handlabeled[,ab:=paste(a,b,sep="_")]
+handlabeled[,ba:=paste(b,a,sep="_")]
+
+ab <- unique(c(handlabeled$stemmed_a, handlabeled$stemmed_b)) ; length(ab)
+
+#Generate qgrams using parameters we picked below
+ab_grams <- qgram_hash(strings=ab, n=1,k=0) ; dim(ab_grams)
+
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=100, rows_per_band=4)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=100, rows_per_band=2)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=80, rows_per_band=2)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=40, rows_per_band=2)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=32, rows_per_band=16)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=64, rows_per_band=16)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=128, rows_per_band=16)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=512, rows_per_band=16)
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=512, rows_per_band=16) #1080 and 39 at 6.8 million , 3% error rate
+ 
+eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=250, rows_per_band=8) #1087 and 3 at 16.8 million , 3% error rate
+
+
+#This produces plots that help in choosing the hyper parameters used above
+#They take a few minutes to run and output three plots
+fromsrcatch=F
+if(fromscratch){
+  
+    
+    #First figure out about what banding we want
+    ab_grams <- qgram_hash(strings=ab, n=1,k=0) ; dim(ab_grams)
+    s_curve <- get_s_curve(500, n_bands_min = 60, n_rows_per_band_min = 2) 
+  #using cosine you can't have more than 32 bands, so starting at 80   
+    s_curve$n_bands_n_rows_per_band <- paste(s_curve$n_bands,s_curve$n_rows_per_band, sep=":")
+    s_curve <- s_curve %>% filter(!duplicated(n_bands_n_rows_per_band) & n_bands<=400)
+    eval_list <- list()
+    for(i in 1:nrow(s_curve)) {
+      print(i)
+      eval_list[[i]] <-   eval_lshr(strings=ab, grams=ab_grams , data=handlabeled_unique, bands_number=s_curve$n_bands[i], rows_per_band=s_curve$n_rows_per_band[i])
+      print(eval_list[[i]])
+    }
+    evaluations_varying_bands <- rbindlist(eval_list)
+    evaluations_varying_bands$bands_number_rows_per_band <- paste(evaluations_varying_bands$bands_number,evaluations_varying_bands$rows_per_band, sep=":")
+    evaluations_varying_bands$recall <- round( evaluations_varying_bands$misses/ (evaluations_varying_bands$hits + evaluations_varying_bands$misses ) , 2)
+    evaluations_varying_bands$suggestions_per_fraction <- evaluations_varying_bands$suggestions_per/length(ab)
+    
+    saveRDS(evaluations_varying_bands,
+        "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_bands.Rds") #.011 is about 300 and 0.015
+
+      
+  
+    #Then figure out what features we want
+    eval_list <- list()
+    for(i in 1:5){
+      for(k in 0:5){
+        index <- paste(i,k, sep="_")
+        print(index)
+        ab_grams <- qgram_hash(strings=ab, n=i,k=k) ; dim(ab_grams)
+        eval_list[[index]] <- eval_lshr(strings=ab, grams=ab_grams , data=handlabeled_unique, bands_number=400, rows_per_band=5)
+        eval_list[[index]]$ngrams=i
+        eval_list[[index]]$skips=k
+      }
+    }
+    evaluations_varying_ngrams <- rbindlist(eval_list)
+    setkey(evaluations_varying_ngrams, ngrams, skips)
+    #apparently ngrams1 of 1 with skips just tack on extra columns of the same thing
+    evaluations_varying_ngrams$ngrams_skips <- paste(evaluations_varying_ngrams$ngrams,evaluations_varying_ngrams$skips, sep=":")
+    evaluations_varying_ngrams$recall <- round( evaluations_varying_ngrams$misses/ (evaluations_varying_ngrams$hits + evaluations_varying_ngrams$misses ) , 2)
+
+    saveRDS(evaluations_varying_ngrams,
+            "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_ngrams.Rds") #.011 is about 300 and 0.015
+
+
+    eval_lshr(bands_number=400, rows_per_band=5)
+    
+    p_load(parallelDist)
+    d <- parDist(as.matrix(stemmed_ab_grams), method = "binary") #calculate the jaccard distance directly
+    saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_2_1_skips.Rds") #.011 is about 300 and 0.015
+    
+    #saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_5.Rds") #.011 is about 300 and 0.015
+    #saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_6.Rds") #.011 is about 200 and 0.02
+    
+    d_m <- as.matrix(d)
+    #make sure the row and col names are right
+    #convert to
+    hist(d_m, breaks=50)
+    colnames(d_m) <- stemmed_ab
+    rownames(d_m) <- stemmed_ab
+    
+    d_m_long = data.table::melt(d_m) ; dim(d_m_long)
+    d_m_long$rex_match <- F
+    d_m_long <- as.data.table(d_m_long)
+    d_m_long[,ab:=paste(Var1, Var2, sep="_"),]
+    d_m_long[,ba:=paste(Var2, Var1, sep="_"),]
+    
+    condition <- d_m_long$ab %in% subset(handlabeled, rex_match==1)$stemmed_ab | d_m_long$ba %in% subset(handlabeled, rex_match==1)$stemmed_ab ; table(condition)
+    d_m_long$rex_match[condition] <- T
+    table(d_m_long$rex_match)
+    
+    d_m_long <- subset(d_m_long, value!=0) #exclude any with 0 distance, those aren't interesting
+    
+    p_load(ggjoy)
+    p <- ggplot(d_m_long, aes(x = value, y = rex_match)) + geom_joy2() 
+    p + ggtitle("Pairwise Character Gram Profile Distance") + ylab("Hand Labeled Match") + xlab("Jaccard Distance")
+
+}
+
+    evaluations_varying_ngrams <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_ngrams.Rds") 
+
+    p1 <- ggplot(evaluations_varying_ngrams,
+           aes(x=recall,y=suggestions_per, label=ngrams_skips))  + geom_text(size=2) +
+       #scale_y_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$suggestions_per), by = 100),1)) +
+       scale_x_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$recall), by = .05),2)) + 
+      xlab("1-Recall") + ylab("Number of Suggestions Per Item") + 
+      ggtitle("Suggestion Count and Recall for Character Gram Types (Grams:Skips)") + theme_bw() +
+       scale_y_log10()
+    
+    evaluations_varying_bands <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_bands.Rds") 
+
+    p2 <- ggplot(evaluations_varying_bands,
+         aes(x=recall,y=suggestions_per+1, label=bands_number_rows_per_band))  + geom_text(size=2) +
+     #scale_y_continuous(breaks = round(seq(0, max(evaluations_varying_bands$suggestions_per), by = 100),1)) +
+     scale_x_continuous(breaks = round(seq(0, max(evaluations_varying_bands$recall), by = .1),1)) + 
+    xlab("1-Recall") + ylab("Number of Suggestions Per Item") + 
+    ggtitle("Suggestion Count and Recall for LHS Parameters (Bands:Rows)") + theme_bw() +
+       scale_y_log10()
+    
+    p_load(cowplot)
+    p_combined <- plot_grid(p1, p2,
+                            #labels = c("A", "B"),
+                            align = "h")
+    save_plot("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/suggester_grid_search.pdf", p_combined,
+          base_aspect_ratio = 1.3 , # make room for figure legend
+          base_width=10
+    )
+
+
+```
+
+
+

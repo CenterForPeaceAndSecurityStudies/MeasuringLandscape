@@ -1,0 +1,436 @@
+---
+title: "Create, Clean, and Compile Gazeteers"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+    number_sections: yes
+    theme: readable
+    toc: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+This file cleans and compiles a large number of kenya gazeteers for further downstream use.
+
+```{r }
+# !diagnostics off
+
+
+gc()
+# sudo dnf install libcurl-devel
+# install.packages('devtools', dependencies=T)
+library(devtools)
+devtools::session_info("DT")
+
+if (!require(pacman)) {
+  install.packages("pacman", dependencies = T)
+  library(pacman)
+}
+
+p_load(mosaic, stringr, stringi)
+p_load(lubridate, stringr)
+p_load(janitor)
+p_load(digest)
+p_load(tidyverse, dplyr, knitr, DT, magrittr)
+# install.packages('DT', repos = 'http://cran.rstudio.com')
+p_load(rgeos) # yum install -y geos-devel
+p_load(rgdal) # dnf install gdal* , sudo yum install proj*
+p_load(digest)
+p_load(ggmap) # sudo dnf install libjpeg*
+p_load(data.table)
+p_load(bookdown)
+p_load(feather)
+
+p_load(sf)
+sf_extSoftVersion()
+# sudo dnf install gdal-devel proj-devel proj-epsg proj-nad geos-devel udunits2-devel
+# sudo dnf install liblwgeom
+# library(devtools)
+# Need to install this in order to install liblwgeom.h, in order to use st_make_valid()
+# sudo dnf --enablerepo=updates-testing install postgis-devel
+# install_github("r-spatial/sf")
+
+p_load(viridis)
+p_load(rvest)
+# Need the development version for geom_sf
+# devtools::install_github("tidyverse/ggplot2")
+# This is much slower than other plotting I've been doing. Not great.
+# library(ggplot2)
+# flatfiles_sf_roi %>% ggplot() +
+#  geom_sf(size=.1) +
+#  #scale_fill_viridis("Area") +
+#  ggtitle("Gazeteer Points (All)") +
+#  theme_bw()
+
+# devtools::load_all(".")
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width = 12, fig.height = 8, warning = FALSE, message = FALSE, cache = TRUE)
+options(width = 160)
+```
+
+# Load Flat Files
+
+We compile multiple gazeteers
+1) Other location-latlong pairs from the events data
+2) A historical gazeteer from the time period
+3) geonames
+4) nga
+5) gadm
+6) openstreetmap_list
+7) googlemaps
+8) bingmaps
+
+
+
+```{r}
+fromscratch <- F
+
+
+# Bounding box of ROI
+long_min <- 35.67
+long_max <- 38.19
+lat_min <- -1.43285
+lat_max <- 0.54543
+
+# Bounding Box Spatial Object
+region_of_interest_sf_utm <- create_roi(
+  bottom_left_x = long_min,
+  bottom_left_y = lat_min,
+  top_right_x = long_max,
+  top_right_y = lat_max
+)
+
+#Event locations
+events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
+
+events_sf_roi <- events_sf %>% subset_roi(region_of_interest_sf_utm) %>% 
+                 select("name_cleaner","map_coordinate_clean_latitude","map_coordinate_clean_longitude","geometry") %>%
+                 setNames(c("name","latitude","longitude","geometry")) %>% 
+                 mutate(feature_code="event",
+                        timeperiod="1952-01-01",
+                        source_dataset="events") %>% 
+                 filter(!is.na(name) & name !="" & !is.na(latitude) & !is.na(longitude)) %>%
+                 distinct()
+
+# Moderately Size Point Sources
+nga_sf_roi <- load_nga(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+geonames_sf_roi <- load_geonames(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+historical_sf_roi <- load_historical(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+
+# Small API Sources
+googlemaps_sf_roi <- load_googlemaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+bingmaps_sf_roi <- load_bingmaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+
+# Moderately Size mixed or polygon sources
+KEN_adm_sf_roi <- load_ken_adm(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+livestock_sf_roi <- load_livestock(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_districts1962_sf_roi <- load_kenya_districts1962(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_cadastral_district_sf_roi <- load_kenya_cadastral_district(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_cadastral_sf_roi <- load_kenya_cadastral(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+
+# Very Large Sources
+wikidata_sf_roi <- load_wikidata(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
+tgn_sf_roi <- load_tgn(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
+openstreetmap_sf_roi <- load_openstreetmap(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+
+
+if (fromscratch) {
+
+
+  # combinedlist <- lapply(combinedlist, FUN=function(x) x %>% mutate(hash=apply(x,1 ,digest))) #add an id
+
+  # This takes way too long but is the only easy way I've found to merge sf frames
+  # For speed and debugging purposes splitting this up
+  # For some reason this works when you split it up but not when you put them together
+  # Double check that they're all sf data.frames, if one of them is a data.table it'll get rbindlist involved which will breaking when rbinding point and multipoint geometries
+
+  # points
+  flatfiles1 <- list( events_sf_roi %>% distinct(),
+    # ellipse_sf_roi %>% distinct(),
+    tgn_sf_roi %>% distinct(),
+    historical_sf_roi %>% distinct(),
+    geonames_sf_roi %>% distinct(),
+    nga_sf_roi %>% distinct()
+  ) %>% reduce(rbind_sf)
+  table(flatfiles1$source_dataset)
+
+  flatfiles1b <- list(
+    googlemaps_sf_roi %>% distinct(),
+    bingmaps_sf_roi %>% distinct(),
+    wikidata_sf_roi %>% distinct()
+  ) %>% reduce(rbind_sf)
+  table(flatfiles1$source_dataset)
+
+  # Polygons
+  flatfiles2 <- list( # ellipse_sf %>% distinct(),
+    KEN_adm_sf_roi %>% distinct(),
+    openstreetmap_sf_roi %>% distinct(),
+    livestock_sf_roi %>% distinct(),
+    kenya_cadastral_sf_roi %>% distinct(),
+    kenya_cadastral_district_sf_roi %>% distinct(),
+    kenya_districts1962_sf_roi %>% distinct()
+  ) %>% reduce(rbind_sf)
+  table(flatfiles2$source_dataset)
+
+  flatfiles <- list(
+    flatfiles1 %>% distinct(),
+    flatfiles1b %>% distinct(),
+    flatfiles2 %>% distinct()
+  ) %>% reduce(rbind_sf)
+  flatfiles <- flatfiles %>% distinct() %>% st_cast()
+
+  flatfiles$valid <- st_is_valid(flatfiles)
+  flatfiles <- st_make_valid(flatfiles) # ok now we're going to fix the broken ones.
+
+  # temp <- unique(flatfiles_sf_roi$name_cleaner_nospace)
+  # flatfiles <- as.data.table(flatfiles)
+  ## flatfiles[,livestock_kill:=F,]
+  # flatfiles[source_dataset=="livestock" & name_cleaner %in% temp,livestock_kill:=T,] #Livestock doesn't have spaces unforutnately
+  # flatfiles <- flatfiles[livestock_kill==F,]
+
+  p_load(stringr)
+  flatfiles_sf_roi <- flatfiles %>%
+    # mutate_all(funs(stri_enc_toascii)) %>% #rbindlist tries to convert to factors
+    # mutate(name = strsplit(names, ";| see | SEE | check if same as ")) %>%
+    # unnest(name) %>% #This trick doesn't work when there's multiple list columns, which geometry is
+    mutate(name = str_trim((name))) %>%
+    mutate(name = gsub(",$", "", name)) %>% # remove trailing comma
+    mutate(name = gsub("\032", "", name)) %>% # remove end of line character
+    mutate(name = gsub("_", " ", name)) %>% # convert underscores to spaces
+    mutate(name = gsub(" -|- | - ", "-", name)) %>% # convert dashes with weird spacing to just a dash
+    filter(!is.na(name) & name != "NA" & name != "") %>% # Remove anything that might be a missing name
+    # filter(!is.na(asciiname_either_clean) & asciiname_either_clean!="" & nchar(asciiname_either_clean)>2) %>%
+    distinct()
+
+  flatfiles_sf_roi$names <- NULL
+  table(flatfiles_sf_roi$source_dataset)
+  table(flatfiles_sf_roi$timeperiod)
+
+  # Fix geospatial stuff
+  #p_load(feather)
+  # Wd do this earlier now
+  # condition <- st_is_valid(flatfiles_sf_roi$geometry) ; table(condition) #takes a long while
+  # flatfiles_sf_roi$geometry[!condition] <- st_make_valid(flatfiles_sf_roi$geometry[!condition])
+  flatfiles_sf_roi$geometry_dimensions <- sapply(flatfiles_sf_roi$geometry, FUN = function(x) st_dimension(x)) # takes a while
+  table(flatfiles_sf_roi$geometry_dimensions, useNA = "always")
+
+
+  condition <- is.na(flatfiles_sf_roi$geometry_dimensions)
+  table(flatfiles_sf_roi$source_dataset, flatfiles_sf_roi$geometry_dimensions, useNA = "always")
+  flatfiles_sf_roi$geometry[condition] <- st_point() # Replace these empty polygons the make valid put in with empty points
+  condition <- is.na(flatfiles_sf_roi$geometry_dimensions)
+  table(flatfiles_sf_roi$source_dataset, flatfiles_sf_roi$geometry_dimensions, useNA = "always")
+  flatfiles_sf_roi$geometry_type <- sapply(flatfiles_sf_roi$geometry, FUN = function(x) class(x)[2])
+  table(flatfiles_sf_roi$source_dataset, flatfiles_sf_roi$geometry_type, useNA = "always")
+
+  condition <- flatfiles_sf_roi$geometry_type %in% c("POLYGON", "MULTIPOLYGON")
+  flatfiles_sf_roi$geometry_area <- NA
+  flatfiles_sf_roi$geometry_area[condition] <- st_area(flatfiles_sf_roi$geometry[condition]) # ok is failing for empty polygons
+
+  condition <- flatfiles_sf_roi$geometry_type %in% c("LINESTRING")
+  flatfiles_sf_roi$geometry_length <- NA
+  flatfiles_sf_roi$geometry_length[condition] <- st_length(flatfiles_sf_roi$geometry[condition])
+
+  # By definition, all ROI matches are intersections with the ROI
+  # flatfiles_sf_roi <- flatfiles_sf_roi %>% mutate(region_of_interest_overlap =
+  #                                          as.vector(st_overlaps(  geometry, region_of_interest_sf_utm,   sparse=F) )  ) #Flag the Region of Interest
+  # flatfiles_sf_roi <- flatfiles_sf_roi %>% mutate(region_of_interest_within =
+  #                                          as.vector(st_within(    geometry, region_of_interest_sf_utm,   sparse=F) )  ) #Flag the Region of Interest
+  # flatfiles_sf_roi <- flatfiles_sf_roi %>% mutate(region_of_interest_intersects =
+  #                                          as.vector(st_intersects(geometry, region_of_interest_sf_utm,   sparse=F) )   ) #Flag the Region of Interest
+
+  # table(flatfiles_sf_roi$region_of_interest_overlap) #I guess just for polygons
+  # table(flatfiles_sf_roi$region_of_interest_within) #requires polys to be entirely inside
+  # table(flatfiles_sf_roi$region_of_interest_intersects) #just requires polys to overlap a little bit
+
+
+  # #Time to fix livestock names
+  # temp <- flatfiles_sf_roi %>% filter(!source_dataset %in% c('livestock_boundaries',  'livestock_points')) %>% as.data.frame() %>%
+  #   select(c("name_cleaner","name_cleaner_nospace")) %>%
+  #         distinct() %>%
+  #         filter(!duplicated(name_cleaner_nospace)) #for some reason multiple names are maping to the same name without spaces
+  # rownames(temp) <- temp$name_cleaner_nospace
+  #
+  # flatfiles_sf_roi$name_cleaner_spaced <- temp[flatfiles_sf_roi$name_cleaner,"name_cleaner"] #
+  # condition <- flatfiles_sf_roi$source_dataset %in% c('livestock_boundaries',  'livestock_points') & !is.na(flatfiles_sf_roi$name_cleaner_spaced) ; table(condition)
+  # flatfiles_sf_roi$name_cleaner[condition] <- flatfiles_sf_roi$name_cleaner_spaced[condition]
+
+  flatfiles_sf_roi$eventsource <- flatfiles_sf_roi$source_dataset %in% "events"
+
+  # Get lat longs back
+  cords <- st_coordinates(flatfiles_sf_roi %>% filter(geometry_type %in% "POINT"))
+  condition1 <- flatfiles_sf_roi$geometry_type %in% "POINT" & is.na(flatfiles_sf_roi$longitude)
+  condition2 <- is.na(flatfiles_sf_roi$longitude)[flatfiles_sf_roi$geometry_type %in% "POINT"]
+
+  flatfiles_sf_roi$longitude[condition1] <- cords[condition2, 1]
+  flatfiles_sf_roi$latitude[condition1] <- cords[condition2, 2]
+
+
+  # We're going to do the cleaning outside of the file now. It doesn't take long and we're going to want to tinker with it often
+  flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar")) %>% # need to rebuild to load it from this location
+    distinct(feature_code, latitude, longitude, name, source_dataset, geometry_type, region_of_interest_intersects, name_alternates, .keep_all = T) # This distinct is very important, it's the one the correctly kills dupes not caught
+
+  flatfiles_sf_roi <- flatfiles_sf_roi %>%
+    # This distinct is very important, it's the one the
+    distinct(feature_code, latitude, longitude, name, source_dataset, geometry_type, region_of_interest_intersects, name_alternates, .keep_all = T) %>%
+    mutate(name_clean = str_trim(tolower(name))) %>%
+    mutate(name_clean_posessive = grepl("'s|`s", name_clean)) %>%
+    mutate(name_cleaner = trimws(name_clean)) %>%
+    mutate(name_cleaner = gsub("'s|`s", "", name_cleaner, fixed = T)) %>%
+    mutate(name_cleaner = str_replace_all(name_cleaner, "[[:punct:]]|", "")) %>%
+    mutate(name_cleaner = trimws(name_cleaner)) %>%
+    mutate(name_cleaner_nospace = str_replace_all(name_cleaner, " ", ""))
+
+  sort(unique(unlist(strsplit(flatfiles_sf_roi$name_clean, ""))))
+  flatfiles_sf_roi$name_cleaner <- clean_noascii(flatfiles_sf_roi$name_cleaner)
+  sort(unique(unlist(strsplit(flatfiles_sf_roi$name_cleaner, "")))) # ok only number and lowercase letters from now on
+
+  # Geonames Code Descriptions
+  # flatfiles_sf_roi$feature_code %>% tabyl( sort = TRUE)  #512 unique codes
+  geonames_code_descriptions <- as.data.frame(read_csv(system.file("extdata", "geonames_code_descriptions.csv", package = "MeasuringLandscapeCivilWar"), col_names = F))
+  names(geonames_code_descriptions) <- c("code", "code_txt", "description")
+  rownames(geonames_code_descriptions) <- geonames_code_descriptions$code
+
+  flatfiles_sf_roi$feature_code_txt <- tolower(geonames_code_descriptions[flatfiles_sf_roi$feature_code, "code_txt"])
+  flatfiles_sf_roi$feature_code_txt[is.na(flatfiles_sf_roi$feature_code_txt)] <- tolower(flatfiles_sf_roi$feature_code[is.na(flatfiles_sf_roi$feature_code_txt)])
+  table(flatfiles_sf_roi$feature_code[is.na(flatfiles_sf_roi$feature_code_txt)])
+
+  flatfiles_sf_roi$feature_code_txt <- gsub("_", " ", flatfiles_sf_roi$feature_code_txt)
+  flatfiles_sf_roi$feature_code_txt <- gsub("(-ies)", " ", flatfiles_sf_roi$feature_code_txt, fixed = T)
+  flatfiles_sf_roi$feature_code_txt <- gsub("(s)", " ", flatfiles_sf_roi$feature_code_txt, fixed = T)
+  flatfiles_sf_roi$feature_code_txt <- gsub("(es)", " ", flatfiles_sf_roi$feature_code_txt, fixed = T)
+  flatfiles_sf_roi$feature_code_txt <- trimws(flatfiles_sf_roi$feature_code_txt)
+
+  flatfiles_sf_roi$place_hash <- apply(flatfiles_sf_roi, 1, digest, algo = "xxhash64") # create a hash id to referec
+  rownames(flatfiles_sf_roi) <- flatfiles_sf_roi$id_hash # wow actually getting collisions
+
+  saveRDS(
+    flatfiles_sf_roi,
+    file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_roi_roi.Rdata"
+  )
+
+  # st_write(obj=flatfiles_sf_roi,
+  #   "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/flatfiles_sf_roi.gpkg",
+  #   delete_layer = TRUE)
+}
+
+flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+
+```
+
+# Table comparing the gazeteers
+
+```{r}
+
+flatfiles_sf_roi %>% tabyl(source_dataset) %>% adorn_crosstab(., denom = "col", show_n = T, digits = 1, show_totals = T)
+```
+
+
+# Handle types
+
+Different gazeteers record what type of location a name belongs to slightly differently. We've partially merged some categories to provide greater overlap.
+
+```{r}
+
+flatfiles_sf_roi$feature_code_txt %>% tabyl(sort = TRUE) %>% adorn_crosstab(., denom = "all", rounding = "half up", show_n = T, digits = 1, show_totals = T) # 459 unique codes
+```
+
+
+# Visually Comparing Spatial Coverage of each Sources
+
+Visual inspection reveals differences between the spatial coverage of each source.
+
+```{r}
+
+# flatfiles %>% ggplot(aes(x=longitude,y=latitude, col=as.factor(source_dataset))) + geom_point(alpha = 0.1)
+p_points <- flatfiles_sf_roi %>%
+  filter(geometry_type %in% "POINT") %>%
+  ggplot(aes(x = longitude, y = latitude, col = as.factor(source_dataset))) + geom_point(alpha = 0.1) + facet_wrap(~as.factor(source_dataset), drop = T) + guides(color = FALSE) + theme_bw() +
+  xlim(35.67, 38.19) + ylim(-1.43285, 0.54543)
+
+ggsave(
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/flatfiles_sf_roi_facet_source_dataset_points.png",
+  plot = p_points, width = 12, height = 10
+)
+p_points
+# flatfiles_sf_roi %>% filter(region_of_interest_intersects==T) %>% ggplot(aes(col=as.factor(source_dataset))) + geom_sf(alpha = 0.1)
+
+p_notpoints <- flatfiles_sf_roi %>%
+  filter(!geometry_type %in% "POINT") %>%
+  ggplot(aes(color = as.factor(source_dataset))) + geom_sf(alpha = 0.1, size = 1) +
+  facet_wrap(~as.factor(source_dataset), scales = "free", drop = T) +
+  # ggtitle("Locations in Region of Interest Stratified by Source") +
+  guides(color = FALSE) +
+  xlim(35.67, 38.19) + ylim(-1.43285, 0.54543) + theme_bw()
+
+ggsave(
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/flatfiles_sf_roi_facet_source_dataset_notpoints.png",
+  plot = p_notpoints, width = 12, height = 6
+)
+p_notpoints
+```
+
+# Visually Comparing Spatial Precision of each Sources
+
+```{r}
+
+# Events and historical have the smoothest distributions, but that's misleading because conversion from degrees to decimal
+# Wikidata has lots of truncated precision entries, at 0 degrees
+# TGN has so few its hard to tell
+# Open streetmap has a dispraportionate number of business in the capital which leads to a weird distribution
+# NGA, geonames and historical look like a comb
+# livestock looks like comb with teeth missing
+# Events look fairly continous with some spikeness
+
+# It looks like a lot of these that don't match have truncated precision
+p_combs_lat <- flatfiles_sf_roi %>%
+  filter(geometry_type %in% "POINT") %>%
+  as.data.frame() %>%
+  select(latitude, source_dataset) %>%
+  ggplot(aes(x = latitude - round(latitude), col = as.factor(source_dataset))) + geom_histogram(bins = 1000) + facet_wrap(~source_dataset, scales = "free")
+ggsave(
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/p_combs_lat.pdf",
+  plot = p_combs_lat, width = 12, height = 6
+)
+p_combs_lat
+
+p_combs_long <- flatfiles_sf_roi %>%
+  filter(geometry_type %in% "POINT") %>%
+  as.data.frame() %>%
+  select(longitude, source_dataset) %>%
+  ggplot(aes(x = longitude - round(longitude), col = as.factor(source_dataset))) + geom_histogram(bins = 1000) + facet_wrap(~source_dataset, scales = "free")
+ggsave(
+  filename = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/p_combs_long.pdf",
+  plot = p_combs_long, width = 12, height = 6
+)
+p_combs_long
+
+
+temp <- flatfiles_sf_roi %>%
+  filter(geometry_type %in% "POINT") %>%
+  as.data.frame() %>%
+  select(longitude, source_dataset) %>%
+  group_by(source_dataset) %>%
+  mutate(longitude_trunc = longitude - round(longitude))
+
+temp %>% filter(source_dataset %in% "historical") %>% ungroup() %>% select("longitude_trunc") %>% as.vector() %>% table()
+
+temp %>% filter(source_dataset %in% "geonames") %>% ungroup() %>% select("longitude_trunc") %>% as.vector() %>% round(5) %>% table() %>% sort(decreasing = T) %>% as.data.frame() %>% filter(Freq > 10)
+
+
+temp <- flatfiles_sf_roi %>%
+  filter(geometry_type %in% "POINT") %>%
+  as.data.frame() %>%
+  select(longitude, source_dataset) %>%
+  group_by(source_dataset) %>%
+  arrange(longitude) %>%
+  mutate(longitude_l1 = lag(longitude, 1)) %>%
+  mutate(longitude_fd = round(longitude - longitude_l1, 4))
+d <- as.matrix(table(temp$longitude_fd, temp$source_dataset)) # ok so the most common difference between points is 0.016. That's about 1.776 km
+```
+
+
+
