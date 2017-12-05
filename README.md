@@ -1,11 +1,12 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-MeasuringLandscapeCivilWar
-==========================
+Measuring the Landscape of Civil War
+====================================
 
 This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (forthcoming) 2017
 
-[Rex W. Douglass, University of California San Diego](www.rexdouglass.com) [Kristen Harkness](www.rexdouglass.com)(<https://kristenharkness.com/>)
+-   [Rex W. Douglass, University of California San Diego](www.rexdouglass.com)
+-   [Kristen Harkness](https://kristenharkness.com/)
 
 ### Installation
 
@@ -28,7 +29,7 @@ The analysis and figures in the paper and statistical appendix are produced in a
 
 Please cite this compendium as:
 
-> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 04 Dec 2017. Online at <https://doi.org/xxx/xxx>
+> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 05 Dec 2017. Online at <https://doi.org/xxx/xxx>
 
 ### Licenses
 
