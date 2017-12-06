@@ -221,7 +221,7 @@ load_historical <- function(roi, fromscratch=F) {
 
     saveRDS(
       historical_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/historical_sf_roi.Rdata"
+      file = glue(dir_package_files, "historical_sf_roi.Rdata")
     )
   }
 
@@ -267,7 +267,7 @@ load_geonames <- function(roi, fromscratch=F) {
 
     saveRDS(
       geonames_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/geonames_sf_roi.Rdata"
+      file = glue(dir_package_files, "geonames_sf_roi.Rdata")
     )
   }
 
@@ -289,7 +289,7 @@ load_nga <- function(roi, fromscratch=F) {
 
     saveRDS(
       nga_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/nga_sf_roi.Rdata"
+      file=glue(dir_package_files, "nga_sf_roi.Rdata")
     )
   }
 
@@ -313,7 +313,7 @@ load_googlemaps <- function(roi, fromscratch=F) {
 
     saveRDS(
       googlemaps_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/googlemaps_sf_roi.Rdata"
+      file = glue(dir_package_files, "googlemaps_sf_roi.Rdata")
     )
   }
 
@@ -337,7 +337,7 @@ load_bingmaps <- function(roi, fromscratch=F) {
 
     saveRDS(
       bingmaps_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/bingmaps_sf_roi.Rdata"
+      file = glue(dir_package_files, "bingmaps_sf_roi.Rdata")
     )
   }
 
@@ -420,7 +420,7 @@ load_ken_adm <- function(roi, fromscratch=F) {
 
     saveRDS(
       KEN_adm_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/KEN_adm_sf_roi.Rdata"
+      file = glue(dir_package_files, "KEN_adm_sf_roi.Rdata")
     )
   }
 
@@ -450,7 +450,7 @@ load_openstreetmap <- function(roi, fromscratch=F) {
 
     saveRDS(
       openstreetmap_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/openstreetmap_sf_roi.Rdata"
+      file = glue(dir_package_files, "openstreetmap_sf_roi.Rdata")
     )
   }
 
@@ -484,7 +484,11 @@ load_kenya_cadastral <- function(roi, fromscratch=F) {
       mutate(source_dataset = "kenya_cadastral") %>%
       mutate(timeperiod = "1950")
 
-    kenya_cadastral_sf %>% subset_roi(roi) %>% saveRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/kenya_cadastral_roi.Rdata")
+    kenya_cadastral_sf %>% 
+      subset_roi(roi) %>% 
+      saveRDS(
+        file = glue(dir_package_files, "kenya_cadastral_roi.Rdata")
+        )
   }
 
   kenya_cadastral_roi <- readRDS(system.file("extdata", "kenya_cadastral_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
@@ -510,10 +514,12 @@ load_kenya_cadastral_district <- function(roi, fromscratch=F) {
     
     kenya_cadastral_district_sf %>% 
       subset_roi(roi) %>% 
-      saveRDS( file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/kenya_cadastral_district_roi.Rdata")  
+      saveRDS(
+        file = glue(dir_package_files, "kenya_cadastral_district_roi.Rdata")
+        )  
 
   }
-  kenya_cadastral_district_roi <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/kenya_cadastral_district_roi.Rdata")  
+  kenya_cadastral_district_roi <- readRDS(system.file("extdata", "kenya_cadastral_district_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
   
   # kenya_cadastral_district_centroids_sf <- kenya_cadastral_district_sf  %>% st_centroid
 
@@ -528,7 +534,11 @@ load_kenya_districts1962 <- function(roi, fromscratch=F) {
       mutate(source_dataset = "kenya_district1962") %>%
       mutate(feature_code = "district")
 
-    kenya_districts1962_sf %>% subset_roi(roi) %>% saveRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/kenya_districts1962_roi.Rdata")
+    kenya_districts1962_sf %>% 
+      subset_roi(roi) %>% 
+      saveRDS(
+        glue(dir_package_files, "kenya_districts1962_roi.Rdata")
+        )
   }
 
   kenya_districts1962_roi <- readRDS(system.file("extdata", "kenya_districts1962_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
@@ -572,8 +582,9 @@ load_livestock <- function(roi, fromscratch=F) {
       mutate(timeperiod = "2000-01-01")
 
     saveRDS(
-      livestock_sf %>% subset_roi(roi),
-      file = "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/livestock_sf_roi.Rdata"
+      livestock_sf %>% 
+      subset_roi(roi),
+      glue(dir_package_files, "livestock_sf_roi.Rdata")
     )
   }
 

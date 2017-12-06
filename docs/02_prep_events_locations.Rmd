@@ -34,25 +34,24 @@ dim(events)
 cat("\014")
 
 #Cases to handle
-""
-"928141"
-"311449  328445    338443"
-"EASTING 30 and 27"
-"EastLeigh Sect.7"
-"FARM 535/4"
-"HAC  0202"
-"HAC.577236"
-"HZN 974641 & HZN 974651"
-"HZJ. 8595"
-"HZJ. 465765, HZJ. 459771, HZJ. 451756"
-"HZJ 42765, HZJ 42375and HZJ 429761"
-"HZH 960610, HZH 960630, HZH 977538"
-"H.Z.R. 4786"
-"HAD 1708, HAD 1709"
-"HAD 3326/3327"
-"HZJ 42765, HZJ 42375and HZJ 429761"
-"HZJ 9518  9617"
-"HZP 7430, HZP 9029, HZP 6448, HZP 7252, HZP 9448"
+#"928141"
+#"311449  328445    338443"
+#"EASTING 30 and 27"
+#"EastLeigh Sect.7"
+#"FARM 535/4"
+#"HAC  0202"
+#"HAC.577236"
+#"HZN 974641 & HZN 974651"
+#"HZJ. 8595"
+#"HZJ. 465765, HZJ. 459771, HZJ. 451756"
+#"HZJ 42765, HZJ 42375and HZJ 429761"
+#"HZH 960610, HZH 960630, HZH 977538"
+#"H.Z.R. 4786"
+#"HAD 1708, HAD 1709"
+#"HAD 3326/3327"
+#"HZJ 42765, HZJ 42375and HZJ 429761"
+#"HZJ 9518  9617"
+#"HZP 7430, HZP 9029, HZP 6448, HZP 7252, HZP 9448"
 
 events$map_coordinate %>% tabyl() 
 
@@ -634,10 +633,12 @@ events_sf <- events %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
 events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
 events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
 events_sf$event_hash <- NULL #Make sure we're not hashing on the previous hash which might be a random walk
-valid <- st_is_valid(events_sf$geometry); table(valid)
 
-events_sf <- events_sf %>% st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"), crs = 4326, agr = "constant", remove = F, na.fail = F)  %>% 
+events_sf <- events_sf %>%
+            st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"),
+                     crs = 4326, agr = "constant", remove = F, na.fail = F)  %>% 
              mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #Do this once and only once
+valid <- st_is_valid(events_sf$geometry); table(valid)
 
 eventsnames_sf <- events_sf %>% select("name_cleaner", "geometry") %>% setNames(c("name", "geometry")) %>% mutate(source_dataset = "events")
 
