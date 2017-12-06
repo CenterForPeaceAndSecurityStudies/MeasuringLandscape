@@ -35,6 +35,7 @@ The analysis and figures in the paper and statistical appendix are produced in a
 * [01 Prep Events Counts](https://rexdouglass.github.io/MeasuringLandscape/01_prep_events_counts.nb.html)
 * [02 Prep Events Locations](https://rexdouglass.github.io/MeasuringLandscape/02_prep_events_locations.nb.html)
 * [03 Prep Gazeteers](https://rexdouglass.github.io/MeasuringLandscape/03_prep_gazeteers.nb.html)
+* [04 Prep Fuzzy Matcher](https://rexdouglass.github.io/MeasuringLandscape/04_prep_fuzzy_matcher.nb.html)
 
 
 ### Citation

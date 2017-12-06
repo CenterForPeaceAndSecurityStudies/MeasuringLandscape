@@ -15,7 +15,8 @@ There is where we train our fuzzy matcher
 
 ```{r }
 library(MeasuringLandscapeCivilWar)
-global_loads()
+devtools::load_all()
+
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
@@ -36,7 +37,8 @@ tabyl(unlist(strsplit(events_sf$name_cleaner,""))) %>% adorn_crosstab(., denom =
 
 
 
-events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
+events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean',
+                                                  'map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
                                      .(location_text), transform,
       map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
       )
@@ -66,26 +68,13 @@ This takes every event with a coordinate, and looks up the 10 nearest points in 
 
 ```{r}
 
-create_toponym_dataset_forlabeling()
+#Should only need to do this once
+#create_toponym_dataset_forlabeling()
 
 ```
 
-# Creat Training and Test Data
 
-This loads a hand labeled training file and optionally adds extra negative examples.
-
-
-
-
-# Train the model
-
-This trains an xgboost model predincting matches a function of string distances and other features
-
-```{r}
-
-```
-
-Features
+# Choose Features 
 
 ```{r}
 
@@ -176,70 +165,56 @@ vars_x_onlystring <- c(vars_x_string)
 vars_x_stringcorpus <-  c(vars_x_string,  vars_x_string_corpus)     
 vars_x_string_and_stem <- c(vars_x_string, vars_x_stem)
 
+```
+
+# Create Training Test Split
+
+```{r}
+
 fromscratch=F
 if(fromscratch){    
     toponym_training_dataset <- create_training_dataset( 
-                                                         vars_id=vars_id,
-                                                         vars_weights=vars_weights,
-                                                         vars_y=vars_y,
-                                                         vars_x=vars_x_everything,
-                                                         neg_count=0, #you lose so many to cosine distance
-                                                         fromscratch=T,
-                                                         drop_zero_dist=F,
-                                                         drop_identical=T
+                                                           vars_id=vars_id,
+                                                           vars_weights=vars_weights,
+                                                           vars_y=vars_y,
+                                                           vars_x=vars_x_everything,
+                                                           neg_count=0, #you lose so many to cosine distance
+                                                           fromscratch=T,
+                                                           drop_zero_dist=F,
+                                                           drop_identical=T
                                                          )
     
     saveRDS(toponym_training_dataset,
-            file=glue(getwd(), "/inst/extdata/toponym_training_dataset.Rds")
+            file=glue(getwd(), "/../inst/extdata/toponym_training_dataset.Rds")
             )
 }
 toponym_training_dataset <- readRDS(system.file("extdata", "toponym_training_dataset.Rds", package = "MeasuringLandscapeCivilWar"))
   
 
-temp <- as.data.frame(temp_everything[[1]][,vars_x_string, with=F])
+temp <- as.data.frame(toponym_training_dataset[[1]][,vars_x_string, with=F])
 for(i in 1:ncol(temp)){
   print(colnames(temp)[i])
-  print(summary(
-    temp[temp_everything[[1]]$rex_match==1,i] 
-    )
-    )
+  print(
+    summary(
+      temp[toponym_training_dataset[[1]]$rex_match==1,i] 
+          )
+      )
 }
 
 
 ```
 
-```{r}
 
-p_load(PRROC)
-area_under_pr_curve_metric <- function(preds,dtrain){
-  preds <- 1/(1 + exp(-preds))
-  labels <- getinfo(dtrain, "label")
-  pr <- pr.curve( preds, labels )
-  return(list(metric="PRROC", value=pr$auc.integral))
-}
-
-
-logregobj <- function(preds, dtrain) {
-  labels <- getinfo(dtrain, "label")
-  preds <- 1/(1 + exp(-preds))
-  grad <- preds - labels
-  hess <- preds * (1 - preds)
-  return(list(grad = grad, hess = hess))
-} 
-  
-#sumwpos <- sum(weight * (label==1))
-#sumwneg <- sum(weight * (label==0))
-
-```
+# Fit XGBoost models predicting match
 
 ```{r}
 
 require(xgboost)
 require(methods)
-global_test <- temp_everything[['handlabeled']] %>% filter(test %in% T  & !is.na(rex_match) )
+global_test <- toponym_training_dataset[['handlabeled']] %>% filter(test %in% T  & !is.na(rex_match) )
 
-sumwneg=sum(temp_everything[['xy_train']]$rex_match==0)
-sumwpos=sum(temp_everything[['xy_train']]$rex_match==1)
+sumwneg=sum(toponym_training_dataset[['xy_train']]$rex_match==0)
+sumwpos=sum(toponym_training_dataset[['xy_train']]$rex_match==1)
 
 # param1 <- list("objective" ="binary:logistic", #"objective" = logregobj,
 #               "scale_pos_weight" = sumwneg / sumwpos,
@@ -253,16 +228,16 @@ sumwpos=sum(temp_everything[['xy_train']]$rex_match==1)
 #               'maximize'=T)
 # 
 # ####Model Everything
-# toponym_xb_everything <- train_an_xb(temp_everything[['xy_train']],
-#                                      temp_everything[['xy_test']] ,
+# toponym_xb_everything <- train_an_xb(toponym_training_dataset[['xy_train']],
+#                                      toponym_training_dataset[['xy_test']] ,
 #                                      vars_x=vars_x_everything,
 #                                      param=param1,
 #                                      use_weights=F,
 #                                      extract_features=F,
 #                                      missing=NA )
 
-# toponym_xb_everything_extracted <- train_an_xb(temp_everything[['xy_train']],
-#                                      temp_everything[['xy_test']] ,
+# toponym_xb_everything_extracted <- train_an_xb(toponym_training_dataset[['xy_train']],
+#                                      toponym_training_dataset[['xy_test']] ,
 #                                      vars_x=vars_x_everything,
 #                                      param=param1,
 #                                      use_weights=F,
@@ -270,8 +245,8 @@ sumwpos=sum(temp_everything[['xy_train']]$rex_match==1)
 #                                      missing=NA,
 #                   savefile="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/toponym_xb_everything_extracted.bin" )
 
-sumwneg=sum(temp_everything[['xy_train']]$rex_match==0)
-sumwpos=sum(temp_everything[['xy_train']]$rex_match==1)
+sumwneg=sum(toponym_training_dataset[['xy_train']]$rex_match==0)
+sumwpos=sum(toponym_training_dataset[['xy_train']]$rex_match==1)
 param2 <- list("objective" = logregobj, #"objective" ="binary:logistic", #
               "scale_pos_weight" = sumwneg / sumwpos,
               "eta" = 0.3,
@@ -283,17 +258,18 @@ param2 <- list("objective" = logregobj, #"objective" ="binary:logistic", #
               "nthread" = 48,
               'maximize'=T)
 
-toponym_xb_everything2 <- train_an_xb(temp_everything[['xy_train']],
-                                     temp_everything[['xy_test']] ,
+toponym_xb_everything2 <- train_an_xb(toponym_training_dataset[['xy_train']],
+                                     toponym_training_dataset[['xy_test']] ,
                                      vars_x=vars_x_everything,
                                      param=param2,
                                      use_weights=F,
                                      extract_features=F )
 xgb.save(toponym_xb_everything2,
-         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/toponym_xb_everything2.bin") #Have to save seperately for some reason
+         glue(getwd(), "/../inst/extdata/toponym_xb_everything2.bin")
+         ) #Have to save seperately for some reason
 
-# sumwneg=sum(temp_everything_extraneg[['xy_train']]$rex_match==0)
-# sumwpos=sum(temp_everything_extraneg[['xy_train']]$rex_match==1)
+# sumwneg=sum(toponym_training_dataset_extraneg[['xy_train']]$rex_match==0)
+# sumwpos=sum(toponym_training_dataset_extraneg[['xy_train']]$rex_match==1)
 # param3 <- list("objective" = logregobj, #"objective" ="binary:logistic", #
 #               "scale_pos_weight" = sumwneg / sumwpos,
 #               "eta" = 0.3,
@@ -304,8 +280,8 @@ xgb.save(toponym_xb_everything2,
 #               "silent" = 1,
 #               "nthread" = 48,
 #               'maximize'=T)
-# toponym_xb_everything3 <- train_an_xb(temp_everything_extraneg[['xy_train']],
-#                                      temp_everything_extraneg[['xy_test']] ,
+# toponym_xb_everything3 <- train_an_xb(toponym_training_dataset_extraneg[['xy_train']],
+#                                      toponym_training_dataset_extraneg[['xy_test']] ,
 #                                      vars_x=vars_x_everything,
 #                                      param=param3,
 #                                      use_weights=F,
@@ -318,28 +294,27 @@ xgb.save(toponym_xb_everything2,
 # #Isn't running as multithreaded for some reason
 # p_load(randomForestSRC)
 # rf <- rfsrc(rex_match ~ .,  na.action = "na.impute",
-#             data= cbind(rex_match= as.factor(temp_everything[['xy_train']]$rex_match), temp_everything[['xy_train']][,vars_x_everything, with=F] ),
-#             case.wt=temp_everything[['xy_train']]$weights
+#             data= cbind(rex_match= as.factor(toponym_training_dataset[['xy_train']]$rex_match), toponym_training_dataset[['xy_train']][,vars_x_everything, with=F] ),
+#             case.wt=toponym_training_dataset[['xy_train']]$weights
 #             )
 
 
 #Subsets of variables
 
 
-toponym_xb_onlystring <- train_an_xb(temp_everything[['xy_train']],
-                                     temp_everything[['xy_test']] ,
+toponym_xb_onlystring <- train_an_xb(toponym_training_dataset[['xy_train']],
+                                     toponym_training_dataset[['xy_test']] ,
                                      vars_x=vars_x_onlystring,
                                      param=param2,
                                      use_weights=F,
                                      extract_features=F,
                                      missing=NA)
 xgb.save(toponym_xb_onlystring,
-         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/toponym_xb_onlystring.bin") #Have to save seperately for some reason
+         glue(getwd(), "/../inst/extdata/toponym_xb_onlystring.bin")
+         ) #Have to save seperately for some reason
 
-
-
-#toponym_xb_stringcorpus <- train_an_xb(temp_everything[['xy_train']],
-#                                     temp_everything[['xy_test']] ,
+#toponym_xb_stringcorpus <- train_an_xb(toponym_training_dataset[['xy_train']],
+#                                     toponym_training_dataset[['xy_test']] ,
 #                                     vars_x=vars_x_stringcorpus,
 #                                     param=param2,
 #                                     use_weights=F,
@@ -347,13 +322,17 @@ xgb.save(toponym_xb_onlystring,
 #                                     missing=NA)
 
 
-toponym_xb_string_and_stem <- train_an_xb(temp_everything[['xy_train']],
-                                     temp_everything[['xy_test']] ,
+toponym_xb_string_and_stem <- train_an_xb(toponym_training_dataset[['xy_train']],
+                                     toponym_training_dataset[['xy_test']] ,
                                      vars_x=vars_x_string_and_stem,
                                      param=param2,
                                      use_weights=F,
                                      extract_features=F,
                                      missing=NA)
+
+xgb.save(toponym_xb_string_and_stem,
+         glue(getwd(), "/../inst/extdata/toponym_xb_string_and_stem.bin")
+         ) #Have to save seperately for some reason
 
 
 

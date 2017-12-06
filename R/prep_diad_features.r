@@ -1,93 +1,68 @@
 
-# I'm not masking zeros right now anyway, so the embedding might be using them as is. Maybe just go ahead and add a column to the fron for zeros.
-generate_sequences <- function(text, maxlength=20, mask=0, intcutoff=256) {
-  text <- paste0("^", text, "$")
-  p_load(parallel)
-  text_df <- rbindlist(
-    mclapply(
-      text,
-      FUN = function(x) as.data.frame(t(utf8ToInt(x))),
-      mc.cores = detectCores()
-    )
-    , fill = T
-  )
-  text_df[is.na(text_df) | text_df > intcutoff] <- mask
-  if (ncol(text_df) < maxlength) {
-    text_df <- cbind(
-      text_df,
-      matrix(
-        0, nrow(text_df),
-        maxlength - ncol(text_df)
-      )
-    )
-  }
-  text_df <- text_df[, 1:maxlength]
-  return(text_df)
-}
-
+.datatable.aware=TRUE #You have to declare this at https://github.com/tidyverse/dplyr/issues/548
 
 # This function takes in a dataframe with two strings, a and b, and then calculates string distance features on them.
 p_load(stringdist)
-toponym_add_distances_dt <- function(inputdata, fromscratch=F, nthread=detectCores()) {
-  inputdata <- as.data.table(inputdata)
+toponym_add_distances_dt <- function(dt, fromscratch=F, nthread=detectCores()) {
+  dt <- as.data.table(dt)
 
   print("1 of 24")
-  inputdata[, First_Mistmatch := firstmismatch(a, b, verbose = F), ]
+  dt[, First_Mistmatch := firstmismatch(a, b, verbose = F)]
   print("2 of 24")
-  inputdata[, Jaro := stringsim(a, b, "jw", nthread = nthread), ]
+  dt[, Jaro := stringsim(a, b, "jw", nthread = nthread), ]
   print("3 of 24")
-  inputdata[, Optimal_String_Alignment := stringsim(a, b, "osa", nthread = nthread), ]
+  dt[, Optimal_String_Alignment := stringsim(a, b, "osa", nthread = nthread), ]
   print("4 of 24")
-  inputdata[, Levenshtein := stringsim(a, b, "lv", nthread = nthread), ]
+  dt[, Levenshtein := stringsim(a, b, "lv", nthread = nthread), ]
   print("5 of 24")
-  inputdata[, Damerau_Levenshtein := stringsim(a, b, "dl", nthread = nthread), ]
+  dt[, Damerau_Levenshtein := stringsim(a, b, "dl", nthread = nthread), ]
   print("6 of 24")
-  inputdata[, Longest_Common_Substring := stringsim(a, b, "lcs", nthread = nthread), ]
+  dt[, Longest_Common_Substring := stringsim(a, b, "lcs", nthread = nthread), ]
   print("7 of 24")
-  inputdata[, q_gram_1 := stringsim(a, b, "qgram", nthread = nthread, q = 1), ]
+  dt[, q_gram_1 := stringsim(a, b, "qgram", nthread = nthread, q = 1), ]
   print("8 of 24")
-  inputdata[, q_gram_2 := stringsim(a, b, "qgram", nthread = nthread, q = 2), ]
+  dt[, q_gram_2 := stringsim(a, b, "qgram", nthread = nthread, q = 2), ]
   print("9 of 24")
-  inputdata[, q_gram_3 := stringsim(a, b, "qgram", nthread = nthread, q = 3), ]
+  dt[, q_gram_3 := stringsim(a, b, "qgram", nthread = nthread, q = 3), ]
   print("10 of 24")
-  inputdata[, q_gram_4 := stringsim(a, b, "qgram", nthread = nthread, q = 4), ]
+  dt[, q_gram_4 := stringsim(a, b, "qgram", nthread = nthread, q = 4), ]
   print("11 of 24")
-  inputdata[, q_gram_5 := stringsim(a, b, "qgram", nthread = nthread, q = 5), ]
+  dt[, q_gram_5 := stringsim(a, b, "qgram", nthread = nthread, q = 5), ]
   print("12 of 24")
-  inputdata[, Cosine_1 := stringsim(a, b, "cosine", nthread = nthread, q = 1), ]
-  inputdata[, Cosine_2 := stringsim(a, b, "cosine", nthread = nthread, q = 2), ]
-  inputdata[, Cosine_3 := stringsim(a, b, "cosine", nthread = nthread, q = 3), ]
-  inputdata[, Cosine_4 := stringsim(a, b, "cosine", nthread = nthread, q = 4), ]
-  inputdata[, Cosine_5 := stringsim(a, b, "cosine", nthread = nthread, q = 5), ]
+  dt[, Cosine_1 := stringsim(a, b, "cosine", nthread = nthread, q = 1), ]
+  dt[, Cosine_2 := stringsim(a, b, "cosine", nthread = nthread, q = 2), ]
+  dt[, Cosine_3 := stringsim(a, b, "cosine", nthread = nthread, q = 3), ]
+  dt[, Cosine_4 := stringsim(a, b, "cosine", nthread = nthread, q = 4), ]
+  dt[, Cosine_5 := stringsim(a, b, "cosine", nthread = nthread, q = 5), ]
   print("13 of 24")
-  inputdata[, Jaccard := stringsim(a, b, "jaccard", nthread = nthread), ]
+  dt[, Jaccard := stringsim(a, b, "jaccard", nthread = nthread), ]
   print("14 of 24")
-  inputdata$a_nchar <- nchar(inputdata$a)
+  dt$a_nchar <- nchar(dt$a)
   print("15 of 24")
-  inputdata$b_nchar <- nchar(inputdata$b)
+  dt$b_nchar <- nchar(dt$b)
   print("16 of 24")
-  inputdata$ab_nchar_diff <- abs(inputdata$a_nchar - inputdata$b_nchar)
+  dt$ab_nchar_diff <- abs(dt$a_nchar - dt$b_nchar)
   print("17 of 24")
-  inputdata[, dJaro := stringdist(a, b, "jw", nthread = nthread), ]
+  dt[, dJaro := stringdist(a, b, "jw", nthread = nthread), ]
   print("18 of 24")
-  inputdata[, dOptimal_String_Alignment := stringdist(a, b, "osa", nthread = nthread), ]
+  dt[, dOptimal_String_Alignment := stringdist(a, b, "osa", nthread = nthread), ]
   print("19 of 24")
-  inputdata[, dLevenshtein := stringdist(a, b, "lv", nthread = nthread), ]
+  dt[, dLevenshtein := stringdist(a, b, "lv", nthread = nthread), ]
   print("20 of 24")
-  inputdata[, dDamerau_Levenshtein := stringdist(a, b, "dl", nthread = nthread), ]
+  dt[, dDamerau_Levenshtein := stringdist(a, b, "dl", nthread = nthread), ]
   print("21 of 24")
-  inputdata[, dLongest_Common_Substring := stringdist(a, b, "lcs", nthread = nthread), ]
+  dt[, dLongest_Common_Substring := stringdist(a, b, "lcs", nthread = nthread), ]
   print("22 of 24")
-  inputdata[, dq_gram := stringdist(a, b, "qgram", nthread = nthread), ]
+  dt[, dq_gram := stringdist(a, b, "qgram", nthread = nthread), ]
   print("23 of 24")
-  inputdata[, dCosine := stringdist(a, b, "cosine", nthread = nthread), ]
+  dt[, dCosine := stringdist(a, b, "cosine", nthread = nthread), ]
   print("24 of 24")
-  inputdata[, dJaccard := stringdist(a, b, "jaccard", nthread = nthread), ]
+  dt[, dJaccard := stringdist(a, b, "jaccard", nthread = nthread), ]
 
   # p_load(TraMineR)
   # http://traminer.unige.ch/doc/seqdef.html
 
-  # labels_unique <- sort(unique(c(inputdata$a, inputdata$b )))
+  # labels_unique <- sort(unique(c(dt$a, dt$b )))
   # sequences_a_df <- generate_sequences( labels_unique,
   #                                      maxlength=20,
   #                                      mask=NA,
@@ -96,49 +71,49 @@ toponym_add_distances_dt <- function(inputdata, fromscratch=F, nthread=detectCor
 
   # processed_a <- seqdef( data= sequences_a_df )
 
-  # inputdata$a_numeric <- as.numeric(factor(inputdata$a, levels= labels_unique ))
-  # inputdata$b_numeric <- as.numeric(factor(inputdata$b, levels= labels_unique ))
+  # dt$a_numeric <- as.numeric(factor(dt$a, levels= labels_unique ))
+  # dt$b_numeric <- as.numeric(factor(dt$b, levels= labels_unique ))
   #
   #   costs <- seqcost(processed_a, method = "INDELSLOG") #I think we calculate this on the training data, save it, and pass it in at ru ntime
   #
   #   dist_OM <- seqdist(processed_a, method = "OM", indel = costs$indel, sm = costs$sm , norm="auto")
-  #   inputdata[,OM:=dist_OM[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,OM:=dist_OM[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_OMloc <- seqdist(processed_a, method = "OMloc", indel = costs.tr$indel, sm = costs.tr$sm, with.missing = F) #intentionally no norm
-  #   inputdata[,OMloc:=dist_OMloc[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,OMloc:=dist_OMloc[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_OMslen <- seqdist(processed_a, method = "OMslen", indel = costs.tr$indel, sm = costs.tr$sm, with.missing = F )#intentionally no norm
-  #   inputdata[,OMslen:=dist_OMslen[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,OMslen:=dist_OMslen[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_OMspell <- seqdist(processed_a, method = "OMspell", sm = costs.tr$sm, indel = 1, with.missing = TRUE )#intentionally no norm
-  #   inputdata[,OMspell:=dist_OMspell[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,OMspell:=dist_OMspell[ cbind(a_numeric, b_numeric) ],]
   #
   #   #ex1.OMstran <- seqdist(processed_a, method = "OMstran", sm = costs.tr$sm, indel = 1, with.missing = TRUE, otto=.5)#intentionally no norm
   #   dist_TWED <- seqdist(processed_a, method = "TWED", sm = costs.tr$sm, indel = 1, with.missing = TRUE , nu=.5)#intentionally no norm
-  #   inputdata[,TWED:=dist_TWED[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,TWED:=dist_TWED[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_LCS <- seqdist(processed_a, method = "LCS", norm = "auto")
-  #   inputdata[,LCS:=dist_LCS[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,LCS:=dist_LCS[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_LCP <- seqdist(processed_a, method = "LCP", norm = "auto")
-  #   inputdata[,LCP:=dist_LCP[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,LCP:=dist_LCP[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_RLCP <- seqdist(processed_a, method = "RLCP", norm = "auto")
-  #   inputdata[,RLCP:=dist_RLCP[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,RLCP:=dist_RLCP[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_NMS <- seqdist(processed_a, method = "NMS") #intentionally no norm
-  #   inputdata[,NMS:=dist_NMS[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,NMS:=dist_NMS[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_NMSMST <- seqdist(processed_a, method = "NMSMST") #intentionally no norm
-  #   inputdata[,NMSMST:=dist_NMSMST[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,NMSMST:=dist_NMSMST[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_SVRspell <- seqdist(processed_a, method = "SVRspell") #intentionally no norm #this one takes too long to process
-  #   inputdata[,SVRspell:=dist_SVRspell[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,SVRspell:=dist_SVRspell[ cbind(a_numeric, b_numeric) ],]
   #
   #   dist_CHI2 <- seqdist(processed_a, method = "CHI2", step = max(seqlength(processed_a)))
-  #   inputdata[,CHI2:=dist_CHI2[ cbind(a_numeric, b_numeric) ],]
+  #   dt[,CHI2:=dist_CHI2[ cbind(a_numeric, b_numeric) ],]
 
-  return(inputdata)
+  return(dt)
 }
 
 # This is for corpus features that are no longer used in the paper
@@ -230,10 +205,10 @@ toponym_add_corpus <- function(data, fromscratch=F) {
   return(data)
 }
 
-toponym_add_features <- function(data, fromscratch=F) {
-  data <- as.data.table(data)
-  data <- toponym_add_distances_dt(data)
+toponym_add_features <- function(dt, fromscratch=F) {
+  dt <- as.data.table(dt)
+  dt <- toponym_add_distances_dt(dt)
   # data <- toponym_add_corpus(data) #Currently excluded from paper
 
-  return(data)
+  return(dt)
 }

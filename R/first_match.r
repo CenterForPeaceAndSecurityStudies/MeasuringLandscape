@@ -1,16 +1,21 @@
 # This function calculates the number of characters from the beginning before the first mismatch between two strings
 #
 #
+.datatable.aware=TRUE #You have to declare this at https://github.com/tidyverse/dplyr/issues/548
 
-firstmismatch <- function(string1, string2, verbose=T) {
-  dt <- data.table(string1 = string1, string2 = string2)
+
+firstmismatch <- function(a, b, verbose=T) {
+  dt <- data.table(a = a,
+                   b = b)
+  dt <- as.data.table(dt)
   dt[, counts := 0, ] # All counts start as zero matches
   dt[, condition := T, ] # All eligibile from the start
-  dt[, nchars1 := nchar(string1), by = string1] # Stop counting for each when we pass this
-  dt[, nchars2 := nchar(string2), by = string2]
+  dt[, nchars1 := nchar(a), by = a] # Stop counting for each when we pass this
+  dt[, nchars2 := nchar(b), by = b]
 
 
   nchars_max <- max(dt$nchars1)
+  
   for (i in 1:nchars_max) {
     if (verbose) {
       cat("Letter ", i, " ", sum(dt$condition), " left to check;  ")
@@ -19,31 +24,31 @@ firstmismatch <- function(string1, string2, verbose=T) {
 
     dt[
       condition == T,
-      string1_substring := substr(string1, 1, i), # cut first string down
-      by = string1
+      a_substring := substr(a, 1, i), # cut first string down
+      by = a
     ]
 
     dt[
       condition == T,
-      string1_substring_nchar := nchar(trimws(string1_substring)), #
-      by = string1_substring
+      a_substring_nchar := nchar(trimws(a_substring)), #
+      by = a_substring
     ]
 
     # dt[condition==T,
     #   condition:=condition &
-    #              string1_substring_nchar <= nchars2 &
-    #              grepl(paste0("^",string1_substring), string2),
-    #   by=string2]
+    #              a_substring_nchar <= nchars2 &
+    #              grepl(paste0("^",a_substring), b),
+    #   by=b]
 
     dt[
       condition == T,
       condition := condition & # Was already on
-        string1_substring_nchar <= nchars2 & # Stop counting when longer than second string
+        a_substring_nchar <= nchars2 & # Stop counting when longer than second string
         nchars1 >= i & # Stop counting when longer than current count
-        startsWith(string2, string1_substring[1]), # is this substring part of A at the beginning of B
-      # grepl(paste0("^",string1_substring[1]), string2),
-      # re2_match(string=string2, pattern=paste0("^",string1_substring[1]), parallel = T),
-      by = string1_substring # parallelize over the search pattern, string2 can be whatever
+        startsWith(b, a_substring[1]), # is this substring part of A at the beginning of B
+      # grepl(paste0("^",a_substring[1]), b),
+      # re2_match(string=b, pattern=paste0("^",a_substring[1]), parallel = T),
+      by = a_substring # parallelize over the search pattern, b can be whatever
     ]
 
     dt[
@@ -62,7 +67,7 @@ firstmismatch <- function(string1, string2, verbose=T) {
 
 
 # Quick function to count the number of characters of overlap up front only
-# string2=c("murinduko hill forest","murinduko hill","forest murinduko settlement scheme")
+# b=c("murinduko hill forest","murinduko hill","forest murinduko settlement scheme")
 # p_load(re2r)
 # library(devtools)
 # install_github("qinwf/re2r", build_vignettes = T)
