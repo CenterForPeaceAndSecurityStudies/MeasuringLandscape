@@ -1,12 +1,11 @@
 ---
 title: "Train Supervised Fuzzy Toponym Matcher"
 author: "Rex W. Douglass"
-date: "9/12/2016"
-output:
+date: "12/5/2016"
+output: 
   html_notebook:
-    number_sections: yes
-    theme: readable
-    toc: yes
+    toc: true
+    toc_float: true
 editor_options: 
   chunk_output_type: inline
 ---

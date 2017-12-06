@@ -1,5 +1,7 @@
 ---
 title: "02 Prep Events Clean Locations"
+author: "Rex W. Douglass"
+date: "12/5/2016"
 output: 
   html_notebook:
     toc: true

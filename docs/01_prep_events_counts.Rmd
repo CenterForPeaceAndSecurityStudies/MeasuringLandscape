@@ -1,5 +1,7 @@
 ---
 title: "01 Prep Events"
+author: "Rex W. Douglass"
+date: "12/5/2016"
 output: 
   html_notebook:
     toc: true
