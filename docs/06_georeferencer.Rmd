@@ -86,26 +86,36 @@ Pipeline
 ```{r}
 
 #Step 1  Get Suggestions for Stems
+
+#Stem the gazeteer names
 temp <- strip_postfixes(flatfiles_sf_roi$name_cleaner)
 flatfiles_sf_roi$name_cleaner_stem <- temp[[1]]
 flatfiles_sf_roi$name_cleaner_postfix <- temp[[2]]
 
+#Stem the event names
 temp <- strip_postfixes(events_sf$name_cleaner)
 events_sf$name_cleaner_stem <- temp[[1]]
 events_sf$name_cleaner_postfix <- temp[[2]]
 
+#Combine them into a long list
 names_and_stems <- rbind(
                           as.data.frame(flatfiles_sf_roi)[,c('name_cleaner','name_cleaner_stem')],
                           as.data.frame(events_sf)[,c('name_cleaner','name_cleaner_stem')]
                         ) %>% unique() ; dim(names_and_stems)
 
+#Unique
 stemmed_ab <- unique(c(flatfiles_sf_roi$name_cleaner_stem, events_sf$name_cleaner_stem))
-stemmed_ab_grams <- qgram_hash(strings=stemmed_ab, n=2,k=1) ; dim(stemmed_ab_grams)
-stemmed_ab_suggestions <- lhs_getpairs(strings=stemmed_ab, grams=stemmed_ab_grams, bands_number=512, rows_per_band=16) ; dim(stemmed_ab_suggestions)
+length(stemmed_ab) #17,880 unique stems
 
-#15,370,520 #It's 15 million because it considered matches within the gaz as well
+#Qgram hash the stems, size 4
+stemmed_ab_grams <- qgram_hash(strings=stemmed_ab, n=4,k=1) ; dim(stemmed_ab_grams)
 
-stemmed_ab_suggestions <- subset(stemmed_ab_suggestions , a!="" &  b!="") ; dim(stemmed_ab_suggestions)#drop empty stems. If not it'll crash first match later on
+#Locality Sensitve Hashing to get suggestions for each stem
+#1,006,219 million matches
+stemmed_ab_suggestions <- lhs_getpairs(strings=stemmed_ab, grams=stemmed_ab_grams, bands_number=80, rows_per_band=16) ; dim(stemmed_ab_suggestions)
+
+
+stemmed_ab_suggestions <- subset(stemmed_ab_suggestions , a!="" &  b!="") ; dim(stemmed_ab_suggestions) #drop empty stems. If not it'll crash first match later on
 
 stemmed_ab_suggestions_events <- rbindlist(list(
   stemmed_ab_suggestions[,c('a','b','N')],
@@ -243,7 +253,9 @@ table(condition | condition2 | condition3 | condition4 | condition5) / length(co
 condition6 <- tolower(events_sf$document_district_clean) %in% flatfiles_sf_roi$name_cleaner[!flatfiles_sf_roi$source_dataset %in% c('events')]
 table(condition6)
 
-saveRDS(ab_suggestions_directed, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ab_suggestions_directed.Rds")
+saveRDS(ab_suggestions_directed,
+        file=glue(getwd(), "/../inst/extdata/ab_suggestions_directed.Rds") 
+        )
 
 ```
 
@@ -256,7 +268,7 @@ place description or district/province
 ```{r}
 
 #For when this inevitably crashes
-ab_suggestions_directed <- readRDS(file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ab_suggestions_directed.Rds")
+ab_suggestions_directed <-  readRDS(system.file("extdata", "ab_suggestions_directed.Rds", package = "MeasuringLandscapeCivilWar")) 
 flatfiles_sf_roi_centroids <- flatfiles_sf_roi %>% filter(!is.na(latitude) | geometry_type != "POINT") %>% st_centroid()
 
 #Do some quick accounting
@@ -280,7 +292,7 @@ georef2 <- as.data.frame(events_sf)[,c('event_hash', 'name_cleaner','document_di
 dim(georef2)
 
 table(events_sf$name_cleaner %in% georef2$name_cleaner) #All events are in here
-table(events_sf$name_cleaner %in% georef2$name_cleaner[!is.na(georef2$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$name_cleaner %in% georef2$name_cleaner[!is.na(georef2$georef_b)]) #
 table(events_sf$event_hash %in% georef2$event_hash) #All event hashes show up in here
 
 #This is mapping of gaz places to identical and fuzzy possible
@@ -292,7 +304,7 @@ georef_all <- georef2 %>% left_join(georef3, by = c("georef_b" = "name_cleaner")
 dim(georef_all)   #748149
 
 table(events_sf$name_cleaner %in% georef_all$name_cleaner) #All events are in here
-table(events_sf$name_cleaner %in% georef_all$name_cleaner[!is.na(georef_all$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$name_cleaner %in% georef_all$name_cleaner[!is.na(georef_all$georef_b)]) #
 table(events_sf$event_hash %in% georef_all$event_hash) #All event hashes show up in here
 
 table(georef_all$source_dataset)
@@ -359,7 +371,9 @@ table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_d
 table(events_sf$event_hash %in% georef_all_dt$event_hash) #All event hashes show up in here
 
 
-saveRDS(georef_all_dt, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/georef_all_dt.Rds")
+saveRDS(georef_all_dt,
+        file=glue(getwd(), "/../inst/extdata/georef_all_dt.Rds")
+)
 
 ```
 
@@ -400,7 +414,8 @@ georef_all_dt <- georef_all_dt %>%
                                                   "google"=13,
                                                   "openstreetmap"=14,
                                                   "kenya_cadastral"=15
-                                                  )) 
+                                                  )) %>%
+                  as.data.table()
 table(georef_all_dt$source_dataset,
       georef_all_dt$handrule4, useNA="always")
 
@@ -416,7 +431,9 @@ table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
 table(events_sf$event_hash %in% georef_all_dt$event_hash) #All event hashes show up in here
 
-saveRDS(georef_all_dt, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/georef_all_dt.Rds")
+saveRDS(georef_all_dt,
+        file=glue(getwd(), "/../inst/extdata/georef_all_dt.Rds")
+        )
 
 
 ```
@@ -436,7 +453,6 @@ dim(xy_all)
 p_load(xgboost,dummies)
 
 
-hist(label)
 
 condition <- !is.na(xy_all$distance_km) & xy_all$distance_km!=0
 
@@ -506,7 +522,9 @@ temp <- subset(georef_all_dt,event_hash=="be37b40f")
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
 
-saveRDS(georef_all_dt, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/georef_all_dt.Rds")
+saveRDS(georef_all_dt,
+        file=glue(getwd(), "/../inst/extdata/georef_all_dt.Rds")
+        )
 
 
 ```

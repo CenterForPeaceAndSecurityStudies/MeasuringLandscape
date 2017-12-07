@@ -11,7 +11,6 @@ editor_options:
   chunk_output_type: inline
 ---
 
-This file calculates the predictability of missigness for each strategy. First in terms of of the properties of each event. Then in terms of the covariates of each location.
 
 ```{r }
 # !diagnostics off

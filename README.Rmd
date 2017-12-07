@@ -37,6 +37,11 @@ The analysis and figures in the paper and statistical appendix are produced in a
 * [03 Prep Gazeteers](https://rexdouglass.github.io/MeasuringLandscape/03_prep_gazeteers.nb.html)
 * [04_fuzzy_matcher_stage_1_lsh](https://rexdouglass.github.io/MeasuringLandscape/04_fuzzy_matcher_stage_1_lsh.nb.html)
 * [05_fuzzy_matcher_stage_2_xgboost](https://rexdouglass.github.io/MeasuringLandscape/05_fuzzy_matcher_stage_2_xgboost.nb.html)
+* [06_georeferencer](https://rexdouglass.github.io/MeasuringLandscape/06_georeferencer.nb.html)
+* [07_recall_accuracy]
+* [08_predict_missingness_lhs]
+* [09_bias]
+* [10_so_what]
 
 
 ### Citation
