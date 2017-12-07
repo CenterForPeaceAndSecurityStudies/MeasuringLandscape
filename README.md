@@ -24,13 +24,14 @@ The analysis and figures in the paper and statistical appendix are produced in a
 -   [01 Prep Events Counts](https://rexdouglass.github.io/MeasuringLandscape/01_prep_events_counts.nb.html)
 -   [02 Prep Events Locations](https://rexdouglass.github.io/MeasuringLandscape/02_prep_events_locations.nb.html)
 -   [03 Prep Gazeteers](https://rexdouglass.github.io/MeasuringLandscape/03_prep_gazeteers.nb.html)
--   [04 Prep Fuzzy Matcher](https://rexdouglass.github.io/MeasuringLandscape/04_prep_fuzzy_matcher.nb.html)
+-   [04\_fuzzy\_matcher\_stage\_1\_lsh](https://rexdouglass.github.io/MeasuringLandscape/04_fuzzy_matcher_stage_1_lsh.nb.html)
+-   [05\_fuzzy\_matcher\_stage\_2\_xgboost](https://rexdouglass.github.io/MeasuringLandscape/05_fuzzy_matcher_stage_2_xgboost.nb.html)
 
 ### Citation
 
 Please cite this compendium as:
 
-> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 05 Dec 2017. Online at <https://doi.org/xxx/xxx>
+> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 07 Dec 2017. Online at <https://doi.org/xxx/xxx>
 
 ### Licenses
 
