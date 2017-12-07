@@ -1,12 +1,11 @@
 ---
 title: "Match Locations to Gazeteer and Show Differences"
 author: "Rex W. Douglass"
-date: "9/12/2016"
-output:
+date: "12/5/2016"
+output: 
   html_notebook:
-    number_sections: yes
-    theme: readable
-    toc: yes
+    toc: true
+    toc_float: true
 editor_options: 
   chunk_output_type: inline
 ---
@@ -16,46 +15,9 @@ editor_options:
 ```{r }
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
+devtools::load_all()
 
 gc()
-#sudo dnf install libcurl-devel
-#install.packages('devtools', dependencies=T)
-library(devtools)
-devtools::session_info('DT')
-
-if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
-
-p_load(mosaic, stringr,stringi)
-p_load(lubridate,stringr)
-p_load(janitor)
-p_load(digest)
-p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
-p_load(rgeos) #yum install -y geos-devel
-p_load(rgdal) #dnf install gdal* , sudo yum install proj*
-p_load(digest)
-p_load(ggmap) #sudo dnf install libjpeg*
-p_load(data.table)
-p_load(bookdown)
-p_load(feather)
-p_load(stringdist)
-p_load(sf)
-p_load(tidyverse)
-p_load(viridis)
-p_load(rvest)
-p_load(tidyverse)
-library(dplyr)
-library(plyr)
-#Need the development version for geom_sf
-#devtools::install_github("tidyverse/ggplot2")
-#This is much slower than other plotting I've been doing. Not great.
-#library(ggplot2)
-#flatfiles_sf %>% ggplot() +
-#  geom_sf(size=.1) +
-#  #scale_fill_viridis("Area") +
-#  ggtitle("Gazeteer Points (All)") +
-#  theme_bw()
-
-#devtools::load_all(".")
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
@@ -66,29 +28,17 @@ options(width = 160)
 
 ```{r}
 
+#Load Events
 events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
-dim(events_sf)
 
-table(!is.na(events_sf$location_text),
-      !is.na(events_sf$map_coordinate_clean_latitude))
-
-
-events_sf <- events  %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
-                  distinct() 
-
-sort(unique(unlist(strsplit(events_sf$name_cleaner,"")))) #ok only number and lowercase letters from now on
-
-#Avoid creating geometries where one of the two is NA
-events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
-events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
-
-events_sf <- events_sf  %>% st_as_sf(coords = c("map_coordinate_clean_longitude",
-                                                "map_coordinate_clean_latitude"), 
-                                     crs = 4326,agr = "constant",
-                                     remove=F, na.fail =F)
+events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
+                                     .(location_text), transform,
+      map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
+      )
 
 
 ```
+
 
 ```{r}
 
@@ -96,18 +46,15 @@ events_sf <- events_sf  %>% st_as_sf(coords = c("map_coordinate_clean_longitude"
 p_load(xgboost)
 toponym_xb_model <- xgb.load(system.file("extdata", "toponym_xb_onlystring.bin", package = "MeasuringLandscapeCivilWar"))
 
-
-
 ```
 
 ```{r}
 
 #Load Gazeteers
-flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar")) %>% filter(!source_dataset %in% 'events_poly')
+flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar")) 
 dim(flatfiles_sf_roi)
-
-flatfiles_sf_roi_dt <- as.data.table(flatfiles_sf_roi)
-setkey(flatfiles_sf_roi_dt,place_hash)
+flatfiles_dt <- as.data.table(flatfiles_sf_roi)
+setkey(flatfiles_dt,place_hash)
 
 ```
 
@@ -354,6 +301,9 @@ georef_all$georef_a <- NULL
 
 ```
 
+
+
+
 ```{r}
 #Ok next up we add distance
 #crs_m <- "+proj=utm +zone=27 +datum=NAD83 +units=m +no_defs"  #this is toally wrong, stop using it
@@ -414,6 +364,8 @@ saveRDS(georef_all_dt, file="/home/rexdouglass/Dropbox (rex)/Kenya Article Draft
 ```
 
 
+
+# Hand Rules
 
 ```{r}
 #Calculate some features

@@ -1,55 +1,22 @@
 ---
 title: "Match Locations to Gazeteer and Show Differences"
 author: "Rex W. Douglass"
-date: "9/12/2016"
-output:
+date: "12/5/2016"
+output: 
   html_notebook:
-    number_sections: yes
-    theme: readable
-    toc: yes
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
 ---
+
 
 ```{r }
 # !diagnostics off
-
+library(MeasuringLandscapeCivilWar)
+devtools::load_all()
 
 gc()
-#sudo dnf install libcurl-devel
-#install.packages('devtools', dependencies=T)
-library(devtools)
-devtools::session_info('DT')
-
-if(!require(pacman)) {  install.packages('pacman', dependencies=T); library(pacman)  }
-
-p_load(mosaic, stringr,stringi)
-p_load(lubridate,stringr)
-p_load(janitor)
-p_load(digest)
-p_load(tidyverse, dplyr,knitr,DT,magrittr); #install.packages('DT', repos = 'http://cran.rstudio.com')
-p_load(rgeos) #yum install -y geos-devel
-p_load(rgdal) #dnf install gdal* , sudo yum install proj*
-p_load(digest)
-p_load(ggmap) #sudo dnf install libjpeg*
-p_load(data.table)
-p_load(bookdown)
-p_load(feather)
-p_load(stringdist)
-p_load(sf)
-p_load(tidyverse)
-p_load(viridis)
-p_load(rvest)
-p_load(tidyverse)
-#Need the development version for geom_sf
-#devtools::install_github("tidyverse/ggplot2")
-#This is much slower than other plotting I've been doing. Not great.
-#library(ggplot2)
-#flatfiles_sf %>% ggplot() +
-#  geom_sf(size=.1) +
-#  #scale_fill_viridis("Area") +
-#  ggtitle("Gazeteer Points (All)") +
-#  theme_bw()
-
-#devtools::load_all(".")
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
@@ -61,40 +28,9 @@ It is based on an events dataset built and cleaned in another file.
 
 ```{r}
 
-library(MeasuringLandscapeCivilWar)
 #Load Events
-events <- readRDS(system.file("extdata", "MeasuringLandscapeCivilWar_events_cleaned.Rdata", package = "MeasuringLandscapeCivilWar")) %>% 
-             mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #create a hash id to referec
+events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
 
-dim(events)
-
-table(!is.na(events$location_text),
-      !is.na(events$map_coordinate_clean_latitude))
-library(dplyr)
-library(plyr)
-events_text_unique <- ddply(events, .(location_text), summarize,
-      map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
-      )
-table(events_text_unique$map_coordinate_has>0)
-
-
-events_sf <- events  %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
-                  distinct()
-
-sort(unique(unlist(strsplit(events_sf$name_cleaner,"")))) #ok only number and lowercase letters from now on
-
-
-#Avoid creating geometries where one of the two is NA
-events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
-events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
-
-events_sf <- events_sf  %>% st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"), crs = 4326,agr = "constant", remove=F, na.fail =F)
-
-valid <- st_is_valid(events_sf$geometry); table(valid)
-
-
-library(dplyr)
-library(plyr)
 events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
                                      .(location_text), transform,
       map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))

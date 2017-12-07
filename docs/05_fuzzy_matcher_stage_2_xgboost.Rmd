@@ -395,14 +395,14 @@ global_test$toponym_xb_string_and_stem <- 1/(1 + exp(-global_test$toponym_xb_str
 
 
 
-table(global_test$rex_match, global_test$toponym_xb_everything>.5)
+#table(global_test$rex_match, global_test$toponym_xb_everything>.5)
 
 #table(global_test$rex_match, global_test$toponym_xb_everything_extracted>.5)a#table(global_test$rex_match, global_test$toponym_rf_everything>.5)
-table(global_test$rex_match, global_test$toponym_xb_everything2>.5)
+#table(global_test$rex_match, global_test$toponym_xb_everything2>.5)
 #table(global_test$rex_match, global_test$toponym_xb_everything3>.5)
 #table(global_test$rex_match, global_test$toponym_xb_everything4>.5)
 
-table(global_test$rex_match, global_test$toponym_xb_onlystring>.5)
+#table(global_test$rex_match, global_test$toponym_xb_onlystring>.5)
 
 # global_test$toponym_cnn  <- as.vector(
 #                          predict(cnn_all_distance,
@@ -413,8 +413,8 @@ table(global_test$rex_match, global_test$toponym_xb_onlystring>.5)
 # )
 
 
-p_load(Metrics)
-p_load(MLmetrics)
+#p_load(Metrics)
+#p_load(MLmetrics)
 tocompare <- c("toponym_xb_everything2",
                "toponym_xb_onlystring",
                #"toponym_xb_stringcorpus",
@@ -429,7 +429,7 @@ print("confusion")
 sapply(tocompare, function(q) {  table(global_test$rex_match,  global_test[,q]>.5)  })
 
 
-p_load(precrec)
+#p_load(precrec)
 msmdat1 <- evalmod( mmdata(scores=list(
                                 #global_test$toponym_xb_everything,
                                 #global_test$toponym_rf_everything,
@@ -467,9 +467,9 @@ msmdat1 <- evalmod( mmdata(scores=list(
                                         #"toponym_xb_onlystring_uber_large"
                                         )
                            ) )
+
 msmdat1
 autoplot(msmdat1)
-
 
 ```
 
