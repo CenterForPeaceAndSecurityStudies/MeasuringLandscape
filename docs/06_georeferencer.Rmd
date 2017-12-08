@@ -83,6 +83,8 @@ So we need to first apply the suggester
 
 Pipeline
 
+Stem
+
 ```{r}
 
 #Step 1  Get Suggestions for Stems
@@ -107,13 +109,144 @@ names_and_stems <- rbind(
 stemmed_ab <- unique(c(flatfiles_sf_roi$name_cleaner_stem, events_sf$name_cleaner_stem))
 length(stemmed_ab) #17,880 unique stems
 
-#Qgram hash the stems, size 4
-stemmed_ab_grams <- qgram_hash(strings=stemmed_ab, n=4,k=1) ; dim(stemmed_ab_grams)
+```
 
-#Locality Sensitve Hashing to get suggestions for each stem
-#1,006,219 million matches
-stemmed_ab_suggestions <- lhs_getpairs(strings=stemmed_ab, grams=stemmed_ab_grams, bands_number=80, rows_per_band=16) ; dim(stemmed_ab_suggestions)
+```{r}
 
+
+#Optimal settings derived in 04_fuzzy_matcher_stage_1
+minhash_count=100
+bands=25
+
+library(textreuse)
+stemmed_ab_spaced <- sapply(strsplit(stemmed_ab, split="") , paste, collapse=" ")
+minhash <- minhash_generator(n = minhash_count, seed = 1)
+options("mc.cores" = detectCores()) #Much faster when paralized
+#options("mc.cores" = 1) #Much faster when paralized
+
+corpus_ab_spaced <- TextReuseCorpus(text = stemmed_ab_spaced,
+                                    tokenizer = tokenize_ngrams,
+                                    n = 1, #wow if you pass this as a variable instead of a number it crashes. Wtf?
+                                    minhash_func = minhash,
+                                    keep_tokens = TRUE,
+                                    progress = T)
+
+#buckets <- lsh(corpus_ab_spaced, bands = 80, progress = T) #Single threaded but should be parallizable
+library(doMC)
+registerDoMC(cores=48)
+library(foreach)
+n.cores <- detectCores()-1
+cuts <- cut(1:length(corpus_ab_spaced), n.cores)
+buckets_list <- foreach(q = levels(cuts)) %dopar% lsh(corpus_ab_spaced[cuts %in% q], bands = bands, progress = T) , mc.cores = n.cores)
+
+#p_load(multicore)
+n.cores <- detectCores()-1
+cuts <- cut(1:length(corpus_ab_spaced), n.cores)
+buckets_list <- mclapply(levels(cuts),
+               function(q) lsh(corpus_ab_spaced[cuts %in% q], bands = bands, progress = T) ,
+               mc.cores = n.cores)
+buckets <- do.call(rbind, buckets_list)
+
+candidates <- lsh_candidates(buckets)
+candidates$a_numeric <- as.numeric( gsub("doc-","",candidates$a) )
+candidates$b_numeric <- as.numeric( gsub("doc-","",candidates$b) )
+candidates$stemmed_a <- stemmed_ab[candidates$a_numeric]
+candidates$stemmed_b <- stemmed_ab[candidates$b_numeric]
+candidates$stemmed_ab <- paste(candidates$stemmed_a,candidates$stemmed_b, sep="_")
+candidates$stemmed_ba <- paste(candidates$stemmed_b,candidates$stemmed_a, sep="_")
+
+handlabeled$lsh_match <- handlabeled$stemmed_ab %in% candidates$stemmed_ab | #It's flagged as a match
+                         handlabeled$stemmed_ab %in% candidates$stemmed_ba |
+                         handlabeled$stemmed_a == handlabeled$stemmed_b      #Or has an identical stem
+
+dim(candidates)
+
+d=table(handlabeled$lsh_match, handlabeled$rex_match)
+
+results <- data.frame(
+  minhash_count=minhash_count,
+  ngram_count=ngram_count,
+  bands=bands,
+  candidates_nrow= nrow(candidates),
+  suggestions_per = nrow(candidates)/length(stemmed_ab),
+  true_negative=d[1,1],
+  false_negative=d[1,2],
+  false_positive=d[2,1],
+  true_positive=d[2,2]
+)
+
+
+```
+
+
+Hash
+
+```{r}
+
+#Qgram hash the stems, size 3
+stemmed_ab_grams <- dfm(
+                quanteda::tokens(stemmed_ab, what = "character",
+                                 ngrams = 1:3,
+                                 skip = 0, 
+                                 concatenator = "_",
+                                 hash = F)
+                )
+dim(stemmed_ab_grams)
+stemmed_ab_grams <- as(stemmed_ab_grams, "dgCMatrix")
+class(stemmed_ab_grams)
+rownames(stemmed_ab_grams) <- stemmed_ab    
+
+#On how to scale the columns of a sparse matrix
+#https://stackoverflow.com/questions/39284774/column-rescaling-for-a-very-large-sparse-matrix-in-r
+#p_load('proxy') # Library of similarity/dissimilarity measures for 'dist()'
+stemmed_ab_grams_scaled <- stemmed_ab_grams
+stemmed_ab_grams_scaled@x <- stemmed_ab_grams_scaled@x / rep.int(colSums(stemmed_ab_grams_scaled), diff(stemmed_ab_grams_scaled@p))
+dim(stemmed_ab_grams_scaled)
+
+```
+
+Locality Sensitive Hashing
+
+```{r}
+
+
+
+
+pairs <- get_similar_pairs_cosine(
+                                  stemmed_ab_grams_scaled,
+                                  bands_number = 32, # increase this number, and you'll get more false positives but fewer misses
+                                  rows_per_band = 8, # basically shrink this number
+                                  #distance = "cosine",  #redundant if you use pairs_cosine
+                                  seed = 1, 
+                                  mc.cores = detectCores(),
+                                  verbose = T
+                                )
+
+dim(pairs) # 426,604 That's about 9.4 matches per which is almost exactly what we were looking for. 20 bands, 6 rows 344,923,166
+suggestions <- as.data.table(pairs) # pairs[order(-N)]
+dim(suggestions) # 426,604 That's about 9.4 matches per which is almost exactly what we were looking for. 20 bands, 6 rows 344,923,166
+
+suggestions$a <- strings[suggestions$id1]
+suggestions$b <- strings[suggestions$id2]
+
+suggestions[, ab := paste(a, b, sep = "_")]
+suggestions[, ba := paste(b, a, sep = "_")]
+
+#18,979,965  for 32 and 8 
+#18979965/17880 = 1061.519 about a thousand suggestions per
+stemmed_ab_suggestions <- lhs_getpairs(strings=stemmed_ab,
+                                       grams=stemmed_ab_grams_scaled,
+                                       bands_number=32,
+                                       rows_per_band=8) ; dim(stemmed_ab_suggestions)
+
+
+
+
+
+```
+
+
+```{r}
 
 stemmed_ab_suggestions <- subset(stemmed_ab_suggestions , a!="" &  b!="") ; dim(stemmed_ab_suggestions) #drop empty stems. If not it'll crash first match later on
 
