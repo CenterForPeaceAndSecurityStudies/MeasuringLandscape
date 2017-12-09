@@ -41,7 +41,6 @@ The analysis and figures in the paper and statistical appendix are produced in a
 * [07_ensemble_and_hand_rules](https://rexdouglass.github.io/MeasuringLandscape/07_ensemble_and_hand_rules.nb.html)
 * [08_recall_accuracy](https://rexdouglass.github.io/MeasuringLandscape/08_ensemble_and_hand_rules.nb.html)
 * [09_predict_missingness_lhs](https://rexdouglass.github.io/MeasuringLandscape/09_recall_accuracy.nb.html)
-* [09_bias](https://rexdouglass.github.io/MeasuringLandscape/09_predict_missingness_lhs.nb.html)
 * [10_predicted_effects](https://rexdouglass.github.io/MeasuringLandscape/10_predicted_effects.nb.html)
 * [11_bias](https://rexdouglass.github.io/MeasuringLandscape/11_bias.nb.html)
 * [12_so_what](https://rexdouglass.github.io/MeasuringLandscape/12_so_what.nb.html)
