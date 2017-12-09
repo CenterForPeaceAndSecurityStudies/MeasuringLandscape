@@ -12,7 +12,7 @@ editor_options:
 
 # Loads
 
-```{r }
+```{r, results='hide', message=FALSE, warning=FALSE }
 
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()

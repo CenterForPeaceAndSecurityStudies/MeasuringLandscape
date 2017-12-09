@@ -14,7 +14,7 @@ editor_options:
 
 This file cleans and compiles a large number of kenya gazeteers for further downstream use.
 
-```{r }
+```{r , results='hide', message=FALSE, warning=FALSE}
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()

@@ -11,7 +11,7 @@ editor_options:
 ---
 
 
-```{r }
+```{r , results='hide', message=FALSE, warning=FALSE }
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
@@ -37,6 +37,13 @@ events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','
 
 
 ```
+
+This section calculates the recall rate and geographic accuracy of gazeteer suggestions. Recall is the number of events that receive at least one suggestion under a given set of rules. Accuracy is the distance between an observed location with a military coordinate and an imputed location for the same event. 
+
+Accuracy is measured differently for hand rule/ensemble and every other specific decision. Hand rule/ensemble accuracy is the distance observed for the best match selected by that process.
+
+Accuracy for the remainder of decisions is the BEST CASE accuracy for any suggestion matching that rule. For example, if the decision is "point" geometry type, then accuracy would be the smallest observed distance of every single suggestion with a point type.
+
 
 ```{r}
 
@@ -69,8 +76,10 @@ georef_all_dt_ensemble_summary <- georef_all_dt_ensemble[,list(
                                               source_dataset_count=.N
                                               )
                                         ]
-
+print("Distance for Hand Rule")
 summary(georef_all_dt_handrule$distance_km)
+
+print("Distance for Ensemble")
 summary(georef_all_dt_ensemble$distance_km)
 
 rbind(georef_all_dt_handrule %>% mutate(label="hand"),
@@ -81,11 +90,12 @@ rbind(georef_all_dt_handrule %>% mutate(label="hand"),
 #Need to compare on just the intersection of the points they provide answers to?
 
 
-#compare the two
-table(
-paste(georef_all_dt_ensemble$event_hash, georef_all_dt_ensemble$place_hash)[!is.na(georef_all_dt_ensemble$X2)] %in%  
-    paste(georef_all_dt_handrule$event_hash, georef_all_dt_handrule$place_hash)[!is.na(georef_all_dt_handrule$X2)]  
-)
+
+```
+
+Now calculate the minimum observed distance for any suggestion matching a specific decision.
+
+```{r}
 
 #Minimum distance by event-source
 georef_all_dt_bysource <- georef_all_dt[,
@@ -132,13 +142,26 @@ georef_all_dt_bygeometry_type <- georef_all_dt_bygeometry_type[,list(
                                                       by=list(geometry_type)
                                                 ]
 
-
-
-
 georef_all_dt_milcoords_summary <- data.frame(rule="Mil. Coord",
                                               distance_rmse=0,
                                               source_dataset_count=sum(!is.na(events_sf$map_coordinate_clean_latitude))
 )
+
+```
+
+Combine and plot the results for every specific decision and the ensembles.
+
+In terms of accuracy, we find wide variation between decisions. In brief:
+Ensemble Rule > Hand Rule
+Exact > Fuzzy
+Point > Multipolygon > Polygon > Linestring
+Match to Other Events > No Match to Other Events
+events > nga > livestock_points" > historical > geonames > bing> kenya_cadastral_district > livestock_boundaries > gadm > kenya_district1962 > wikidata > google > kenya_cadastral > openstreetmap > tgn 
+
+The hand rules and supervised ensemble represent a compromsie between high recovery rate and best case accuracy of each individual decision.
+
+
+```{r}
 
 recall_accuracy <- rbindlist(list(
   #georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
@@ -180,3 +203,5 @@ ggsave(
 
 
 ```
+
+

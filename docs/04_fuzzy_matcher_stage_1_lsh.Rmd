@@ -16,7 +16,7 @@ editor_options:
 This file develops the first stage of the fuzzy toponym matcher. Its job is to screen out the vast majority of suggestions that are too dissimilar to ever be a plausible match. It will have a high false positive rate, which can then be further refined in stage 2.
 
 
-```{r }
+```{r , results='hide', message=FALSE, warning=FALSE}
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
 

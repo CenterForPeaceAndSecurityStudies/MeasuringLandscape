@@ -15,7 +15,7 @@ This is the entry point for the paper "Measuring the Landscape of Civil War." In
 
 # Load Library
 
-```{r }
+```{r , results='hide', message=FALSE, warning=FALSE}
 
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()

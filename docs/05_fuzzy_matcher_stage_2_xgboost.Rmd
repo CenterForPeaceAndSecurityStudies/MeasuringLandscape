@@ -12,7 +12,7 @@ editor_options:
 
 There is where we train our fuzzy matcher
 
-```{r }
+```{r, results='hide', message=FALSE, warning=FALSE }
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
 
