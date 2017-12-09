@@ -1,0 +1,26 @@
+---
+title: "Bias on covariates"
+author: "Rex W. Douglass"
+date: "12/5/2016"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r }
+# !diagnostics off
+library(MeasuringLandscapeCivilWar)
+devtools::load_all()
+dir_figures <- glue(getwd(), "/../paper/figures/")
+
+gc()
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```

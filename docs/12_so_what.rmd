@@ -1,0 +1,231 @@
+---
+title: "So What"
+author: "Rex W. Douglass"
+date: "9/12/2016"
+output:
+  html_notebook:
+    number_sections: yes
+    theme: readable
+    toc: yes
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+This file cleans and compiles a large number of kenya gazeteers for further downstream use.
+
+```{r }
+# !diagnostics off
+library(MeasuringLandscapeCivilWar)
+devtools::load_all()
+dir_figures <- glue(getwd(), "/../paper/figures/")
+
+gc()
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+```{r}
+
+covariate_list <-  prep_covariates()
+
+region_of_interest_sf <- create_roi(bottom_left_x=35.67,
+                                        bottom_left_y=-1.43285,
+                                        top_right_x=38.19,
+                                        top_right_y=0.54543,
+                                        crs_out=4326)
+
+hex <- create_hexagon_df(cellsize_km=10,
+                            region_of_interest=region_of_interest_sf,
+                            type="hexagonal",
+                            crs=4326 )
+
+
+new_over <- function(x,y, variable) {
+  if(class(y)[[1]] %in% "sf"){
+      indexes <- sapply(st_intersects(x %>% st_transform(crs=32737),
+                                      y %>% st_transform(crs=32737) ), function(z) if (length(z)==0) NA_integer_ else z[1])
+      
+      return(as.vector(as.data.frame(y)[indexes,variable]))
+  } 
+  
+  if(class(y)[[1]] %in% "RasterLayer"){
+    return(
+      raster::extract(y %>% projectRaster(crs="+proj=utm +zone=37 +south +datum=WGS84 +units=m +no_defs"),
+                      x  %>% st_transform(crs=32737) %>% as("Spatial") %>% as("SpatialPoints")  
+            )
+    )
+  }
+    
+}
+
+
+#hex$district <- new_over(st_centroid(hex) , covariate_list[[1]]  , 'name' )
+#hex$cadastral <- new_over(st_centroid(hex) , covariate_list[[2]]  , 'name' )
+#hex$language <- new_over(st_centroid(hex) , covariate_list[[3]]  , 'LANGUAGE' )
+#hex$tribe <- new_over(st_centroid(hex) , covariate_list[[4]]  , 'Tribe' )
+hex$rain <- log( new_over(st_centroid(hex) , covariate_list[['raster_rain']]  , 'Tribe' ) + 1)
+hex$population <- log(  new_over(st_centroid(hex) , covariate_list[['pop_raster_roi']]  , '' ) + 1)
+hex$treecover <-log(  new_over(st_centroid(hex) , covariate_list[['forest_raster_roi']]  , '' ) + 1)
+hex$ruggedness <- log(  new_over(st_centroid(hex) , covariate_list[['ruggedness_raster_roi']]  , '' ) + 1)
+hex$roads_distance <-log(  new_over(st_centroid(hex) , covariate_list[['roads_distance_to']]  , '' ) + 1)
+#hex$landuse <- new_over(st_centroid(hex) , covariate_list[[9]]  , 'LANDUSE' )
+
+```
+
+```{r}
+#Reload from scratch each time in case we subset sometehing weirdly
+georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt.Rds", package = "MeasuringLandscapeCivilWar")) 
+georef_all_dt[!is.finite(distance_km),distance_km:=NA] 
+georef_all_dt <- subset(georef_all_dt,  distance_km=!0) #This excludes all self references , we need that here but not necessarily elsewhere
+georef_all_dt_events_sf <- georef_all_dt  %>% 
+                         filter(!is.na(X1) & !is.na(Y2)) %>% #can drop anything without a coordinate because you'll never be able to aggregate those
+                         data.frame() %>% st_as_sf(coords = c("X2","Y2"),  crs = 4326, agr = "constant", remove=F, na.fail =F)
+
+temp <- georef_all_dt_events_sf %>% filter(fuzzy) %>% filter(!duplicated(event_hash))
+hex$dv <- log( sapply( st_covers(hex, temp), sum, na.rm=T) + 1)
+
+vars_all <- c("dv","rain","population","treecover","ruggedness","roads_distance") #,"landuse"
+#lapply(hex[,vars_all], hist)
+lm1 <- lm(dv ~ ., data=as.data.frame(hex)[,vars_all])
+
+
+temp <- georef_all_dt_events_sf %>% filter(!duplicated(event_hash))
+hex$dv <-  sapply( st_covers(hex, temp), length) 
+library(MASS)
+library(broom)
+tidy(lm1)
+
+```
+
+```{r}
+
+
+#Hand Rule
+lm_results_list0 <- list()
+setkey(georef_all_dt, rule_ensemble)
+georef_all_dt_ensemble <- georef_all_dt[,.SD[1], by=list(event_hash) ]
+
+condition <- paste(georef_all_dt_events_sf$event_hash, georef_all_dt_events_sf$place_hash) %in% 
+             paste(georef_all_dt_ensemble$event_hash, georef_all_dt_ensemble$place_hash) #table(condition)
+temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
+hex$dv <- sapply( st_covers(hex, temp), length) 
+lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+temp_results <- tidy(lm1)
+temp_results$Type="Rule"
+temp_results$label <- "Hand Rule"
+lm_results_list0[[as.character("Hand Rule")]] <- temp_results
+
+#Ensemble Rule
+setkey(georef_all_dt, rule_ensemble)
+georef_all_dt_ensemble <- georef_all_dt[,.SD[1], by=list(event_hash) ]
+
+condition <- paste(georef_all_dt_events_sf$event_hash, georef_all_dt_events_sf$place_hash) %in% 
+             paste(georef_all_dt_ensemble$event_hash, georef_all_dt_ensemble$place_hash) #table(condition)
+temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
+hex$dv <- sapply( st_covers(hex, temp), length) 
+lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+temp_results <- tidy(lm1)
+temp_results$Type="Rule"
+temp_results$label <- "Ensemble Rule"
+lm_results_list0[[as.character("Ensemble Rule")]] <- temp_results
+
+
+
+  
+#Source Dataset
+lm_results_list <- list()
+for(q in unique(georef_all_dt_events_sf$source_dataset)){
+    print(q)
+  try({ #TGN fails
+
+  condition <- georef_all_dt_events_sf$source_dataset==q
+  temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
+  hex$dv <- sapply( st_covers(hex, temp), length) 
+  lm1 <- glm.nb(dv ~ .,
+                data= na.omit(as.data.frame(hex)[,vars_all]) 
+                )
+  temp_results <- tidy(lm1)
+  temp_results$Type="Source Dataset"
+  temp_results$label <- q
+  lm_results_list[[as.character(q)]] <- temp_results
+  })
+}
+
+#Geometry Type
+lm_results_list2 <- list()
+for(q in unique(georef_all_dt_events_sf$geometry_type)){
+  print(q)
+  condition <- georef_all_dt_events_sf$geometry_type==q
+  temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
+  hex$dv <- sapply( st_covers(hex, temp), length) 
+  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+  temp_results <- tidy(lm1)
+  temp_results$Type="Geometry Type"
+  temp_results$label <- q
+  lm_results_list2[[as.character(q)]] <- temp_results
+}
+
+#Fuzzy
+lm_results_list3 <- list()
+for(q in unique(georef_all_dt_events_sf$fuzzy)){
+  print(q)
+  condition <- georef_all_dt_events_sf$fuzzy==q
+  temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
+  hex$dv <- sapply( st_covers(hex, temp), length) 
+  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+  temp_results <- tidy(lm1)
+  temp_results$Type="Match Type"
+  temp_results$label <- q
+  lm_results_list3[[as.character(q)]] <- temp_results
+}
+
+#Self Reference
+lm_results_list4 <- list()
+for(q in unique(georef_all_dt_events_sf$SelfReference)){
+  print(q)
+  condition <- georef_all_dt_events_sf$SelfReference==q
+  temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
+  hex$dv <- sapply( st_covers(hex, temp), length) 
+  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+  temp_results <- tidy(lm1)
+  temp_results$Type="SelfReference"
+  temp_results$label <- q
+  lm_results_list4[[as.character(q)]] <- temp_results
+}
+
+
+
+lm_results_dt <- rbindlist( list(  rbindlist(lm_results_list0),
+                                   rbindlist(lm_results_list),
+                                   rbindlist(lm_results_list2),
+                                   rbindlist(lm_results_list3),
+                                   rbindlist(lm_results_list4)
+)
+                           )
+
+lm_results_dt <- lm_results_dt %>% mutate(rate= round(exp(estimate),2) )
+
+p_load(ggrepel, tools)
+p_lm <- lm_results_dt %>% filter(term != "(Intercept)") %>%
+  ggplot(aes(x=rate,y=p.value, color=Type, label=label))  + 
+  facet_wrap(~term, scales="free") + 
+  theme_bw() +
+  geom_vline(xintercept = 1, , color="grey") + 
+  geom_hline(yintercept = 0.01, linetype=3, color="grey") + 
+  geom_text_repel(size=2)
+p_lm
+ #+ coord_cartesian(y="log")
+
+ggsave(
+  filename = glue(dir_figures, "p_lm.pdf"),
+  plot = p_lm, width = 15, height = 9
+)
+
+```
+
+
+

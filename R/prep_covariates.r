@@ -129,18 +129,18 @@ prep_covariates <- function(roi, fromscratch=F) {
   roads_distance_to <- readRDS(system.file("extdata", "roads_distance_to.Rdata", package = "MeasuringLandscapeCivilWar"))
 
 
-  covariate_list <- list(
+  covariate_list <- list()
+  covariate_list[['raster_rain']] <- raster_rain
+  covariate_list[['pop_raster_roi']] <- pop_raster_roi
+  covariate_list[['forest_raster_roi']] <- forest_raster_roi
+  covariate_list[['ruggedness_raster_roi']] <- ruggedness_raster_roi
+  covariate_list[['roads_distance_to']] <- roads_distance_to
+    
     # kenya_cadastral_district_sf,
     # kenya_cadastral_sf,
     # LanguagePolygons,
     # kenya_tribes,
-    raster_rain,
-    pop_raster_roi,
-    forest_raster_roi,
-    ruggedness_raster_roi,
-    roads_distance_to # ,
     # kenya_landuse
-  )
 
   if (fromscratch) {
     saveRDS(

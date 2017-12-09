@@ -1,0 +1,174 @@
+---
+title: "Bias on covariates"
+author: "Rex W. Douglass"
+date: "12/5/2016"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r }
+# !diagnostics off
+library(MeasuringLandscapeCivilWar)
+devtools::load_all()
+dir_figures <- glue(getwd(), "/../paper/figures/")
+
+gc()
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+
+```{r}
+
+#Load Events
+events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
+
+events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
+                                     .(location_text), transform,
+      map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
+      )
+
+
+#Reload from scratch each time in case we subset sometehing weirdly
+georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt.Rds", package = "MeasuringLandscapeCivilWar")) 
+
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
+
+#Exclude all distance = 0 obs, those are self matches
+georef_all_dt <- subset(georef_all_dt, 
+                        !is.na(name_cleaner) & # must have a name
+                        (is.na(distance_km) | distance_km!=0)  ) #Can be either missing or not zero. Only thing we drop is zero because that's a self match
+```
+
+
+# Now bias on covariates
+
+Create a subset just for those events that have both original coords and a potential match
+
+```{r}
+
+#Subset to make sure both sides have lat/long
+georef_all_dt_covariates <- subset(georef_all_dt, !is.na(X1) & !is.na(X2)) ; dim(georef_all_dt_covariates)
+
+#Create an events dataset for merging on covariates
+georef_all_dt_covariates_events <- georef_all_dt_covariates[!duplicated(event_hash)]
+georef_all_dt_covariates_events_sf <- georef_all_dt_covariates_events  %>% data.frame() %>% st_as_sf(coords = c("X1","Y1"),  crs = 4326, agr = "constant", remove=F, na.fail =T)
+georef_all_dt_covariates_events_sf$imputed <- 0
+
+#Create a gaz dataset for mering on covarates
+georef_all_dt_covariates_gaz_sf <- georef_all_dt_covariates[,distance_km_min:=min(distance_km, na.rm=T),
+                                                            by=list(event_hash, source_dataset)]
+georef_all_dt_covariates_gaz_sf <- georef_all_dt_covariates_gaz_sf[distance_km==distance_km_min]
+
+georef_all_dt_covariates_gaz_sf <- georef_all_dt_covariates_gaz_sf[,head(.SD, 1), by=list(event_hash, source_dataset)] %>% 
+                                  data.frame() %>% st_as_sf(coords = c("X2","Y2"),  crs = 4326, agr = "constant", remove=F, na.fail =T)
+georef_all_dt_covariates_gaz_sf$imputed <- 1
+
+```
+
+
+
+
+#Wrap as a function an run multiple times for different vectors
+
+```{r}
+
+
+#covariate_list <- readRDS( '/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/covariate_list.Rds' )
+covariate_list <-  prep_covariates()
+
+sapply(covariate_list, FUN=function(q) class(q)[1])
+
+
+```
+
+```{r}
+
+new_over <- function(x,y, variable) {
+  if(class(y)[[1]] %in% "sf"){
+      indexes <- sapply(st_intersects(x %>% st_transform(crs=32737),
+                                      y %>% st_transform(crs=32737) ), function(z) if (length(z)==0) NA_integer_ else z[1])
+      
+      return(as.vector(as.data.frame(y)[indexes,variable]))
+  } 
+  
+  if(class(y)[[1]] %in% "RasterLayer"){
+    return(
+      raster::extract(y %>% projectRaster(crs="+proj=utm +zone=37 +south +datum=WGS84 +units=m +no_defs"),
+                      x  %>% st_transform(crs=32737) %>% as("Spatial") %>% as("SpatialPoints")  
+            )
+    )
+  }
+    
+}
+
+#georef_all_dt_covariates_events_sf$district <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[1]]  , 'name' )
+#georef_all_dt_covariates_events_sf$cadastral <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[2]]  , 'name' )
+#georef_all_dt_covariates_events_sf$language <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[3]]  , 'LANGUAGE' )
+#georef_all_dt_covariates_events_sf$tribe <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[4]]  , 'Tribe' )
+georef_all_dt_covariates_events_sf$rain <- new_over(georef_all_dt_covariates_events_sf , covariate_list[['raster_rain']]  , 'Tribe' )
+georef_all_dt_covariates_events_sf$population <- new_over(georef_all_dt_covariates_events_sf , covariate_list[['pop_raster_roi']]  , '' )
+georef_all_dt_covariates_events_sf$treecover <- new_over(georef_all_dt_covariates_events_sf , covariate_list[['forest_raster_roi']]  , '' )
+georef_all_dt_covariates_events_sf$ruggedness <- new_over(georef_all_dt_covariates_events_sf , covariate_list[['ruggedness_raster_roi']]  , '' )
+georef_all_dt_covariates_events_sf$roads_distance <- new_over(georef_all_dt_covariates_events_sf , covariate_list[['roads_distance_to']]  , '' )
+
+#georef_all_dt_covariates_events_sf$landuse <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[9]]  , 'LANDUSE' )
+#georef_all_dt_covariates_gaz_sf$district <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[1]]  , 'name' )
+#georef_all_dt_covariates_gaz_sf$cadastral <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[2]]  , 'name' )
+#georef_all_dt_covariates_gaz_sf$language <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[3]]  , 'LANGUAGE' )
+#georef_all_dt_covariates_gaz_sf$tribe <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[4]]  , 'Tribe' )
+#georef_all_dt_covariates_gaz_sf$rain <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[5]]  , '' )
+#georef_all_dt_covariates_gaz_sf$population <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[6]]  , '' )
+#georef_all_dt_covariates_gaz_sf$treecover <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[7]]  , '' )
+#georef_all_dt_covariates_gaz_sf$ruggedness <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[8]]  , '' )
+#georef_all_dt_covariates_gaz_sf$roads_distance <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[9]]  , '' )
+#georef_all_dt_covariates_gaz_sf$landuse <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[9]]  , 'LANDUSE' )
+
+
+
+#Make that bias in the coef plot
+setkey(georef_all_dt, "rule_ensemble") #sort by ensemble score, pick the best option for each source
+georef_all_dt_source <- georef_all_dt[,.SD[1], by=list(event_hash,
+                                                       source_dataset) ]
+
+temp <- as.data.frame(georef_all_dt_covariates_events_sf)[,c('source_dataset',
+                                                          'population',
+                                                          'treecover',
+                                                          'ruggedness',
+                                                          'roads_distance',
+                                                          'rain')
+                                                         ] %>% 
+                                                           group_by(source_dataset) %>% 
+                                                          summarise_all(funs(mean, .args =list(na.rm=T)) )
+
+temp[,2:6] <- lapply(temp[,2:6], scale)
+
+temp[,2:6] <- temp[,2:6] - temp[rep(2,nrow(temp)),2:6] 
+
+temp <- temp %>% gather(variable, value, -source_dataset)
+
+p9 <- ggplot(temp, aes(x = value,
+                 y = as.factor(sub("_","",source_dataset)),
+                 shape=as.factor(sub("_","",source_dataset)))) + 
+                 geom_point() + 
+                 facet_grid(.~variable, scales="free") + 
+                 geom_vline(xintercept=0) + ylab("Source Dataset") +
+                 xlab("Difference Between Value at Imputed Location and True Location (Standard Deviations)") +
+                 scale_shape_manual(values=1:15) + theme_bw() + theme(legend.position="none") 
+p9
+ggsave(
+  filename = glue(dir_figures, "p_bias_in_covariates_by_source.pdf"),
+  plot = p9, width = 16, height = 3
+)
+
+```
+

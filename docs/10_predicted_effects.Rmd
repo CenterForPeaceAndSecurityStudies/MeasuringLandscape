@@ -1,0 +1,182 @@
+---
+title: "Predicted Effects"
+author: "Rex W. Douglass"
+date: "12/5/2016"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+
+
+```{r }
+# !diagnostics off
+library(MeasuringLandscapeCivilWar)
+devtools::load_all()
+dir_figures <- glue(getwd(), "/../paper/figures/")
+
+gc()
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+
+```{r}
+
+#Load Events
+events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
+
+events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
+                                     .(location_text), transform,
+      map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
+      )
+
+```
+
+
+Plot the predicted effects for a single model, Mil. Coords or no Mil. Coords
+
+```{R }
+
+p_load(data.table)
+
+
+rexrfpredict <- function(rf=rf_mapcoordinate_clean_missing,
+                         outcome="mapcoordinate_clean_missing",
+                         var="document_district_clean",
+                         minsize=100,
+                         train=pred_cords$x_all_pre_dummy) {
+  
+  x_all <- dummy.data.frame(pred_cords$x_all_pre_dummy)
+  dtrain <- xgb.DMatrix(data=as.matrix( x_all ),  missing = NA )
+  hist(predict(rf, dtrain)) #ok very different results
+
+  uniquevalues <- table(train[,var])
+  uniquevalues <- names(uniquevalues[uniquevalues>100])
+
+
+  predictions_list <- list()
+  for(q in uniquevalues){
+    print(q)
+    
+    testdata_dummy <- dummy.data.frame(train)
+    #dtest <- xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA )
+    #hist(  predict(rf, dtest )  )
+    
+    #testdata[,outcome] <- NULL
+    if(is.character(train[,var]) | is.factor(train[,var])){
+      
+      testdata_dummy[,grepl( var, names(testdata_dummy) )] <- 0
+      testdata_dummy[,grepl( q, names(testdata_dummy) )] <- 1
+
+    } else {
+      testdata_dummy[,var ] <- as.numeric(q)
+    }
+    
+    
+    #dtest <- xgb.DMatrix(data=as.matrix( testdata_dummy ), missing = NA )
+    #hist(predict(rf, dtest)) #ok very different results
+    
+        
+    dtest <- xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA )
+    predictions_list[[q]] <- data.frame( predict(rf, dtest ) )
+    predictions_list[[q]]$xvar <- q
+    predictions_list[[q]]$yvar <- outcome
+  }
+  predictions <- rbindlist(predictions_list)
+
+  #boxplot(TRUE.~xvar, predictions) #I thought I understood how this works but I clearly don't.
+  temp <- aggregate(predictions, by=list(predictions$xvar), FUN=median)
+
+  predictions$xvar <- factor(predictions$xvar, levels=  temp$xvar[order(temp$predict.rf..dtest.)])
+  p_load(ggplot2)
+  p <- ggplot(predictions, aes(x=xvar,y=predict.rf..dtest.)) +  geom_boxplot(notch=T) + coord_flip()  + theme_bw() +
+    theme(axis.text=element_text(size=8), plot.margin = unit(c(0,0,0,0), "lines")) + xlab('') + ylab('')
+
+  return(p)
+}
+
+pred_cords <- predict_missingness_dv(is.na(events_sf$map_coordinate_clean_latitude))
+rf <- pred_cords$xb_model
+train <- pred_cords$x_all_pre_dummy
+label <- pred_cords$label
+x_all_pre_dummy <- pred_cords$x_all_pre_dummy
+x_all <- dummy.data.frame(pred_cords$x_all_pre_dummy)
+dtrain <- xgb.DMatrix(data=as.matrix( x_all ), 
+                      label = label, missing = NA )
+hist(predict(rf, dtrain)) #ok very different results
+
+
+testdata_dummy <- dummy.data.frame(pred_cords$x_all_pre_dummy, drop=F)
+dtest <- xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA ) #ok something is changing with predummy that's breaking things
+hist(predict(rf, dtest)) #ok very different results
+
+
+dtest <- xgb.DMatrix(data=as.matrix( pred_cords$postdummy ),  missing = NA )
+hist(predict(rf, dtest)) #ok very different results
+
+hist(predict(rf, pred_cords$dtrain )) #ok very different results
+
+
+hist(predict(rf, pred_cords$dtrain )) #ok very different results
+
+```
+
+```{r}
+
+a <- rexrfpredict(
+                  rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",
+                  var="document_district_clean",
+                  minsize=100,
+                  train=pred_cords$x_all_pre_dummy
+                  )
+b <- rexrfpredict(rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",var="event_date_clean_year",minsize=100)
+c <- rexrfpredict(rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",var="document_date_best_year",minsize=100)
+d <- rexrfpredict(rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",var="document_date_type",minsize=100)
+#e <- rexrfpredict(rf=pred_cords$xb_model,
+#                  outcome="mapcoordinate_clean_missing",var="locationtext_ruleclean_suffix",minsize=100)
+f <- rexrfpredict(rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",var="type_clean_aggmed",minsize=100)
+g <- rexrfpredict(rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",var="initiator_clean_1_aggmed",minsize=100)
+h <- rexrfpredict(rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",var="target_clean_1_aggmed",minsize=100)
+i <- rexrfpredict(rf=pred_cords$xb_model,
+                  outcome="mapcoordinate_clean_missing",var="document_unit_type",minsize=100)
+
+
+p_load(cowplot)
+final <- plot_grid(
+  a+ggtitle('District'),
+  b+ggtitle('Event Year'),
+  c+ggtitle('Document Year'),
+  d+ggtitle('Reporting Period'),
+  #e+ggtitle('Location Suffix'),
+  f+ggtitle('Event Type'),
+  g+ggtitle('Event Initiator'),
+  h+ggtitle('Event Target'),
+  i+ggtitle('Reporting Office'),
+  ncol = 3, align = "hv" ) #,rel_heights=heights)
+final
+
+ggsave(
+  filename = glue(dir_figures, "rf_mapcoordinate_clean_missing.pdf"),
+  plot = final, width = 10, height = 12
+)
+
+```
+
+
+
+
+
+

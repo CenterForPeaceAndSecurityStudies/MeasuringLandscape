@@ -15,7 +15,7 @@ lhs_textreuse <- function(minhash_count=240,  bands=80, ngram_count=2){
   
   corpus_ab_spaced <- TextReuseCorpus(text = stemmed_ab_spaced,
                                       tokenizer = tokenize_ngrams,
-                                      n = 1, #wow if you pass this as a variable instead of a number it crashes. Wtf?
+                                      n = 2, #wow if you pass this as a variable instead of a number it crashes. Wtf?
                                       minhash_func = minhash,
                                       keep_tokens = TRUE,
                                       progress = T)
