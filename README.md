@@ -27,16 +27,18 @@ The analysis and figures in the paper and statistical appendix are produced in a
 -   [04\_fuzzy\_matcher\_stage\_1\_lsh](https://rexdouglass.github.io/MeasuringLandscape/04_fuzzy_matcher_stage_1_lsh.nb.html)
 -   [05\_fuzzy\_matcher\_stage\_2\_xgboost](https://rexdouglass.github.io/MeasuringLandscape/05_fuzzy_matcher_stage_2_xgboost.nb.html)
 -   [06\_georeferencer](https://rexdouglass.github.io/MeasuringLandscape/06_georeferencer.nb.html)
--   \[07\_recall\_accuracy\]
--   \[08\_predict\_missingness\_lhs\]
--   \[09\_bias\]
--   \[10\_so\_what\]
+-   [07\_recall\_accuracy](https://rexdouglass.github.io/MeasuringLandscape/07_ensemble_and_hand_rules.nb.html)
+-   [08\_predict\_missingness\_lhs](https://rexdouglass.github.io/MeasuringLandscape/08_recall_accuracy.nb.html)
+-   [09\_bias](https://rexdouglass.github.io/MeasuringLandscape/09_predict_missingness_lhs.nb.html)
+-   [10\_so\_what](https://rexdouglass.github.io/MeasuringLandscape/10_predicted_effects.nb.html)
+-   [11\_bias](https://rexdouglass.github.io/MeasuringLandscape/11_bias.nb.html)
+-   [12\_so\_what](https://rexdouglass.github.io/MeasuringLandscape/12_so_what.nb.html)
 
 ### Citation
 
 Please cite this compendium as:
 
-> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 07 Dec 2017. Online at <https://doi.org/xxx/xxx>
+> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 09 Dec 2017. Online at <https://doi.org/xxx/xxx>
 
 ### Licenses
 
