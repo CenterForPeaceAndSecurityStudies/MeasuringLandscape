@@ -34,7 +34,7 @@ The analysis and figures in the paper and statistical appendix are produced in a
 -   [11\_bias](https://rexdouglass.github.io/MeasuringLandscape/11_bias.nb.html)
 -   [12\_so\_what](https://rexdouglass.github.io/MeasuringLandscape/12_so_what.nb.html)
 
-### Citation
+### Citation 
 
 Please cite this compendium as:
 
