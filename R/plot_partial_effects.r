@@ -7,7 +7,8 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
                                  var="document_district_clean",
                                  minsize=100,
                                  train=pred_cords$x_all_pre_dummy,
-                                 histogram=F) {
+                                 histogram=F,
+                                 scale=4) {
   
   x_all <- dummy.data.frame(pred_cords$x_all_pre_dummy)
   dtrain <- xgb.DMatrix(data=as.matrix( x_all ),  missing = NA )
@@ -59,7 +60,7 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
   } else {
     p <- ggplot(predictions, aes(x=predict.rf..dtest. ,y=xvar)) + 
       #geom_boxplot(notch=T) + 
-      geom_density_ridges(scale = 4) + theme_ridges() +
+      geom_density_ridges(scale = scale) + theme_ridges() +
       #coord_flip()  + 
       #theme_bw() +
       theme(axis.text=element_text(size=8), plot.margin = unit(c(0,0,0,0), "lines")) + xlab('') + ylab('')

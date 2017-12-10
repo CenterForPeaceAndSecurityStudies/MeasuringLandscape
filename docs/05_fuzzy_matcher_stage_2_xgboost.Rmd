@@ -10,7 +10,12 @@ editor_options:
   chunk_output_type: inline
 ---
 
-There is where we train our fuzzy matcher
+# Fuzzy Matcher Stage 2
+
+The fuzzy matcher predicts the likelihood that two toponyms are the same place even though their spellings might be different. It has two stages.
+
+This file develops Stage 2 of the fuzzy toponym matcher. Its job is to refine the prediction for the subset of plausible matches, and provide an actual probability of a match.
+
 
 ```{r, results='hide', message=FALSE, warning=FALSE }
 rm(list=ls()); gc()
