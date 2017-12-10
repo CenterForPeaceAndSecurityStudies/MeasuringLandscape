@@ -51,11 +51,11 @@ Georeferencer: A supervised leaning pipeline for assigning a real world coordina
 
 Analysis:
 
-* [08 Recall Accuracy](https://rexdouglass.github.io/MeasuringLandscape/08_ensemble_and_hand_rules.nb.html)
-* [09 Predict Missingness DV](https://rexdouglass.github.io/MeasuringLandscape/09_recall_accuracy.nb.html)
-* [10 Predicted Effects](https://rexdouglass.github.io/MeasuringLandscape/10_predicted_effects.nb.html)
-* [11 Bias](https://rexdouglass.github.io/MeasuringLandscape/11_bias.nb.html)
-* [12 So What](https://rexdouglass.github.io/MeasuringLandscape/12_so_what.nb.html)
+* [08 Recall Accuracy](https://rexdouglass.github.io/MeasuringLandscape/08_recall_accuracy.nb.html): Rate georeferencing options in terms of recall (how many event locations they recover) and accuracy (how far away their imputed locations tend to be from the true location)
+* [09 Predict Missingness DV](https://rexdouglass.github.io/MeasuringLandscape/09_predict_missingness_lhs.nb.html): Rate georeferencing options in terms of how systmetic they are at recovering locations for certain kinds of events but not others.
+* [10 Predicted Effects](https://rexdouglass.github.io/MeasuringLandscape/10_predicted_effects.nb.html): Demonstrate what kinds of events tend to systematically get excluded. Here, in terms of whether the event would have received an original military coordinate or not.
+* [11 Bias](https://rexdouglass.github.io/MeasuringLandscape/11_bias.nb.html): Demonstrate that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggeness, etc.
+* [12 So What](https://rexdouglass.github.io/MeasuringLandscape/12_so_what.nb.html): Demonstrate that different georeferencing decisions will produce different results in a simple linear regression model in terms of both statistical significance and substantive effects.
 
  
 ### Citation
