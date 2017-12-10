@@ -142,7 +142,7 @@ ggsave(
 
 
 
-```{r}
+```{r, eval=F}
 
 scale=2
 a <- plot_partial_effects(rf=pred_cords$xb_model,

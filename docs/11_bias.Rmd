@@ -140,6 +140,10 @@ georef_all_dt_covariates_events_sf$roads_distance <- new_over(georef_all_dt_cova
 
 ```{r}
 
+p_load(Hmisc)
+sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+
+
 #Make that bias in the coef plot
 setkey(georef_all_dt, "rule_ensemble") #sort by ensemble score, pick the best option for each source
 georef_all_dt_source <- georef_all_dt[,.SD[1], by=list(event_hash,
@@ -163,7 +167,11 @@ temp[,2:6] <- temp[,2:6] / temp[rep(2,nrow(temp)),2:6] #This demeans each
 
 temp <- temp %>% gather(variable, value, -source_dataset)
 
-p9 <- ggplot(temp, aes(x = value,
+p9 <-  temp %>% 
+       mutate(source_dataset=sentence_case(source_dataset),
+              variable=sentence_case(variable)
+      ) %>%
+       ggplot(aes(x = value,
                  y = as.factor(sub("_","",source_dataset)),
                  shape=as.factor(sub("_","",source_dataset)))) + 
                  geom_point() + 
