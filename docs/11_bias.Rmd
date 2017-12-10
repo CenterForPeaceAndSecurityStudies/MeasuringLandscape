@@ -1,7 +1,7 @@
 ---
 title: "Bias on covariates"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -12,6 +12,7 @@ editor_options:
 
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
+rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
@@ -150,9 +151,11 @@ temp <- as.data.frame(georef_all_dt_covariates_events_sf)[,c('source_dataset',
                                                            group_by(source_dataset) %>% 
                                                           summarise_all(funs(mean, .args =list(na.rm=T)) )
 
-temp[,2:6] <- lapply(temp[,2:6], scale)
+#I don't think we want to scale this, I think we want to do percentages
+#temp[,2:6] <- lapply(temp[,2:6], scale)
 
-temp[,2:6] <- temp[,2:6] - temp[rep(2,nrow(temp)),2:6] 
+#temp[,2:6] <- temp[,2:6] - temp[rep(2,nrow(temp)),2:6] #This demeans each
+temp[,2:6] <- temp[,2:6] / temp[rep(2,nrow(temp)),2:6] #This demeans each
 
 temp <- temp %>% gather(variable, value, -source_dataset)
 
@@ -161,8 +164,8 @@ p9 <- ggplot(temp, aes(x = value,
                  shape=as.factor(sub("_","",source_dataset)))) + 
                  geom_point() + 
                  facet_grid(.~variable, scales="free") + 
-                 geom_vline(xintercept=0) + ylab("Source Dataset") +
-                 xlab("Difference Between Value at Imputed Location and True Location (Standard Deviations)") +
+                 geom_vline(xintercept=1) + ylab("Source Dataset") +
+                 xlab("Ratio Between Value at Imputed Location and True Location") +
                  scale_shape_manual(values=1:15) + theme_bw() + theme(legend.position="none") 
 p9
 ggsave(

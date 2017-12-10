@@ -1,12 +1,11 @@
 ---
 title: "So What"
-author: "Rex W. Douglass"
-date: "9/12/2016"
-output:
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
+output: 
   html_notebook:
-    number_sections: yes
-    theme: readable
-    toc: yes
+    toc: true
+    toc_float: true
 editor_options: 
   chunk_output_type: inline
 ---
@@ -15,6 +14,7 @@ editor_options:
 This file cleans and compiles a large number of kenya gazeteers for further downstream use.
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
+rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()

@@ -1,7 +1,7 @@
 ---
 title: "Match Locations to Gazeteer and Show Differences"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -14,6 +14,7 @@ This file performs georeferencing of locations in the events data. It produces a
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
+rm(list=ls()); gc()
 # Hiding output and warnings
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
@@ -178,7 +179,6 @@ if(fromscratch){
 
 ```
 
-There are `r nrow(candidates)` candidate stem matches return by locality sensitve hashing with these parameters. This is a tiny `r round(nrow(candidates)/length(stemmed_ab)^2,4)` fraction of all the possible stem to stem matches we could have considered.
 
 ```{r}
 
@@ -191,6 +191,9 @@ candidates <- readRDS(system.file("extdata",
 #head(candidates) %>% DT::datatable()
 
 ```
+
+There are `r nrow(candidates)` candidate stem matches return by locality sensitve hashing with these parameters. This is a tiny `r round(nrow(candidates)/length(stemmed_ab)^2,4)` fraction of all the possible stem to stem matches we could have considered.
+
 
 ## Expand Stem matches into full matches
 

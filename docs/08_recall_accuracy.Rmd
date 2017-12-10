@@ -1,7 +1,7 @@
 ---
 title: "Recall and Accuracy"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -12,6 +12,7 @@ editor_options:
 
 
 ```{r , results='hide', message=FALSE, warning=FALSE }
+rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
@@ -164,7 +165,7 @@ The hand rules and supervised ensemble represent a compromsie between high recov
 ```{r}
 
 recall_accuracy <- rbindlist(list(
-  #georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
+  georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
   georef_all_dt_handrule_summary %>% mutate(label="Hand Rule") %>% mutate(Type="Rule"),
   georef_all_dt_ensemble_summary %>% mutate(label="Ensemble Rule") %>% mutate(Type="Rule"),
   georef_all_dt_bysource_summary %>% mutate(label=source_dataset) %>% mutate(Type="Source Gazetteer"),

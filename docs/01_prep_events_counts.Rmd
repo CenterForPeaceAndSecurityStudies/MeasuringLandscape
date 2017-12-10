@@ -1,7 +1,7 @@
 ---
 title: "01 Prep Events"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -16,6 +16,8 @@ This is the entry point for the paper "Measuring the Landscape of Civil War." In
 # Load Library
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls()); gc()
 
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
@@ -127,7 +129,7 @@ Only 666 missing from the document date
 
 Heads up, some of these event types in the codebook don't exist in the data. If a category has zero results, it's not a bug, just codebook needs to be updated.
 
-```{r Type of Event, results="asis"}
+```{r , results="asis"}
 
 cat("\014")
 p_load(car, stringi, stringr, xtable, SnowballC)
@@ -161,7 +163,7 @@ events$type_clean <- str_trim(stri_trans_totitle(events$type))
 
 ## Collapse Event Types
 
-```{r Collapse Event Types Medium,cache=T}
+```{r ,cache=T}
 
 (events$type_clean_aggmed <- car::recode(events$type_clean_agglow, "
                                  c('abduction','assault','murder')='physical violence';
@@ -174,7 +176,7 @@ events$type_clean <- str_trim(stri_trans_totitle(events$type))
   adorn_crosstab(digits = 1)
 ```
 
-```{r Collapse Event Types High,cache=T}
+```{r ,cache=T}
 
 (events$type_clean_agghigh <- recode(events$type_clean_aggmed, "
                                  c('oathing','physical violence','property destruction','theft')='rebel activity';
@@ -191,7 +193,7 @@ events$type_clean <- str_trim(stri_trans_totitle(events$type))
 
 Collapsed Initators to just Rebels, Government, and Civilians
 
-```{r Initiator of Event, results="asis"}
+```{r , results="asis"}
 
 cat("\014")
 
@@ -463,7 +465,7 @@ events$initiator_clean_3_agghigh %>%
 
 # Target of Event
 
-```{r Target of Event Low, cache=T}
+```{r , cache=T}
 
 regex <- "\\.|patrol|[1-9]\\s*rd|[1-9]\\s*th" # with regex start trying to get more of these to automatically map instead of generating lots of hand codings
 events$target_clean <- events$initiator %>% str_trim() %>% tolower() %>% gsub(regex, "", .)
@@ -508,7 +510,7 @@ events$target_clean_1_agglow %>%
 ```
 
 
-```{r Collapse Event Target Medium ,cache=T}
+```{r  ,cache=T}
 
 events[, c("target_clean_1_aggmed", "target_clean_2_aggmed", "target_clean_3_aggmed")] <-
   events[, c("target_clean_1_agglow", "target_clean_2_agglow", "target_clean_3_agglow")]

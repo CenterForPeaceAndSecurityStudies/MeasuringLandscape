@@ -1,7 +1,7 @@
 ---
 title: "02 Prep Events Clean Locations"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -13,7 +13,7 @@ editor_options:
 # Loads
 
 ```{r, results='hide', message=FALSE, warning=FALSE }
-
+rm(list=ls()); gc()
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
 

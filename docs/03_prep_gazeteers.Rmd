@@ -1,7 +1,7 @@
 ---
 title: "Create, Clean, and Compile Gazeteers"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -15,6 +15,7 @@ This file cleans and compiles a large number of kenya gazeteers for further down
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
+rm(list=ls()); gc()
 # Hiding output and warnings
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
@@ -322,16 +323,17 @@ p_points
 p_notpoints <- flatfiles_sf_roi %>%
   filter(!geometry_type %in% "POINT") %>%
   ggplot(aes(color = as.factor(source_dataset))) + geom_sf(alpha = 0.1, size = 1) +
-  facet_wrap(~as.factor(source_dataset), scales = "free", drop = T) +
+  facet_wrap(~as.factor(source_dataset), drop = T) +
   # ggtitle("Locations in Region of Interest Stratified by Source") +
   guides(color = FALSE) +
-  xlim(35.67, 38.19) + ylim(-1.43285, 0.54543) + theme_bw()
+  xlim(35.67, 38.19) + ylim(-1.43285, 0.54543) + theme_bw() 
 
 ggsave(
   filename = glue(dir_figures, "flatfiles_sf_roi_facet_source_dataset_notpoints.png"),
   plot = p_notpoints, width = 12, height = 6
 )
 p_notpoints
+
 ```
 
 # Visually Comparing Spatial Precision of each Sources

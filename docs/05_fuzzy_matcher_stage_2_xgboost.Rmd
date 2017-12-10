@@ -1,7 +1,7 @@
 ---
 title: "Train Supervised Fuzzy Toponym Matcher"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -13,6 +13,7 @@ editor_options:
 There is where we train our fuzzy matcher
 
 ```{r, results='hide', message=FALSE, warning=FALSE }
+rm(list=ls()); gc()
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
 

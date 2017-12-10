@@ -1,12 +1,11 @@
 ---
 title: "Match Locations to Gazeteer and Show Differences"
-author: "Rex W. Douglass"
-date: "9/12/2016"
-output:
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
+output: 
   html_notebook:
-    number_sections: yes
-    theme: readable
-    toc: yes
+    toc: true
+    toc_float: true
 editor_options: 
   chunk_output_type: inline
 ---
@@ -17,6 +16,7 @@ This file develops the first stage of the fuzzy toponym matcher. Its job is to s
 
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
+rm(list=ls()); gc()
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
 
@@ -39,8 +39,9 @@ handlabeled <- fread(system.file("extdata",
 dim(handlabeled)
 
 #Remove exact matches because they're never interesting
-handlabeled$stemmed_a <- strip_postfixes(handlabeled$name_cleaner_a)[[1]]
-handlabeled$stemmed_b <- strip_postfixes(handlabeled$name_cleaner_b)[[1]]
+#Rewrote  with foreach so it'll parallel on windows, but it's still relatively slow code now with only 8 cores.
+handlabeled$stemmed_a <- strip_postfixes(to_be_striped=handlabeled$name_cleaner_a)[[1]]
+handlabeled$stemmed_b <- strip_postfixes(to_be_striped=handlabeled$name_cleaner_b)[[1]]
 
 handlabeled_unique <- subset(handlabeled, stemmed_a!=stemmed_b) # very important we're dropping any with identical stems for evaluation
 table(handlabeled_unique$rex_match) #1090 matches, 16978 nonmatches
@@ -89,17 +90,29 @@ Settling on 20 bands, 5 rows, and qgram of 1 letter
 #lhs_textreuse(minhash_count=100,  bands=50) #good trade off
 #lhs_textreuse(minhash_count=100,  bands=25) #good trade off
 #lhs_textreuse(minhash_count=100,  bands=20) #good trade off
-
-df_list <- list()
-for(q in c(2,5,10,20,25,50)){
-  print(q)
-  df_list[[as.character(q)]] <- lhs_textreuse(minhash_count=100,  bands=q) #good trade off
-  print(df_list[[as.character(q)]])
+fromsrcatch=F
+if(fromsrcatch){
+  grid_search_lhs <- list()
+  for(q in c(2,5,10,20,25,50)){
+    print(q)
+    grid_search_lhs[[as.character(q)]] <- lhs_textreuse(minhash_count=100,  bands=q) #good trade off
+    print(grid_search_lhs[[as.character(q)]])
+  }
+  grid_search_lhs_dt <- rbindlist(grid_search_lhs)
+  
+  saveRDS(grid_search_lhs_dt,
+          glue(getwd(), "/../inst/extdata/grid_search_lhs_dt.Rds"))
 }
-df_dt <- rbindlist(df_list)
 
+grid_search_lhs_dt <- readRDS(system.file("extdata", "grid_search_lhs_dt.Rds", package = "MeasuringLandscapeCivilWar"))
 
-ggplot(df_dt, aes(x=false_negative,y=suggestions_per, label=bands)) + geom_label() + ggtitle("")
+```
+
+There's a big discontinuity between 50 bands and 25, and then dimishing returns with increasingly higher false negative rates thereafter. Choosing 25 as nice compromise between low false negative rate and fewer suggestions per case.
+
+```{r}
+
+ggplot(grid_search_lhs_dt, aes(x=false_negative,y=suggestions_per, label=bands)) + geom_label() + ggtitle("")
 
 
 ```

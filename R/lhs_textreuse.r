@@ -24,10 +24,19 @@ lhs_textreuse <- function(minhash_count=240,  bands=80, ngram_count=2){
   #p_load(multicore)
   n.cores <- detectCores()
   cuts <- cut(1:length(corpus_ab_spaced), n.cores)
-  buckets_list <- mclapply(levels(cuts),
-                 function(q) lsh(corpus_ab_spaced[cuts==q], bands = bands, progress = T) ,
-                 mc.cores = n.cores)
-  buckets <- do.call(rbind, buckets_list)
+  #buckets_list <- mclapply(levels(cuts),
+  #               function(q) lsh(corpus_ab_spaced[cuts==q], bands = bands, progress = T) ,
+  #               mc.cores = n.cores)
+  #buckets <- do.call(rbind, buckets_list)
+  
+  library(doParallel)
+  library(foreach)
+  cl<- makeCluster(detectCores()) #change the 2 to your number of CPU cores
+  registerDoParallel(cl)
+  buckets <- foreach(q=levels(cuts), .combine='rbind', .packages=c('textreuse')) %dopar%  
+                lsh(corpus_ab_spaced[cuts==q], bands = bands, progress =F)
+  stopCluster(cl)
+  
   
   candidates <- lsh_candidates(buckets)
   candidates$a_numeric <- as.numeric( gsub("doc-","",candidates$a) )

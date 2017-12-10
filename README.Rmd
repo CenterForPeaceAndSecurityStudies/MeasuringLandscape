@@ -40,7 +40,7 @@ The analysis and figures in the paper and statistical appendix are produced in a
 * [06 Georeferencer](https://rexdouglass.github.io/MeasuringLandscape/06_georeferencer.nb.html)
 * [07 Ensemble and Hand Rules](https://rexdouglass.github.io/MeasuringLandscape/07_ensemble_and_hand_rules.nb.html)
 * [08 Recall Accuracy](https://rexdouglass.github.io/MeasuringLandscape/08_ensemble_and_hand_rules.nb.html)
-* [09 Predict Missingness_lhs](https://rexdouglass.github.io/MeasuringLandscape/09_recall_accuracy.nb.html)
+* [09 Predict Missingness DV](https://rexdouglass.github.io/MeasuringLandscape/09_recall_accuracy.nb.html)
 * [10 Predicted Effects](https://rexdouglass.github.io/MeasuringLandscape/10_predicted_effects.nb.html)
 * [11 Bias](https://rexdouglass.github.io/MeasuringLandscape/11_bias.nb.html)
 * [12 So What](https://rexdouglass.github.io/MeasuringLandscape/12_so_what.nb.html)

@@ -1,7 +1,7 @@
 ---
 title: "Ensemble and Hand Rules"
-author: "Rex W. Douglass"
-date: "12/5/2016"
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
 output: 
   html_notebook:
     toc: true
@@ -13,6 +13,7 @@ editor_options:
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
+rm(list=ls()); gc()
 # Hiding output and warnings
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
@@ -80,9 +81,7 @@ georef_all_dt$handrule <- paste(str_pad(georef_all_dt$handrule1, 2, pad = "0"),
 
 setkey(georef_all_dt, handrule )
 temp <- subset(georef_all_dt,event_hash=="be37b40f")
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
-table(events_sf$event_hash %in% georef_all_dt$event_hash) #All event hashes show up in here
+
 
 saveRDS(georef_all_dt,
         file=glue(getwd(), "/../inst/extdata/georef_all_dt.Rds")
@@ -215,8 +214,6 @@ georef_all_dt %>% ggplot(aes(x=log(distance_km), y=log(rule_ensemble) )) + geom_
 
 setkey(georef_all_dt, handrule )
 temp <- subset(georef_all_dt,event_hash=="be37b40f")
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
 
 saveRDS(georef_all_dt,
         file=glue(getwd(), "/../inst/extdata/georef_all_dt.Rds")
