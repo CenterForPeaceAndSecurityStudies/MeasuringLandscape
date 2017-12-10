@@ -1,5 +1,5 @@
 ---
-title: "Predicted Effects"
+title: "10 Predicted Effects"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -10,6 +10,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
+Demonstrate what kinds of events tend to systematically get excluded. Here, in terms of whether the event would have received an original military coordinate or not.
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
 rm(list=ls()); gc()

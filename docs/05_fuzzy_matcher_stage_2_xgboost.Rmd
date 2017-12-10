@@ -1,5 +1,5 @@
 ---
-title: "Train Supervised Fuzzy Toponym Matcher"
+title: "05 Fuzzy Matcher Stage 2 (XGBoost)"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 

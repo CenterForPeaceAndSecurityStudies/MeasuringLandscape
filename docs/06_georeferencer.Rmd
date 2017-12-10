@@ -1,5 +1,5 @@
 ---
-title: "Match Locations to Gazeteer and Show Differences"
+title: "06 Georeferencer"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -10,8 +10,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-This file performs georeferencing of locations in the events data. It produces an event-location file, with multiple possible matches organized by different rules and levels of confidence. This file can then be subset however you like based on a given set of rules.
-
+Takes in locations of events described as text, and returns all possible matches across different gazeteers.
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 rm(list=ls()); gc()

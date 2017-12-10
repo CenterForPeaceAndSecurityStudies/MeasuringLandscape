@@ -1,5 +1,5 @@
 ---
-title: "Recall and Accuracy"
+title: "09 Recall and Accuracy"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -9,6 +9,8 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+
+Demonstrates that georeferencing options vary in how systematically they include some kinds of events while excluding other kinds. Asks whether or not missingness of geographic information is truly random, or if certain kinds of events or places are being dropped.
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE }

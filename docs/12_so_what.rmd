@@ -1,5 +1,5 @@
 ---
-title: "So What"
+title: "12 So What"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -10,8 +10,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-
-This file cleans and compiles a large number of kenya gazeteers for further downstream use.
+Demonstrate that different georeferencing decisions will produce different results in a simple linear regression model in terms of both statistical significance and substantive effects.
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
 rm(list=ls()); gc()

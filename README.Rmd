@@ -49,7 +49,7 @@ Georeferencer: A supervised leaning pipeline for assigning a real world coordina
 * [07 Ensemble and Hand Rules](https://rexdouglass.github.io/MeasuringLandscape/07_ensemble_and_hand_rules.nb.html): Ranks the returned matches from best to worst. First, using simple hand rules of what kind of match to prefer over others. Then second, with a supervised model that attempts to predict which match will be geographically closest to the true location (fewest kilometers away from the right answer).
 
 
-Analysis:
+Analysis: Main analysis of the paper.
 
 * [08 Recall Accuracy](https://rexdouglass.github.io/MeasuringLandscape/08_recall_accuracy.nb.html): Rate georeferencing options in terms of recall (how many event locations they recover) and accuracy (how far away their imputed locations tend to be from the true location)
 * [09 Predict Missingness DV](https://rexdouglass.github.io/MeasuringLandscape/09_predict_missingness_lhs.nb.html): Rate georeferencing options in terms of how systmetic they are at recovering locations for certain kinds of events but not others.

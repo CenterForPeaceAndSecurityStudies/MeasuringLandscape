@@ -1,5 +1,5 @@
 ---
-title: "Recall and Accuracy"
+title: "08 Recall and Accuracy"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -10,6 +10,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
+Demonstrates that georeferencing options vary terms of recall (how many event locations they recover) and accuracy (how far away their imputed locations tend to be from the true location)
 
 ```{r , results='hide', message=FALSE, warning=FALSE }
 rm(list=ls()); gc()

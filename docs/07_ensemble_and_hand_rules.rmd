@@ -1,5 +1,5 @@
 ---
-title: "Ensemble and Hand Rules"
+title: "07 Ensemble and Hand Rules"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -10,6 +10,11 @@ editor_options:
   chunk_output_type: inline
 ---
   
+Given a location string, and multiple possible matches to real world places, this provides some logic for how to rank some matches as better than others.
+
+First, using simple hand rules of what kind of match to prefer over others. 
+
+Then second, with a supervised model that attempts to predict which match will be geographically closest to the true location (fewest kilometers away from the right answer).
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE}

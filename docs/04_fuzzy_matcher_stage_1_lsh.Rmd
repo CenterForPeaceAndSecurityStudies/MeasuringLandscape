@@ -1,5 +1,5 @@
 ---
-title: "Match Locations to Gazeteer and Show Differences"
+title: "04 Fuzzy Matcher Stage 1 (Locality Sensitive Hashing) "
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 

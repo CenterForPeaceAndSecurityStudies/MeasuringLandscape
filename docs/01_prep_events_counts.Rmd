@@ -1,5 +1,5 @@
 ---
-title: "01 Prep Events"
+title: "01 Prep Events Counts"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -10,7 +10,9 @@ editor_options:
   chunk_output_type: inline
 ---
 
-This is the entry point for the paper "Measuring the Landscape of Civil War." In this file, a raw csv file of the events dataset created for the Mau Mau rebellion is loaded and processed.
+This is the entry point for the paper "Measuring the Landscape of Civil War." 
+
+In this file, a raw csv file of the events dataset created for the Mau Mau rebellion is loaded and processed.
 
 
 # Load Library

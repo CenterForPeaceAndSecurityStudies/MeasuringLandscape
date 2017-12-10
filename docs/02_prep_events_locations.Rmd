@@ -1,5 +1,5 @@
 ---
-title: "02 Prep Events Clean Locations"
+title: "02 Prep Events Locations"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -9,6 +9,8 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+
+Cleans and converts location information in the event dataset and saves as a spatial R object for analysis.
 
 # Loads
 
