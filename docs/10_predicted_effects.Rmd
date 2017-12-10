@@ -139,13 +139,15 @@ final_histogram <- plot_grid(
   #i+ggtitle('Reporting Office'),
   ncol = 3, align = "hv" ) #,rel_heights=heights)
 
-final_histogram
-
 ggsave(
   filename = glue(dir_figures, "rf_mapcoordinate_clean_missing.pdf"),
   plot = final_histogram, width = 10, height = 8
 )
 
+```
+
+```{r}
+print(final_histogram)
 ```
 
 
