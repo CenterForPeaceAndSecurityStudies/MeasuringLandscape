@@ -108,6 +108,10 @@ tidy(lm1)
 
 ```
 
+# Fit Linear Models using Each Possible Georeferencing Decision
+
+For each possible georeferencing decision, we fit a seperate linear model predicting the number of events in an area as a function of five covariates, population, rainfall, distance from roads, ruggedness, and treecover. The unit of obsevration is a hexagonal bin of size 10km. The model is a negative binomial regression.
+
 ```{r}
 
 
@@ -169,7 +173,9 @@ for(q in unique(georef_all_dt_events_sf$geometry_type)){
   condition <- georef_all_dt_events_sf$geometry_type==q
   temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
   hex$dv <- sapply( st_covers(hex, temp), length) 
-  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) ,
+                control=glm.control(maxit=50) #Up the number of iterations so it converges
+                ) 
   temp_results <- tidy(lm1)
   temp_results$Type="Geometry Type"
   temp_results$label <- q
@@ -219,24 +225,77 @@ lm_results_dt <- lm_results_dt %>% mutate(rate= round(exp(estimate),2) )
 
 # Plot the coefficients for each model
 
-```{r, fig.width=12, fig.height=8}
+```{r, fig.width=15, fig.height=10}
+
+p_load(Hmisc)
+sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+
+
+#install.packages("extrafont");
+#library(extrafont)
+#library(extrafont)
+#extrafont::font_import(prompt=F )
+#capabilities()
+#windowsFonts()
+#sort(as.vector(unlist(windowsFonts())))
+
+fonts <- c('Times New Roman',
+           'Calibri',
+           'Courier New',
+           "Georgia",
+           "Tunga")
+           #'serif','Helvetica','Bookman','Palatino')
+
+library(ggplot2)
+#qplot(1:10)+theme(text=element_text(family="Gill Sans Ultra Bold"))
+#qplot(1:10)+theme(text=element_text(family=fonts[1]))
+#qplot(1:10)+theme(text=element_text(family=fonts[2]))
+#qplot(1:10)+theme(text=element_text(family=fonts[3]))
+#qplot(1:10)+theme(text=element_text(family=fonts[4]))
+#qplot(1:10)+theme(text=element_text(family=fonts[5]))
+
+
+
 p_load(ggrepel, tools)
-p_lm <- lm_results_dt %>% filter(term != "(Intercept)") %>%
-  ggplot(aes(x=rate,y=p.value, color=Type, label=label))  + 
+p_lm <- lm_results_dt %>% 
+        filter(!(label %in% c('kenya_district1962','kenya_cadastral','kenya_cadastral_district',"LINESTRING"))) %>%
+        filter(term != "(Intercept)") %>%
+        mutate(label=gsub("FALSE", "Exact", label)) %>%
+        mutate(label=gsub("TRUE", "Fuzzy", label)) %>%
+        mutate(Type=sentence_case(Type),
+               term=sentence_case(term),
+               label=sentence_case(label)) %>%
+  ggplot(aes(x=rate,
+             y=p.value,
+             color=Type,
+             label=label,
+             family = fonts[as.numeric(as.factor(Type))]
+             ))  + 
   facet_wrap(~term, scales="free") + 
   theme_bw() +
   geom_vline(xintercept = 1, , color="grey") + 
   geom_hline(yintercept = 0.01, linetype=3, color="grey") + 
-  geom_text_repel(size=2)
+  geom_text_repel(size=2) + 
+  xlab(sentence_case("Coefficient Estimates (Change in relative rate of Violent Events)")) +
+  ylab(sentence_case("Coefficient P-Value Estimates (0.01 Threshold Indicated)")) +
+  theme(
+    legend.position = c(0.9, 0.1), # c(0,0) bottom left, c(1,1) top-right.
+  )
 p_lm
  #+ coord_cartesian(y="log")
 
 ggsave(
   filename = glue(dir_figures, "p_lm.pdf"),
-  plot = p_lm, width = 15, height = 9
+  plot = p_lm, width = 15, height = 9,
+  device = cairo_pdf #have to use cairo to correctly embed the fonts
 )
 
 ```
 
+# Interpretation
 
+We evaluated five coefficients in a typical linear model predicting the number of violent events to occur in geographic area. The only thing we varied from model to model was the method by which we georeferenced the underlying events. We varied them across four main decisions, fuzzy/exact matching, geometry type, whether to allow self reference, and the source gazeteer. We further included two proposed cominations of decisions, one based on fixed hand tailored rules of when to prefer on decision to another, and another based on a supervsied learned model whose rules can vary based on specific context.
+
+
+We found variation in our coefficient estimates across the different geographic decisions. The coefficeints varried in sign, magnitude, and statistical significance. We found variation in the stability of coefficients by each covariate. Both population and rainfall had stable estimates, with consistent sign, significance, and substantive effects with a few outliars. Distance, ruggedness, and treecover had unstable coefficients, with variation in significance and occasionaly the direction of the effect. In a few outliars, we observed a statistically significant effect in the opposite direction.
 
