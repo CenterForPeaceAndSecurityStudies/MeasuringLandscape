@@ -37,7 +37,8 @@ sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
 #Load Events
 events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
 
-events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
+events_sf_text_coord_unique <- ddply(events_sf[,c('location_text',
+                                    'name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
                                      .(location_text), transform,
       map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
       )

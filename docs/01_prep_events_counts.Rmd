@@ -384,7 +384,7 @@ c('')=NA
 "
 
 regex <- "\\.|patrol|[1-9]\\s*rd|[1-9]\\s*th" # with regex start trying to get more of these to automatically map instead of generating lots of hand codings
-events$initiator_clean <- events$initiator %>% str_trim() %>% gsub(regex, "", .)
+events$initiator_clean <- events$initiator %>% str_trim() %>% gsub(regex, "", ., ignore.case =T)
 
 events <- events %>%
   dplyr::select(-one_of("initiator_clean_1", "initiator_clean_2", "initiator_clean_3")) %>% # separate will continue to add columns every time its run
@@ -395,14 +395,14 @@ events <- events %>%
   )
 
 events <- events %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*police.*", "police", .))) %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*guard.*", "guard", .))) %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*terror.*|.*mau mau.*|.*gang.*", "terrorist", .))) %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*kpr.*|.*k p r.*", "kpr", .))) %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*kar.*|.*k a r.*", "kar", .))) %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*coy.*", "coy", .))) %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*gsu.*", "gsu", .))) %>%
-  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*watch.*", "watch", .))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*police.*", "police", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*guard.*", "guard", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*terror.*|.*mau mau.*|.*gang.*", "terrorist", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*kpr.*|.*k p r.*", "kpr", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*kar.*|.*k a r.*", "kar", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*coy.*", "coy", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*gsu.*", "gsu", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("initiator_clean_")), funs(gsub(".*watch.*", "watch", ., ignore.case =T))) %>%
   mutate_at(vars(starts_with("initiator_clean_")), funs(trimws(.)))
 
 events <- events %>%
@@ -480,16 +480,17 @@ events <- events %>%
     sep = "and|\\\\|/|\\&|,", remove = F, extra = "drop", fill = "right"
   )
 
-events <- events %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*police.*", "police", .))) %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*guard.*", "guard", .))) %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*terror.*|.*mau mau.*|.*gang.*", "terrorist", .))) %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*kpr.*|.*k p r.*", "kpr", .))) %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*kar.*|.*k a r.*", "kar", .))) %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*coy.*", "coy", .))) %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*gsu.*", "gsu", .))) %>%
-  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*watch.*", "watch", .))) %>%
+events <- events %>% 
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*terror.*|.*erori.*|.*erroris*|.*mau mau.*|.*gang.*", "terrorist", ., ignore.case =T))  )  %>%
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*police.*", "police", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*guard.*", "guard", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*kpr.*|.*k p r.*", "kpr", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*kar.*|.*k a r.*", "kar", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*coy.*", "coy", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*gsu.*", "gsu", ., ignore.case =T))) %>%
+  mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*watch.*", "watch", ., ignore.case =T))) %>%
   mutate_at(vars(starts_with("target_clean_")), funs(trimws(.)))
+table(events$target_clean_1)
 
 events <- events %>%
   mutate(target_clean_1_agglow = recode(target_clean_1, initiator_target_master_clean)) %>%
@@ -503,8 +504,9 @@ lowlevelagg <- c(
   "home guard", "civilians", "livestock", "suspected insurgents"
 )
 
-# events <- events %>%
-# mutate(target_clean_1_agglow=ifelse(target_clean_1_agglow  %in% lowlevelagg & !is.na(target_clean_1_agglow),target_clean_1_agglow, "uncategorized")) %>% mutate(target_clean_2_agglow=ifelse(target_clean_2_agglow  %in% lowlevelagg & !is.na(target_clean_2_agglow),target_clean_2_agglow, "uncategorized")) %>% mutate(target_clean_3_agglow=ifelse(target_clean_3_agglow  %in% lowlevelagg & !is.na(target_clean_3_agglow),target_clean_3_agglow, "uncategorized"))
+events <- events %>%
+   mutate(target_clean_1_agglow=ifelse(target_clean_1_agglow  %in% lowlevelagg & !is.na(target_clean_1_agglow),target_clean_1_agglow, "uncategorized")) %>%
+   mutate(target_clean_2_agglow=ifelse(target_clean_2_agglow  %in% lowlevelagg & !is.na(target_clean_2_agglow),target_clean_2_agglow, "uncategorized")) %>%    mutate(target_clean_3_agglow=ifelse(target_clean_3_agglow  %in% lowlevelagg & !is.na(target_clean_3_agglow),target_clean_3_agglow, "uncategorized"))
 
 events$target_clean_1_agglow %>%
   tabyl(sort = TRUE) %>%
