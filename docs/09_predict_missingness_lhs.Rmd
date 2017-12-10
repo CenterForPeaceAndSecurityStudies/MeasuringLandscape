@@ -194,13 +194,42 @@ colours = c("Allow Match To Other Events" = "#F8766D",
             "Original Geo Info"="#53B400") 
 
 p_load(ggrepel, tools)
-p_bias_dv <- bias_dv_df %>% ggplot(aes(x= auc,
-             y= round(recall/nrow(events_sf),2) , label=label, col=Type)) + geom_text_repel(size=3) + theme_bw() +
+p_bias_dv <- bias_dv_df %>% 
+             ggplot(aes(
+                 x= auc,
+                 y= round(recall/nrow(events_sf),2) ,
+                 label=label,
+                 family = fonts[as.numeric(as.factor(Type))],
+                 fontface= fontfaces[as.numeric(as.factor(Type))]
+                 col=Type)) + 
+             geom_text_repel(size=3) + theme_bw() +
            xlab("Predictability of Missingness (Area Under the Curve)") + ylab("Recall Ratio") +
            #ggtitle("Structual Missingness in Terms of Outcomes by Georeferencing Strategy")
            scale_color_manual(values = colours)
 
 p_bias_dv
+
+
+  ggplot(aes(x=rate,
+             y=p.value,
+             color=Type,
+             label=label,
+             family = fonts[as.numeric(as.factor(Type))],
+             fontface= fontfaces[as.numeric(as.factor(Type))]
+             ))  + 
+  facet_wrap(~term, scales="free") + 
+  theme_bw() +
+  geom_vline(xintercept = 1, , color="grey") + 
+  geom_hline(yintercept = 0.01, linetype=3, color="grey") + 
+  geom_text_repel(size=2) + 
+  xlab(sentence_case("Coefficient Estimates (Change in relative rate of Violent Events)")) +
+  ylab(sentence_case("Coefficient P-Value Estimates (0.01 Threshold Indicated)")) +
+  theme(
+    legend.position = c(0.9, 0.1), # c(0,0) bottom left, c(1,1) top-right.
+  )
+p_lm
+
+
 
 ggsave(
   filename = glue(dir_figures, "p_bias_dv.pdf"),

@@ -136,7 +136,7 @@ final_histogram <- plot_grid(
   e+ggtitle(sentence_case('Act Type')),
   f+ggtitle(sentence_case('Document Unit')),
   g+ggtitle(sentence_case('Document District')),
-  h+ggtitle(sentence_case('Event Year')) + ylab(sentence_case("Prob. of Missing Military Coords.")),
+  h+ggtitle(sentence_case('Event Year')) + ylab(sentence_case("Probability of Missing Military Coordinates")),
   #i+ggtitle('Reporting Office'),
   ncol = 3, align = "hv" ) #,rel_heights=heights)
 
