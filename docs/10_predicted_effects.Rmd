@@ -75,6 +75,7 @@ xgb.plot.importance(importance_importance)
 ```{r}
 
 histogram=T
+scale=2
 a <- plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="document_date_type",minsize=100,
                   scale=scale,histogram=T)
@@ -115,25 +116,28 @@ h <- plot_partial_effects(rf=pred_cords$xb_model,
 #e <- plot_partial_effects(rf=pred_cords$xb_model,
 #                  outcome="mapcoordinate_clean_missing",var="locationtext_ruleclean_suffix",minsize=100)
 
+```
 
 
+```{r}
 
 p_load(cowplot)
 final_histogram <- plot_grid(
-  a+ggtitle('Document Date Type'),
-  b+ggtitle('Document Year'),
-  c+ggtitle('Initiator'),
-  d+ggtitle('Target'),
-  e+ggtitle('Act Type'),
-  f+ggtitle('Document Unit'),
-  g+ggtitle('Document District'),
-  h+ggtitle('Event Year') + xlab("Prob. of Missing Military Coords."),
+  a+ggtitle(sentence_case('Document Date Type')),
+  b+ggtitle(sentence_case('Document Year')),
+  c+ggtitle(sentence_case('Initiator')),
+  d+ggtitle(sentence_case('Target')),
+  e+ggtitle(sentence_case('Act Type')),
+  f+ggtitle(sentence_case('Document Unit')),
+  g+ggtitle(sentence_case('Document District')),
+  h+ggtitle(sentence_case('Event Year')) + ylab(sentence_case("Prob. of Missing Military Coords.")),
   #i+ggtitle('Reporting Office'),
   ncol = 3, align = "hv" ) #,rel_heights=heights)
+
 final_histogram
 
 ggsave(
-  filename = glue(dir_figures, "rf_mapcoordinate_clean_missing_histogram.pdf"),
+  filename = glue(dir_figures, "rf_mapcoordinate_clean_missing.pdf"),
   plot = final_histogram, width = 10, height = 8
 )
 

@@ -10,6 +10,10 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
                                  histogram=F,
                                  scale=4) {
   
+  p_load(Hmisc)
+  sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+  
+  
   x_all <- dummy.data.frame(pred_cords$x_all_pre_dummy)
   dtrain <- xgb.DMatrix(data=as.matrix( x_all ),  missing = NA )
   #hist(predict(rf, dtrain)) #ok very different results
@@ -51,12 +55,23 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
   #boxplot(TRUE.~xvar, predictions) #I thought I understood how this works but I clearly don't.
   temp <- aggregate(predictions, by=list(predictions$xvar), FUN=median)
   
-  predictions$xvar <- factor(predictions$xvar, levels=  temp$xvar[order(temp$predict.rf..dtest.)])
+  predictions$xvar_ordered <- factor(sentence_case(predictions$xvar),
+                                     levels=  sentence_case(temp$xvar[order(temp$predict.rf..dtest.)])
+  )
   p_load(ggplot2)
   
   if(histogram){
-    p <- ggplot(predictions, aes(x=xvar,y=predict.rf..dtest.)) +  geom_boxplot(notch=T) + coord_flip()  + theme_bw() +
-      theme(axis.text=element_text(size=8), plot.margin = unit(c(0,0,0,0), "lines")) + xlab('') + ylab('')
+    p <- predictions %>% 
+            ggplot(  aes(x=xvar_ordered,
+                                 y=predict.rf..dtest.
+                                 )
+                ) +  geom_boxplot(notch=T) + 
+                     coord_flip()  + 
+                     theme_bw() +
+      theme(axis.text=element_text(size=8),
+            plot.margin = unit(c(0,0,0,0), "lines")) +
+            xlab('') + ylab('')
+    
   } else {
     p <- ggplot(predictions, aes(x=predict.rf..dtest. ,y=xvar)) + 
       #geom_boxplot(notch=T) + 
