@@ -10,7 +10,7 @@ editor_options:
   chunk_output_type: inline
 ---
 
-Demonstrate that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggeness, etc.
+This file demonstrates that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggeness, etc.
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
 rm(list=ls()); gc()
@@ -52,8 +52,6 @@ georef_all_dt <- subset(georef_all_dt,
 ```
 
 
-# Now bias on covariates
-
 Create a subset just for those events that have both original coords and a potential match
 
 ```{r}
@@ -80,7 +78,7 @@ georef_all_dt_covariates_gaz_sf$imputed <- 1
 
 
 
-#Wrap as a function an run multiple times for different vectors
+# Load all of the spatial files for the covariates
 
 ```{r}
 
@@ -92,6 +90,7 @@ sapply(covariate_list, FUN=function(q) class(q)[1])
 
 
 ```
+# Extract the values of covariates found at each location and imputed location
 
 ```{r}
 
@@ -135,7 +134,11 @@ georef_all_dt_covariates_events_sf$roads_distance <- new_over(georef_all_dt_cova
 #georef_all_dt_covariates_gaz_sf$roads_distance <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[9]]  , '' )
 #georef_all_dt_covariates_gaz_sf$landuse <- new_over(georef_all_dt_covariates_gaz_sf , covariate_list[[9]]  , 'LANDUSE' )
 
+```
 
+# Plot the differences of points at real locations versus their imputed counterparts
+
+```{r}
 
 #Make that bias in the coef plot
 setkey(georef_all_dt, "rule_ensemble") #sort by ensemble score, pick the best option for each source

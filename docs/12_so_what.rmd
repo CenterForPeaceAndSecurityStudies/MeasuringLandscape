@@ -167,19 +167,22 @@ for(q in unique(georef_all_dt_events_sf$source_dataset)){
 }
 
 #Geometry Type
+#Half the time, linestring doesn't converge. Exclude from the plots downstream anyway
 lm_results_list2 <- list()
 for(q in unique(georef_all_dt_events_sf$geometry_type)){
   print(q)
-  condition <- georef_all_dt_events_sf$geometry_type==q
-  temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
-  hex$dv <- sapply( st_covers(hex, temp), length) 
-  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) ,
-                control=glm.control(maxit=50) #Up the number of iterations so it converges
-                ) 
-  temp_results <- tidy(lm1)
-  temp_results$Type="Geometry Type"
-  temp_results$label <- q
-  lm_results_list2[[as.character(q)]] <- temp_results
+  try({
+    condition <- georef_all_dt_events_sf$geometry_type==q
+    temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
+    hex$dv <- sapply( st_covers(hex, temp), length) 
+    lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) ,
+                  control=glm.control(maxit=100) #Up the number of iterations so it converges
+                  ) 
+    temp_results <- tidy(lm1)
+    temp_results$Type="Geometry Type"
+    temp_results$label <- q
+    lm_results_list2[[as.character(q)]] <- temp_results
+  })
 }
 
 #Fuzzy
