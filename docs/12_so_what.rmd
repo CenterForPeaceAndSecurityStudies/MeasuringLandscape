@@ -254,14 +254,22 @@ library(ggplot2)
 #qplot(1:10)+theme(text=element_text(family=fonts[4]))
 #qplot(1:10)+theme(text=element_text(family=fonts[5]))
 
+lm_results_dt <- as.data.table(lm_results_dt)
+lm_results_dt[Type=="Match Type" & label=="FALSE", label:= "Exact",]
+lm_results_dt[Type=="Match Type" & label=="TRUE", label:= "Fuzzy",]
+
+lm_results_dt[Type=="SelfReference" & label=="FALSE", label:= "Self Ref.",]
+lm_results_dt[Type=="SelfReference" & label=="TRUE", label:= "No Self Ref.",]
 
 
+fontfaces <- factor(c("plain","bold","italic","bold.italic","plain"))
 p_load(ggrepel, tools)
 p_lm <- lm_results_dt %>% 
         filter(!(label %in% c('kenya_district1962','kenya_cadastral','kenya_cadastral_district',"LINESTRING"))) %>%
         filter(term != "(Intercept)") %>%
-        mutate(label=gsub("FALSE", "Exact", label)) %>%
-        mutate(label=gsub("TRUE", "Fuzzy", label)) %>%
+        #mutate(label[Type=="Match Type"]=gsub("FALSE", "Exact", label[Type=="Match Type"])) %>%
+        #mutate(label[Type=="Match Type"]=gsub("True", "Fuzzy", label[Type=="Match Type"])) %>%
+        
         mutate(Type=sentence_case(Type),
                term=sentence_case(term),
                label=sentence_case(label)) %>%
@@ -269,7 +277,8 @@ p_lm <- lm_results_dt %>%
              y=p.value,
              color=Type,
              label=label,
-             family = fonts[as.numeric(as.factor(Type))]
+             family = fonts[as.numeric(as.factor(Type))],
+             fontface= fontfaces[as.numeric(as.factor(Type))]
              ))  + 
   facet_wrap(~term, scales="free") + 
   theme_bw() +
@@ -286,7 +295,7 @@ p_lm
 
 ggsave(
   filename = glue(dir_figures, "p_lm.pdf"),
-  plot = p_lm, width = 15, height = 9,
+  plot = p_lm, width = 9, height = 6,
   device = cairo_pdf #have to use cairo to correctly embed the fonts
 )
 
