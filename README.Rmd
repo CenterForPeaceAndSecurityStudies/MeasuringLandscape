@@ -45,9 +45,9 @@ Fuzzy Matcher: A supervised learning pipeline for matching two placenames to one
 
 Georeferencer: A supervised leaning pipeline for assigning a real world coordinate to a placename.
 
-* [06 Georeferencer](https://rexdouglass.github.io/MeasuringLandscape/06_georeferencer.nb.html)
-* [07 Ensemble and Hand Rules](https://rexdouglass.github.io/MeasuringLandscape/07_ensemble_and_hand_rules.nb.html)
-Analysis
+* [06 Georeferencer](https://rexdouglass.github.io/MeasuringLandscape/06_georeferencer.nb.html): Takes in locations of events described as text, and returns all possible matches across different gazeteers.
+* [07 Ensemble and Hand Rules](https://rexdouglass.github.io/MeasuringLandscape/07_ensemble_and_hand_rules.nb.html): Ranks the returned matches from best to worst. First, using simple hand rules of what kind of match to prefer over others. Then second, with a supervised model that attempts to predict which match will be geographically closest to the true location (fewest kilometers away from the right answer).
+
 
 Analysis:
 
