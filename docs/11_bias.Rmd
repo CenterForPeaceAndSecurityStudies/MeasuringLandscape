@@ -165,7 +165,7 @@ p9 <- ggplot(temp, aes(x = value,
                  geom_point() + 
                  facet_grid(.~variable, scales="free") + 
                  geom_vline(xintercept=1) + ylab("Source Dataset") +
-                 xlab("Ratio of Value at Imputed Location Relative to True Location") +
+                 xlab("Ratio of Mean Value at Imputed Location Relative to True Location") +
                  scale_shape_manual(values=1:15) + theme_bw() + theme(legend.position="none") 
 p9
 ggsave(
