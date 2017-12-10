@@ -27,6 +27,8 @@ options(width = 160)
 
 ```
 
+# Create Hexagon Unit of Analysis
+
 ```{r}
 
 covariate_list <-  prep_covariates()
@@ -41,7 +43,11 @@ hex <- create_hexagon_df(cellsize_km=10,
                             region_of_interest=region_of_interest_sf,
                             type="hexagonal",
                             crs=4326 )
+```
 
+# Measure covariates at each hexagon
+
+```{r}
 
 new_over <- function(x,y, variable) {
   if(class(y)[[1]] %in% "sf"){
@@ -74,6 +80,8 @@ hex$roads_distance <-log(  new_over(st_centroid(hex) , covariate_list[['roads_di
 #hex$landuse <- new_over(st_centroid(hex) , covariate_list[[9]]  , 'LANDUSE' )
 
 ```
+
+# Tally number of events in each hexagon according to each georeferencing rule and fit a linear model
 
 ```{r}
 #Reload from scratch each time in case we subset sometehing weirdly
@@ -205,9 +213,13 @@ lm_results_dt <- rbindlist( list(  rbindlist(lm_results_list0),
                                    rbindlist(lm_results_list4)
 )
                            )
-
 lm_results_dt <- lm_results_dt %>% mutate(rate= round(exp(estimate),2) )
 
+```
+
+# Plot the coefficients for each model
+
+```{r, fig.width=12, fig.height=8}
 p_load(ggrepel, tools)
 p_lm <- lm_results_dt %>% filter(term != "(Intercept)") %>%
   ggplot(aes(x=rate,y=p.value, color=Type, label=label))  + 
