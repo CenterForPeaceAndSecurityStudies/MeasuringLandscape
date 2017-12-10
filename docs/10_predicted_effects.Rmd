@@ -25,6 +25,10 @@ knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
 options(width = 160)
 
+p_load(Hmisc)
+sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+
+
 ```
 
 
@@ -123,6 +127,7 @@ h <- plot_partial_effects(rf=pred_cords$xb_model,
 
 p_load(cowplot)
 final_histogram <- plot_grid(
+  
   a+ggtitle(sentence_case('Document Date Type')),
   b+ggtitle(sentence_case('Document Year')),
   c+ggtitle(sentence_case('Initiator')),
