@@ -216,7 +216,9 @@ final
 
 ggsave(
   filename = glue(dir_figures, "rf_mapcoordinate_clean_missing_ridgeplot.pdf"),
-  plot = final, width = 10, height = 8
+  plot = final, width = 10, height = 8,
+    device = cairo_pdf #have to use cairo to correctly embed the fonts
+
 )
 
 ```

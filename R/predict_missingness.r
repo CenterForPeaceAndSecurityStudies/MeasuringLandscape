@@ -11,7 +11,7 @@
 #' This function takes in events data, and a vector of labels for whether that value would be imputed or missing, and then fits
 #' A model predicting that missingness
 #' Tries to predict in terms of properties of each event, e.g. DV
-predict_missingness_dv <- function(label) {
+predict_missingness_dv <- function(label, print_every_n=20) {
   p_load(xgboost, dummies)
 
   vars_x <- c(
@@ -53,7 +53,8 @@ predict_missingness_dv <- function(label) {
     nrounds = 50,
     early_stopping_rounds = 10,
     nfold = 5,
-    prediction = T
+    prediction = T,
+    print_every_n=print_every_n
   )
 
   xb2 <- xgb.train(
@@ -62,7 +63,8 @@ predict_missingness_dv <- function(label) {
     nrounds = 100,
     # early_stopping_rounds=10,
     # nfold=5,
-    prediction = T
+    prediction = T,
+    print_every_n=print_every_n
   )
   # Store predictions so we can get area under the precision recall curve
 
@@ -77,7 +79,14 @@ predict_missingness_dv <- function(label) {
   # area_under_prc
 
   p_load(Metrics)
-  return(list(label = label, xb = xb$pred, xb_model = xb2, x_all_pre_dummy = x_all_pre_dummy, postdummy = x_all, dtrain = dtrain))
+  return(list(label = label,  #Original Y
+              xb = xb$pred,   #Cross validated hold out predicted probaiblity
+              xb_model = xb2, #Single model
+              x_all_pre_dummy = x_all_pre_dummy, #Original data
+              postdummy = x_all, #Data in one hot encoding
+              dtrain = dtrain #data in xgb.DMatrix format
+              )
+         )
 
   # importance_importance <- xgb.importance(feature_names=vars_x, model = xb) #won't calculate on cv
   # xgb.plot.importance(importance_importance)

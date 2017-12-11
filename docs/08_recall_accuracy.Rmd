@@ -27,11 +27,15 @@ options(width = 160)
 
 ```
 
+# Load Files
+
+Load the events file
+
 ```{r}
 
 #Load Events
 events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscapeCivilWar")) 
-
+print(dim(events_sf))
 events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','name_cleaner','document_district_clean','map_coordinate_clean_latitude','map_coordinate_clean_longitude')],
                                      .(location_text), transform,
       map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
@@ -40,6 +44,39 @@ events_sf_text_coord_unique <- ddply(events_sf[,c('location_text','name_clean','
 
 ```
 
+Load the suggestions file
+
+```{r}
+
+#Reload from scratch each time in case we subset sometehing weirdly
+georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt.Rds", package = "MeasuringLandscapeCivilWar")) 
+glue("Size of the Suggestions dataset ", nrow(georef_all_dt))
+
+table(!is.na(events_sf$name_cleaner)) #8,638 events have at least some text
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #8,242 events have a name in our suggestions list
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,532 events with at least one gazeteer suggestion
+
+```
+
+```{r}
+
+georef_all_dt %>% ggplot(aes(x=distance_km)) + geom_histogram(bins = 100)
+
+georef_all_dt %>% summary(distance_km)
+
+table(georef_all_dt$distance_km==0) #These are identical matches, same event on the left hand and right hand sides
+
+#Exclude all distance = 0 obs, those are self matches
+georef_all_dt <- subset(georef_all_dt, 
+                        !is.na(name_cleaner) & # must have a name
+                        (is.na(distance_km) | distance_km!=0)  ) #Can be either missing or not zero. Only thing we drop is zero because that's a self match
+
+table(georef_all_dt$distance_km==0) #These are identical matches, same event on the left hand and right hand sides
+
+```
+
+# Calculate Recall Rate and Distance for Ensembles
+
 This section calculates the recall rate and geographic accuracy of gazeteer suggestions. Recall is the number of events that receive at least one suggestion under a given set of rules. Accuracy is the distance between an observed location with a military coordinate and an imputed location for the same event. 
 
 Accuracy is measured differently for hand rule/ensemble and every other specific decision. Hand rule/ensemble accuracy is the distance observed for the best match selected by that process.
@@ -47,18 +84,13 @@ Accuracy is measured differently for hand rule/ensemble and every other specific
 Accuracy for the remainder of decisions is the BEST CASE accuracy for any suggestion matching that rule. For example, if the decision is "point" geometry type, then accuracy would be the smallest observed distance of every single suggestion with a point type.
 
 
+
+Hand Rules
+
 ```{r}
 
-#Reload from scratch each time in case we subset sometehing weirdly
-georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt.Rds", package = "MeasuringLandscapeCivilWar")) 
-
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
-
-#Exclude all distance = 0 obs, those are self matches
-georef_all_dt <- subset(georef_all_dt, 
-                        !is.na(name_cleaner) & # must have a name
-                        (is.na(distance_km) | distance_km!=0)  ) #Can be either missing or not zero. Only thing we drop is zero because that's a self match
+print("Hand Rule Orderings")
+table(georef_all_dt$handrule)
 
 #Hand Rule
 setkey(georef_all_dt, event_hash, handrule) #Sort by event and then hand rule
@@ -69,6 +101,24 @@ georef_all_dt_handrule_summary <- georef_all_dt_handrule[,list(
                                               source_dataset_count=.N
                                               )
                                         ]
+
+print("Distance for Hand Rule")
+summary(georef_all_dt_handrule$distance_km)
+
+
+
+```
+
+
+Ensemble Rule
+
+```{r}
+
+
+summary(georef_all_dt$rule_ensemble)
+
+georef_all_dt %>% ggplot(aes(x=rule_ensemble)) + geom_histogram(bins=100)
+  
 #Ensemble Rule
 setkey(georef_all_dt, rule_ensemble)
 georef_all_dt_ensemble <- georef_all_dt[,.SD[1], by=list(event_hash) ] #Take the smallest estimated distance, lower is better
@@ -78,8 +128,6 @@ georef_all_dt_ensemble_summary <- georef_all_dt_ensemble[,list(
                                               source_dataset_count=.N
                                               )
                                         ]
-print("Distance for Hand Rule")
-summary(georef_all_dt_handrule$distance_km)
 
 print("Distance for Ensemble")
 summary(georef_all_dt_ensemble$distance_km)
@@ -94,6 +142,8 @@ rbind(georef_all_dt_handrule %>% mutate(label="hand"),
 
 
 ```
+
+# Calculate Recall Rate and Distance for Each Decision
 
 Now calculate the minimum observed distance for any suggestion matching a specific decision.
 
@@ -149,6 +199,12 @@ georef_all_dt_milcoords_summary <- data.frame(rule="Mil. Coord",
                                               source_dataset_count=sum(!is.na(events_sf$map_coordinate_clean_latitude))
 )
 
+```
+
+# Summarize
+
+
+```{r}
 
 recall_accuracy <- rbindlist(list(
   georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
@@ -160,18 +216,13 @@ recall_accuracy <- rbindlist(list(
   georef_all_dt_bygeometry_type %>% mutate(label=geometry_type) %>% mutate(Type="Geometry Type")
 ))
 
+#p_load(DT)
+DT::datatable(recall_accuracy)
+
 ```
 
 Combine and plot the results for every specific decision and the ensembles.
 
-In terms of accuracy, we find wide variation between decisions. In brief:
-Ensemble Rule > Hand Rule
-Exact > Fuzzy
-Point > Multipolygon > Polygon > Linestring
-Match to Other Events > No Match to Other Events
-events > nga > livestock_points" > historical > geonames > bing> kenya_cadastral_district > livestock_boundaries > gadm > kenya_district1962 > wikidata > google > kenya_cadastral > openstreetmap > tgn 
-
-The hand rules and supervised ensemble represent a compromsie between high recovery rate and best case accuracy of each individual decision.
 
 
 ```{r}
@@ -241,3 +292,14 @@ ggsave(
 
 
 ```
+
+# Interpretation
+
+In terms of accuracy, we find wide variation between decisions. In brief:
+Ensemble Rule > Hand Rule
+Exact > Fuzzy
+Point > Multipolygon > Polygon > Linestring
+Match to Other Events > No Match to Other Events
+events > nga > livestock_points" > historical > geonames > bing> kenya_cadastral_district > livestock_boundaries > gadm > kenya_district1962 > wikidata > google > kenya_cadastral > openstreetmap > tgn 
+
+The hand rules and supervised ensemble represent a compromsie between high recovery rate and best case accuracy of each individual decision.
