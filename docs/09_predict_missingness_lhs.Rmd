@@ -100,7 +100,7 @@ recall_handrule_dataset <- sum(pred_source_handrule$label)
 #Ensemble Rule
 glue("Ensemble Rule")
 setkey(georef_all_dt, rule_ensemble)
-georef_all_dt_handrule <- georef_all_dt[,.SD[1], by=list(event_hash) ]
+georef_all_dt_ensemble <- georef_all_dt[,.SD[1], by=list(event_hash) ]
 y <- events_sf$event_hash %in% georef_all_dt_ensemble$event_hash #Which events received a imputed location under this rule
 table(y)
 pred_source_ensemble <- predict_missingness_dv(y)
@@ -131,7 +131,9 @@ for( q in q_all ){
 auc_fuzzy <- sapply(pred_fuzzy_list, FUN=function(q) Metrics::auc(q$label, q$xb))
 recall_fuzzy <- sapply(pred_fuzzy_list, FUN=function(q) sum(q$label) )
 
+```
 
+```{r}
 #Source dataset
 glue("Source dataset")
 georef_all_dt_bysource <- georef_all_dt[,list(distance_km_min=min(distance_km, na.rm=T) ),by=list(event_hash, source_dataset)] ; dim(georef_all_dt_bysource)
@@ -145,7 +147,9 @@ for( q in na.omit(unique(georef_all_dt_bysource$source_dataset)) ){
 auc_source_dataset <- sapply(pred_source_dataset_list, FUN=function(q) Metrics::auc(q$label, q$xb))
 recall_source_dataset <- sapply(pred_source_dataset_list, FUN=function(q) sum(q$label) )
 
+```
 
+```{r}
 #geometry_type
 glue("geometry_type")
 georef_all_dt_bygeometry_type <- georef_all_dt[,list(distance_km_min=min(distance_km, na.rm=T) ),by=list(event_hash, geometry_type)] 
@@ -159,6 +163,9 @@ for( q in na.omit(unique(georef_all_dt_bygeometry_type$geometry_type)) ){
 auc_geometry_type <- sapply(pred_geometry_type_list, FUN=function(q) Metrics::auc(q$label, q$xb))
 recall_geometry_type <- sapply(pred_geometry_type_list, FUN=function(q) sum(q$label) )
 
+```
+
+```{r}
 #Self Reference
 glue("Self Reference")
 georef_all_dt_byselfreference <- georef_all_dt[,list(distance_km_min=min(distance_km, na.rm=T) ),by=list(event_hash, SelfReference )] ; dim(georef_all_dt_bysource)
@@ -212,6 +219,7 @@ saveRDS(bias_dv_df,
 ```
 
 
+Plot
 
 ```{r}
 
@@ -282,7 +290,7 @@ p_bias_dv
 
 ggsave(
   filename = glue(dir_figures, "p_bias_dv.pdf"),
-  plot = p_bias_dv, width = 12, height = 6,
+  plot = p_bias_dv, width = 9, height = 6,
   device = cairo_pdf #have to use cairo to correctly embed the fonts
 
 )
