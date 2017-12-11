@@ -207,7 +207,7 @@ georef_all_dt_milcoords_summary <- data.frame(rule="Mil. Coord",
 ```{r}
 
 recall_accuracy <- rbindlist(list(
-  georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
+  #georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
   georef_all_dt_handrule_summary %>% mutate(label="Hand Rule") %>% mutate(Type="Rule"),
   georef_all_dt_ensemble_summary %>% mutate(label="Ensemble Rule") %>% mutate(Type="Rule"),
   georef_all_dt_bysource_summary %>% mutate(label=source_dataset) %>% mutate(Type="Source Gazetteer"),
@@ -285,7 +285,7 @@ p_RecallBias
 
 ggsave(
   filename = glue(dir_figures, "RecallBias.pdf"),
-  plot = p_RecallBias, width = 12, height = 6,
+  plot = p_RecallBias, width = 9, height = 6,
     device = cairo_pdf #have to use cairo to correctly embed the fonts
 
 )
