@@ -1,5 +1,5 @@
 ---
-title: "09 Recall and Accuracy"
+title: "09 Predict Missingness"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
 output: 
@@ -240,8 +240,8 @@ p_bias_dv <- bias_dv_df %>%
              fontface= fontfaces[as.numeric(as.factor(Type))]
              ))  + geom_text_repel(size=3) +
   theme_bw() +
-  xlab(sentence_case("Coefficient Estimates (Change in relative rate of Violent Events)")) +
-  ylab(sentence_case("Coefficient P-Value Estimates (0.01 Threshold Indicated)")) +
+  xlab(sentence_case("Predictability of Missingness of Imputed Locations, Area Under the Curve")) +
+  ylab(sentence_case("Recovery Rate")) +
   theme(
     legend.position = c(0.9, 0.3), # c(0,0) bottom left, c(1,1) top-right.
   )
