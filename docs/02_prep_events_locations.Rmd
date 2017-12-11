@@ -634,12 +634,12 @@ events_sf <- events %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
 # Avoid creating geometries where one of the two is NA
 events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
 events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
-events_sf$event_hash <- NULL #Make sure we're not hashing on the previous hash which might be a random walk
+#events_sf$event_hash <- NULL #Make sure we're not hashing on the previous hash which might be a random walk
 
 events_sf <- events_sf %>%
             st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"),
-                     crs = 4326, agr = "constant", remove = F, na.fail = F)  %>% 
-             mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #Do this once and only once
+                     crs = 4326, agr = "constant", remove = F, na.fail = F) # %>% 
+             #mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #Do this once and only once
 valid <- st_is_valid(events_sf$geometry); table(valid)
 
 eventsnames_sf <- events_sf %>% select("name_cleaner", "geometry") %>% setNames(c("name", "geometry")) %>% mutate(source_dataset = "events")

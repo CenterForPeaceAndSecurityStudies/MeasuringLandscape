@@ -154,7 +154,7 @@ print(final_histogram)
 
 
 
-```{r, eval=F}
+```{r, echo=F,eval=F}
 
 scale=2
 a <- plot_partial_effects(rf=pred_cords$xb_model,

@@ -60,7 +60,7 @@ Proof of concept, show works on original missingness
 
 ```{r}
 
-fromscratch=F
+fromscratch=T
 if(fromscratch){
   #Military coordinates only
   pred_cords <- predict_missingness_dv(!is.na(events_sf$map_coordinate_clean_latitude))
@@ -186,7 +186,37 @@ if(fromscratch){
 bias_dv_df <- readRDS(system.file("extdata", "bias_dv_df.Rds", package = "MeasuringLandscapeCivilWar"))
 
 
-colours = c("Allow Match To Other Events" = "#F8766D",
+
+
+p_load(Hmisc)
+sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+#install.packages("extrafont");
+#library(extrafont)
+#library(extrafont)
+#extrafont::font_import(prompt=F )
+#capabilities()
+#windowsFonts()
+#sort(as.vector(unlist(windowsFonts())))
+
+fonts <- c('Times New Roman',
+           'Calibri',
+           'Courier New',
+           "Georgia",
+           "Tunga",
+           "Lucida Fax")
+           #'serif','Helvetica','Bookman','Palatino')
+
+library(ggplot2)
+
+
+bias_dv_df[Type=="Allow Match To Other Events" & label=="No Match to Other Events", label:= "Self Ref.",]
+bias_dv_df[Type=="Allow Match To Other Events" & label=="Match to Other Events", label:= "No Self Ref.",]
+bias_dv_df[Type=="Allow Match To Other Events" , Type:= "Self Reference",]
+
+
+fontfaces <- factor(c("plain","bold","italic","bold.italic","plain","plain"))
+
+colours = c("Self Reference" = "#F8766D",
             "Geometry Type" = "#A3A500",
             "Match Type" = "#00BF7D",
             "Rule" = "#00B0F6",
@@ -195,45 +225,35 @@ colours = c("Allow Match To Other Events" = "#F8766D",
 
 p_load(ggrepel, tools)
 p_bias_dv <- bias_dv_df %>% 
-             ggplot(aes(
-                 x= auc,
-                 y= round(recall/nrow(events_sf),2) ,
-                 label=label,
-                 family = fonts[as.numeric(as.factor(Type))],
-                 fontface= fontfaces[as.numeric(as.factor(Type))]
-                 col=Type)) + 
-             geom_text_repel(size=3) + theme_bw() +
-           xlab("Predictability of Missingness (Area Under the Curve)") + ylab("Recall Ratio") +
-           #ggtitle("Structual Missingness in Terms of Outcomes by Georeferencing Strategy")
-           scale_color_manual(values = colours)
-
-p_bias_dv
-
-
-  ggplot(aes(x=rate,
-             y=p.value,
+        #filter(!(label %in% c('kenya_district1962','kenya_cadastral','kenya_cadastral_district',"LINESTRING"))) %>%
+        #filter(term != "(Intercept)") %>%
+        #mutate(label[Type=="Match Type"]=gsub("FALSE", "Exact", label[Type=="Match Type"])) %>%
+        #mutate(label[Type=="Match Type"]=gsub("True", "Fuzzy", label[Type=="Match Type"])) %>%
+        mutate(Type=sentence_case(Type),
+               label=sentence_case(label)
+               ) %>%
+  ggplot(aes(x=auc,
+             y=round(recall/nrow(events_sf),2),
              color=Type,
              label=label,
              family = fonts[as.numeric(as.factor(Type))],
              fontface= fontfaces[as.numeric(as.factor(Type))]
-             ))  + 
-  facet_wrap(~term, scales="free") + 
+             ))  + geom_text_repel(size=3) +
   theme_bw() +
-  geom_vline(xintercept = 1, , color="grey") + 
-  geom_hline(yintercept = 0.01, linetype=3, color="grey") + 
-  geom_text_repel(size=2) + 
   xlab(sentence_case("Coefficient Estimates (Change in relative rate of Violent Events)")) +
   ylab(sentence_case("Coefficient P-Value Estimates (0.01 Threshold Indicated)")) +
   theme(
-    legend.position = c(0.9, 0.1), # c(0,0) bottom left, c(1,1) top-right.
+    legend.position = c(0.9, 0.3), # c(0,0) bottom left, c(1,1) top-right.
   )
 p_lm
-
+ #+ coord_cartesian(y="log")
 
 
 ggsave(
   filename = glue(dir_figures, "p_bias_dv.pdf"),
-  plot = p_bias_dv, width = 12, height = 6
+  plot = p_bias_dv, width = 12, height = 6,
+  device = cairo_pdf #have to use cairo to correctly embed the fonts
+
 )
 
 ```
