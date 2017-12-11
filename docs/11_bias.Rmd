@@ -163,7 +163,13 @@ temp <- as.data.frame(georef_all_dt_covariates_events_sf)[,c('source_dataset',
 #temp[,2:6] <- lapply(temp[,2:6], scale)
 
 #temp[,2:6] <- temp[,2:6] - temp[rep(2,nrow(temp)),2:6] #This demeans each
-temp[,2:6] <- temp[,2:6] / temp[rep(2,nrow(temp)),2:6] #This demeans each
+test <- as.numeric(unlist(as.vector(data.frame(temp[2,]))))
+temp <- as.data.frame(temp)
+temp[,2] <- temp[,2] / rep(test[2],10) #This demeans each
+temp[,3] <- temp[,3] / rep(test[3],10)  #This demeans each
+temp[,4] <- temp[,4] / rep(test[4],10)  #This demeans each
+temp[,5] <- temp[,5] / rep(test[5],10)  #This demeans each
+temp[,6] <- temp[,6] / rep(test[6],10)  #This demeans each
 
 temp <- temp %>% gather(variable, value, -source_dataset)
 
