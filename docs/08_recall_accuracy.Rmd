@@ -149,6 +149,17 @@ georef_all_dt_milcoords_summary <- data.frame(rule="Mil. Coord",
                                               source_dataset_count=sum(!is.na(events_sf$map_coordinate_clean_latitude))
 )
 
+
+recall_accuracy <- rbindlist(list(
+  georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
+  georef_all_dt_handrule_summary %>% mutate(label="Hand Rule") %>% mutate(Type="Rule"),
+  georef_all_dt_ensemble_summary %>% mutate(label="Ensemble Rule") %>% mutate(Type="Rule"),
+  georef_all_dt_bysource_summary %>% mutate(label=source_dataset) %>% mutate(Type="Source Gazetteer"),
+  georef_all_dt_byfuzzy_summary %>% mutate(label=ifelse(fuzzy, "Fuzzy","Exact")) %>% mutate(Type="Match Type"),
+  georef_all_dt_byselfreference_summary %>% mutate(label=ifelse(SelfReference, "Match To Other Events","No Match To Other Events")) %>% mutate(Type="Allow Match To Other Events"),
+  georef_all_dt_bygeometry_type %>% mutate(label=geometry_type) %>% mutate(Type="Geometry Type")
+))
+
 ```
 
 Combine and plot the results for every specific decision and the ensembles.
@@ -165,45 +176,70 @@ The hand rules and supervised ensemble represent a compromsie between high recov
 
 ```{r}
 
-recall_accuracy <- rbindlist(list(
-  georef_all_dt_milcoords_summary %>% mutate(label="Mil. Coord") %>% mutate(Type="Rule"),
-  georef_all_dt_handrule_summary %>% mutate(label="Hand Rule") %>% mutate(Type="Rule"),
-  georef_all_dt_ensemble_summary %>% mutate(label="Ensemble Rule") %>% mutate(Type="Rule"),
-  georef_all_dt_bysource_summary %>% mutate(label=source_dataset) %>% mutate(Type="Source Gazetteer"),
-  georef_all_dt_byfuzzy_summary %>% mutate(label=ifelse(fuzzy, "Fuzzy","Exact")) %>% mutate(Type="Match Type"),
-  georef_all_dt_byselfreference_summary %>% mutate(label=ifelse(SelfReference, "Match To Other Events","No Match To Other Events")) %>% mutate(Type="Allow Match To Other Events"),
-  georef_all_dt_bygeometry_type %>% mutate(label=geometry_type) %>% mutate(Type="Geometry Type")
-))
+p_load(Hmisc)
+sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+#install.packages("extrafont");
+#library(extrafont)
+#library(extrafont)
+#extrafont::font_import(prompt=F )
+#capabilities()
+#windowsFonts()
+#sort(as.vector(unlist(windowsFonts())))
+
+fonts <- c('Times New Roman',
+           'Calibri',
+           'Courier New',
+           "Georgia",
+           "Tunga",
+           "Lucida Fax")
+           #'serif','Helvetica','Bookman','Palatino')
+
+library(ggplot2)
+
+
+bias_dv_df[Type=="Allow Match To Other Events" & label=="No Match to Other Events", label:= "Self Ref.",]
+bias_dv_df[Type=="Allow Match To Other Events" & label=="Match to Other Events", label:= "No Self Ref.",]
+bias_dv_df[Type=="Allow Match To Other Events" , Type:= "Self Reference",]
+
+
+fontfaces <- factor(c("plain","bold","italic","bold.italic","plain","plain"))
+
+colours = c("Self Reference" = "#F8766D",
+            "Geometry Type" = "#A3A500",
+            "Match Type" = "#00BF7D",
+            "Rule" = "#00B0F6",
+            "Source Dataset"="#E76BF3",
+            "Original Geo Info"="#53B400") 
 
 p_load(ggrepel, tools)
-p1 <- ggplot(recall_accuracy %>% 
+p_RecallBias <- recall_accuracy %>% 
                filter(rule!="tgn") %>% #exclude TGN for being an outlier
-               mutate(label=toTitleCase(gsub("_"," ",label))
-                      ),
+               mutate(
+                      label=sentence_case(label)
+                      ) %>%
+       ggplot(
        aes(x=distance_rmse,
-           y=source_dataset_count / 10469 ,
-           label=label,
-           color=Type)) + 
-       geom_text_repel(size=3) + 
-       #coord_trans(x = "log10", y = "log10") + 
-       theme_bw() + 
-       xlab("Root Mean Squared Distance from Observed Coordinate (km)") + 
-       ylab("Recovery Rate") #+ 
-       #ggtitle("Recall and Accuracy by Georeferencing Strategy")
-
-p1
+           y=source_dataset_count / 10469,
+             color=Type,
+             label=label,
+             family = fonts[as.numeric(as.factor(Type))],
+             fontface= fontfaces[as.numeric(as.factor(Type))]
+             )
+)  + 
+  geom_text_repel(size=3) +
+  theme_bw() +
+  xlab(sentence_case("Root Mean Squared Distance from Observed Coordinate (km)")) +
+  ylab(sentence_case("Recovery Rate")) +
+  theme(
+    legend.position = c(0.2, 0.3), # c(0,0) bottom left, c(1,1) top-right.
+  )
+p_RecallBias
+ #+ coord_cartesian(y="log")
 
 ggsave(
   filename = glue(dir_figures, "RecallBias.pdf"),
-  plot = p1, width = 12, height = 6
+  plot = p_RecallBias, width = 12, height = 6
 )
-
-#This works but I need to add some additional categories
-#original coordinates
-#district
-
 
 
 ```
-
-
