@@ -215,6 +215,14 @@ for(q in unique(georef_all_dt_events_sf$SelfReference)){
 
 
 
+
+```
+
+# Plot the coefficients for each model
+
+```{r, fig.width=15, fig.height=10}
+
+
 lm_results_dt <- rbindlist( list(  rbindlist(lm_results_list0),
                                    rbindlist(lm_results_list),
                                    rbindlist(lm_results_list2),
@@ -223,12 +231,6 @@ lm_results_dt <- rbindlist( list(  rbindlist(lm_results_list0),
 )
                            )
 lm_results_dt <- lm_results_dt %>% mutate(rate= round(exp(estimate),2) )
-
-```
-
-# Plot the coefficients for each model
-
-```{r, fig.width=15, fig.height=10}
 
 p_load(Hmisc)
 sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
@@ -265,7 +267,7 @@ lm_results_dt[Type=="SelfReference" & label=="FALSE", label:= "Self Ref.",]
 lm_results_dt[Type=="SelfReference" & label=="TRUE", label:= "No Self Ref.",]
 
 
-lm_results_dt[term=="treecover" , term=="tree cover",]
+lm_results_dt[term=="treecover" , term:="tree cover",]
 
 
 fontfaces <- factor(c("plain","bold","italic","bold.italic","plain"))
