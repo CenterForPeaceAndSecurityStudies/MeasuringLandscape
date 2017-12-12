@@ -3,7 +3,8 @@
 prep_events <- function(fromscratch=F) {
   if (fromscratch) {
     # Careful running this from scratch because the hash IDs are used downstream and all the code would have to be run again
-    events <- read_csv(glue("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/", "Kenya_Events_SollyStreamPerfect_Original_RexMerged_2015_donebyhand.csv")) %>%
+    events <- read_csv(glue("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/",
+                            "Kenya_Events_SollyStreamPerfect_Original_RexMerged_2015_donebyhand.csv")) %>%
       clean_names() %>%
       remove_empty_rows() %>%
       remove_empty_cols() %>%
