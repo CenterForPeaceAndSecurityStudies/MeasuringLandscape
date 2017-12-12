@@ -14,7 +14,7 @@ You can install the package MeasuringLandscapeCivilWar from github with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
+devtools::install_github("rexdouglass/MeasuringLandscape")
 ```
 
 ### Replication Code and Analysis
@@ -37,7 +37,7 @@ Georeferencer: A supervised leaning pipeline for assigning a real world coordina
 -   [06 Georeferencer](https://rexdouglass.github.io/MeasuringLandscape/06_georeferencer.nb.html): Takes in locations of events described as text, and returns all possible matches across different gazeteers.
 -   [07 Ensemble and Hand Rules](https://rexdouglass.github.io/MeasuringLandscape/07_ensemble_and_hand_rules.nb.html): Ranks the returned matches from best to worst. First, using simple hand rules of what kind of match to prefer over others. Then second, with a supervised model that attempts to predict which match will be geographically closest to the true location (fewest kilometers away from the right answer).
 
-Analysis:
+Analysis: Main analysis of the paper.
 
 -   [08 Recall Accuracy](https://rexdouglass.github.io/MeasuringLandscape/08_recall_accuracy.nb.html): Rate georeferencing options in terms of recall (how many event locations they recover) and accuracy (how far away their imputed locations tend to be from the true location)
 -   [09 Predict Missingness DV](https://rexdouglass.github.io/MeasuringLandscape/09_predict_missingness_lhs.nb.html): Rate georeferencing options in terms of how systmetic they are at recovering locations for certain kinds of events but not others.
@@ -49,4 +49,4 @@ Analysis:
 
 Please cite this compendium as:
 
-> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 10 Dec 2017. Online at <https://doi.org/xxx/xxx>
+> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 12 Dec 2017. Online at <https://doi.org/xxx/xxx>

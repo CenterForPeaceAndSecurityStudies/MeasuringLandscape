@@ -114,8 +114,16 @@ There's a big discontinuity between 50 bands and 25, and then dimishing returns 
 
 ```{r}
 
-ggplot(grid_search_lhs_dt, aes(x=false_negative,y=suggestions_per, label=bands)) + geom_label() + ggtitle("")
+p_lhs_gridsearch <- ggplot(grid_search_lhs_dt, aes(x=false_negative,y=suggestions_per, label=bands)) + geom_label() + ggtitle("")
+p_lhs_gridsearch
 
+ggsave(
+  filename = glue(dir_figures, "p_lhs_gridsearch.pdf"),
+  plot = final,
+  width = 10,
+  height = 8,
+  device = cairo_pdf #have to use cairo to correctly embed the fonts
+)
 
 ```
 

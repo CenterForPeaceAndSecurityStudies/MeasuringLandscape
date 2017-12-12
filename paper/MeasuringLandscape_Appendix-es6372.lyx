@@ -1,0 +1,2381 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Online Appendix: Measuring the Landscape of Civil War (v1.0)
+\end_layout
+
+\begin_layout Date
+December 2017
+\end_layout
+
+\begin_layout Author
+Dr.
+ Rex W.
+ Douglass
+\begin_inset Newline newline
+\end_inset
+
+ University of California, San Diego
+\begin_inset Newline newline
+\end_inset
+
+ 
+\begin_inset Newline newline
+\end_inset
+
+ Dr.
+ Kristen A.
+ Harkness
+\begin_inset Newline newline
+\end_inset
+
+ University of St.
+ Andrews
+\begin_inset Newline newline
+\end_inset
+
+ kh81@st-andrews.ac.uk 
+\end_layout
+
+\begin_layout Standard
+This online appendix accompanies the paper 
+\begin_inset Quotes eld
+\end_inset
+
+Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions
+ with Historic Data from the Mau Mau Rebellion.
+\begin_inset Quotes erd
+\end_inset
+
+ It is intended to provide greater technical detail than was within the
+ scope of the original article.
+ Please visit the online repository (available here[
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+https://github.com/rexdouglass/MeasuringLandscape
+\end_layout
+
+\end_inset
+
+]) for the most up to date version of this document as well as full technical
+ replication material for the paper.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+The structure of this document is designed to mirror that of the original
+ article.
+ Additional detail for each step of the analysis can be found under the
+ common section heading found in quotes.
+\end_layout
+
+\begin_layout Section
+\begin_inset Quotes eld
+\end_inset
+
+Best Practices and New Tools for Building Geographic Conflict Data
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+\begin_inset Quotes eld
+\end_inset
+
+Which Coordinate Sources?
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Gazetteers
+\end_layout
+
+\begin_layout Standard
+We employ a number of different gazeteer sources for this analysis including:
+\end_layout
+
+\begin_layout Enumerate
+The 1964 Official Kenya Gazetteer (United States Board of Geographic Names,
+ 1964)
+\end_layout
+
+\begin_layout Enumerate
+The U.S.
+ Board of Geographic Names’ database of foreign geographic feature names
+ or NGA (http://geonames.nga.mil/gns/html/namefiles.html)
+\end_layout
+
+\begin_layout Enumerate
+The National GeospatialIntelligence Agency’s GeoNet Names Server or GeoNames
+ (http://download.geonames.org/export/dump;
+\end_layout
+
+\begin_layout Enumerate
+Google Maps’ search API;
+\end_layout
+
+\begin_layout Enumerate
+Bing Maps’ search API;
+\end_layout
+
+\begin_layout Enumerate
+OpenStreetMap (Kenya extract retrieved from http://download.geofabrik.de/africa.htm
+l);
+\end_layout
+
+\begin_layout Enumerate
+Global Administrative Areas database or GADM (http://www.gadm.org); 
+\end_layout
+
+\begin_layout Enumerate
+Getty Thesaurus of Geographic Names (http://www.getty.edu/research/tools/vocabular
+ies/tgn/index.html);
+\end_layout
+
+\begin_layout Enumerate
+International Livestock Research Institute (http://192.156.137.110/gis/search.asp?id
+=386); 
+\end_layout
+
+\begin_layout Enumerate
+Wikidata (https://www.wikidata.org).
+\end_layout
+
+\begin_layout Subsubsection
+Gazetteer Coverage
+\end_layout
+
+\begin_layout Standard
+We subset each gazeteer to just the region of interest covering the conflict.
+ As you can see, the spatial coverage varied wildly from source to source,
+ with some like Geonames having very densive coverage of this area to others
+ like Openstreetmap having relatively sparse coverage.
+ Coverage for both Google and Bing map APIs is based on just the set of
+ entities returned when searching for the toponyms in our events data, not
+ their full coverage of this area.
+ We further exclude entities that did not have a textual label associated
+ with them (e.g.
+ many of OpentStreetMap's features).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figures/flatfiles_sf_roi_facet_source_dataset_points.png
+	lyxscale 25
+	width 5.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Spatial coverage within the region of interest of nine gazeteer sources
+ that have point features.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Gazetteer Resolution
+\end_layout
+
+\begin_layout Standard
+Each source has an implicit spatial resolution based on how it was created
+ and whether and how those coordinates were translated (e.g.
+ from degrees to decimal).
+ By far the noisiest source was the digitization effort of the International
+ Livestock Research Institute, with both coarse precision and noticeable
+ artifacts of points lying directly on latitude and longitude map lines
+ which were omitted or pushed to the side.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+This appears to be an artifact of the automated process employed by a commercial
+ vendor several decades ago.
+\end_layout
+
+\end_inset
+
+ The historical gazetteer was presented in minutes and seconds, limiting
+ its maximum precision to about 2km on the ground.
+ NGA and geonames are a combination of the historical gazetteer as well
+ as new points drawn from other sources with a plausibly higher resolution.
+ Openstreetmap is drawn directly on satellite imagery by humans, but also
+ imports some off the shelf data.
+ Wikidata has a noticeable truncation to the whole degree.
+ Our events locations have a known spatial resolution at the grid square,
+ which our conversion to latitude/longitude gives a smooth but false sense
+ of accuracy.
+ In sum, when considering absolute maximum spatial precision we recommend
+ a known error bounding box of at least 2km around any gazeteer entry.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figures/p_combs_long.pdf
+	width 5.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Histogram of longitude coordinates.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+\begin_inset Quotes eld
+\end_inset
+
+Allow Self-Referential Matching?
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Building a gazeteer from source data itself is promising but potentially
+ problematic.
+ We wish to flag one concern in particular.
+ If spatial auto-correlation is a concern, then self reference is a technique
+ that builds in a mechanical spatial correlation from points with shared
+ names.
+ For example, if the toponym was Nairobi, it represented a polygon covering
+ a large area, but the only observed events with coordinates were in a single
+ small ward of the city, then imputing those same points to other events
+ that perhaps occurred in other wards, would mechanically introduce spatial
+ auto-correlation as well as error.
+\end_layout
+
+\begin_layout Subsection
+\begin_inset Quotes eld
+\end_inset
+
+Which Geometry Type
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A number of our gazeteers included mixed geometry types, including points,
+ polygons, and lines.
+ How to deal with these correctly is an open research problem.
+ We chose to take centroids, as points that were unbiasedly representative
+ of the overall feature.
+ In the future, researcher may prefer instead to sample from the entire
+ feature in a way that is either more representative or reflects the uncertainty
+ of representing a large area only a single point.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figures/flatfiles_sf_roi_facet_source_dataset_notpoints.png
+	lyxscale 25
+	width 5.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Histogram of longitude coordinates.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+\begin_inset Quotes eld
+\end_inset
+
+Type of String Matching
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We introduce the concept of fuzzy matching but did not have space to describe
+ the approach in the paper in detail.
+ Our fuzzy matching pipeline has three major steps, stemming, locally sensitive
+ hashing, and a supervised classifier.
+\end_layout
+
+\begin_layout Subsubsection
+The Problem
+\end_layout
+
+\begin_layout Standard
+When comparing two toponyms, how should we decide when they are referring
+ to the same real world location and when they are actually referring two
+ different real world locations? This is a difficult task for several reasons.
+ The first is that relatively little information is conveyed by a string
+ alone outside of the context in which it was used, e.g.
+ the word 
+\begin_inset Quotes eld
+\end_inset
+
+Paris
+\begin_inset Quotes erd
+\end_inset
+
+ is not enough to uniquely distinguish between a vacation to Paris, France
+ or a one to Paris, Texas.
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Having done both, an author would like to convey that there is a difference
+ between these two vacations and that it is very important to know this
+ beforehand.
+\end_layout
+
+\end_inset
+
+ Second, the way topynms are used (and abused) in natural language text
+ leads to many different unique strings referring to the same underlying
+ toponym.
+ We have enumerated just some of the ways toponyms are misrepresented in
+ natural language text in our event data, shown in tables below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="23" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="1in">
+<column alignment="center" valignment="top" width="2.5in">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Variant
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Examples
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Nonnames
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Personal Names
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+a.e.aggatt's farm; buckley's road; count van der stegen; lady eleanor cole's
+ farm at elmentetia
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Near Spellings Same
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Burguret Estate;Burgaret Estate;Burgaret Entate 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Near Spellings Different
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+s.e.bastard; S.S.
+ Bastard's Farm
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Directional
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+1 mile w.of bariaho; between eburru and kipipiri; between slaters and salisbury
+ road; border of the iriaini & magutu, iriaini; embu/ south nyeri border;
+ footpath leading to muthara; marula estate near longonot
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Synonyms
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+aberdare forest; aberdare forest reserve
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Supranational Information
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+aberdares f.hall; bentall's farm, nakuru; col.culton house kon-gaita
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Abbreviations
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+aguthi loc s.n.r; clarke's fm.; gura rv.; malik s/mills; nr githumu
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Corporate Names
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+blue post hotel
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Ambiguous
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Spelling Errors
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+chehe sow mills; nairobi south esp llabour line
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Contemporary Context
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+chief hinga's location; chief makimeis and waruiru's location; forest loc
+ 14
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Compound Locations
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+cole estates, gamble's farm
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Grid Locations
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+eastings 43-47, northings 34-35
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Sub-Information
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+eastleigh section 7
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Compound Names
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+fort hall / thika road; gakurwa loc 14/15
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Punctuation
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+luis farm; luis' farm
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Numeric Postfix Irrelevant
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+marmanet mill no1
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Numeric Postfix Relevant
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+Location 1; Location 11
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Additional information
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+loc 8 fort hall
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Directional Potfixes
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+mathira north; mathira south
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size small
+Missing spaces
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size small
+murandialocation 8
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Example natural language descriptions of toponyms.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways true
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="4" columns="5">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top" width="1.5in">
+<column alignment="center" valignment="top" width="2in">
+<column alignment="center" valignment="top" width="2in">
+<column alignment="center" valignment="top" width="2in">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Events
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+gazeteers
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+News Corpus
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Issues
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+Ol Kalou
+\begin_inset Quotes erd
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+OLKALOU
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+OL KALOU
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+Mark's farm OLKALOU
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+KALOU TOWNSHIP
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+KALOU
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+01 KALOU TOWNSHIP
+\begin_inset Quotes erd
+\end_inset
+
+,
+\begin_inset Quotes erd
+\end_inset
+
+01 KALOU FLATS
+\begin_inset Quotes erd
+\end_inset
+
+, and 
+\begin_inset Quotes eld
+\end_inset
+
+01 KALOU
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+Ol Kalou
+\begin_inset Quotes erd
+\end_inset
+
+ (PPLA, PPL, locality;political, PopulatedPlace, town, railway_station,
+ Trading Centre)
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+Olkalou Country Club
+\begin_inset Quotes erd
+\end_inset
+
+ (SOCF), 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+olkalou
+\begin_inset Quotes erd
+\end_inset
+
+ (locality;political),
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes erd
+\end_inset
+
+ol kalou flat
+\begin_inset Quotes erd
+\end_inset
+
+ (locality;politica),
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes erd
+\end_inset
+
+kalou
+\begin_inset Quotes erd
+\end_inset
+
+ (locality;political)
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+Ol Kalou Road
+\begin_inset Quotes erd
+\end_inset
+
+ (unclassified)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+kalou, o1 kalou, o kalou, o'kalou, ol kalou, oikalou, oi kalou, olkalou,
+ okalou, kalou salient, kalou route, kalou hospital, kalou township, o'kalou
+ plot, township of olkalou, kalou district, olkalou township, okalou plot,
+ o1 kalou route, kalou west, kalou central, kalou nyandarua district, kalou
+ road, oil kalou, oikalou hospital, kalou hospital nyandarua, kalou south,
+ alou town, oj kalou, ol kalou township, township of olkalou township, kalou
+ location, township of ol kalou, kalou naivasha district, o kalou salient,
+ oi'kalou, ol kalou location 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Consolidating different spellings and errors.
+ Misspellings occur frequently in news corpus also.
+\end_layout
+
+\begin_layout Plain Layout
+Levels of aggregation that appear in news corpus but not gazeteers (e.g.
+ location, distric).
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Quotes eld
+\end_inset
+
+BASTARD
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+W.K.
+ BASTARD'S PUMP HOUSE, W.K.
+ BASTARD'S FARM, S.S.Bastard's Farm Nanyuki, S.S.Bastard's Farm,S.K.Bastard, Kongai
+ R.W.K.Bastard, HUTCHINSON'S FARM, S.S BASTARDS FARM, BASTARD'S FARM
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NONE!
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+bastard, s bastard, bastard esq, k bastard, w k bastard, k bastard esq,
+ w k bastard esq, s s bastard, nanyuki bastard, bastard william, w s bastard,
+ bastard esq po, h s bastard, s bastard esq, hs bastard, kenneth bastard,
+ bastard s, william kenneth bastard, bastard esq farm, bastard esq nanyuki,
+ bastard esq sw estate, 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Zero gazeteer matches.
+ Relying on coordinates from other events.
+ Common surname Bastard applies to multiple households.
+ Surname alone isn't sufficient to disambiguate which.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Nairobi
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+THIKA/NAIROBI ROAD,R NAIROBI GOLF CLUB , NAIROBI/NAKURU, NAIROBI WEST, Nairobi
+ South E.A.P & L.Labour Line , NAIROBI SOUTH, NAIROBI RIVER, NAIROBI DAM, NAIROBI
+ DAM, NAIROBI CITY, NAIROBI, KIAMBU, NAIROBI
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+464 matches...
+ Nairobi, Nairobi City, Nairobi City County, Nairobi National Park, 2011
+ Nairobi pipeline fire, Bahati, Nairobi, Nairobi - Mombasa Railway, Nairobi
+ - Nakuru Road, Nairobi / Dagoretti, NAIROBI AIRPORT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+No events with Nairobi provide coordinates to verify strategy.
+ Extreme number of gazetteer matches all over the country.
+ Extreme number of text matches.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Example toponym variations across sources.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Training Data
+\end_layout
+
+\begin_layout Standard
+We treat this a supervised learning problem and develop a hand labeled dataset
+ of toponym matches (3,192) and mismatches (17,051).
+ We construct a training dataset by taking the 5,128 events with both text
+ and coordinates and pairing them with the ten gazetteer entries closest
+ in geographic proximity, for 51,280 event-gazetteer diads.
+ To avoid weighting locations with more events, we only keep one unique
+ example of each location description-gazetteer toponym diad.
+ We further exclude exact matches with identical text on both sides, leaving
+ 20,242 diads to consider.
+ We create a training split (80%) and testing split (20%) witheld only for
+ evaluating model performance by selecting 500 random toponym stems and
+ excluding any diad with the stem on either pole.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Stemming
+\end_layout
+
+\begin_layout Standard
+Toponyms often include a mix of uniquely identifying tokens (stems) and
+ generic place type descriptions (postfixes) like 
+\begin_inset Quotes eld
+\end_inset
+
+farm
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+estate
+\begin_inset Quotes erd
+\end_inset
+
+, 
+\begin_inset Quotes eld
+\end_inset
+
+hospital
+\begin_inset Quotes erd
+\end_inset
+
+, etc.
+ This creates a problem for string matching for two reasons.
+ First, postfixes are not used consistently, appearing in some entries for
+ the same place but not others.
+ Second, postifixes make toponyms look similar because of their type but
+ not necessarily their geography.
+ We therefore develop a rule based toponym stemmer.
+ We took the 14,885,300 unique names and alternate names, stripped off the
+ first word of each, leaving 8,740,662 unique suffixes.
+ To account for multiword stems and to ensure we capture broadly applicable
+ postfixes we further require them to appear at least 5 times, resulting
+ in 161,034 unique postfixes.
+ For example, the five most common postfixes globally are 
+\begin_inset Quotes eld
+\end_inset
+
+creek
+\begin_inset Quotes erd
+\end_inset
+
+ (63,214), 
+\begin_inset Quotes eld
+\end_inset
+
+lake
+\begin_inset Quotes erd
+\end_inset
+
+ (40,595), 
+\begin_inset Quotes eld
+\end_inset
+
+river
+\begin_inset Quotes erd
+\end_inset
+
+ (36,379), 
+\begin_inset Quotes eld
+\end_inset
+
+island
+\begin_inset Quotes erd
+\end_inset
+
+ (31,347), 
+\begin_inset Quotes eld
+\end_inset
+
+well
+\begin_inset Quotes erd
+\end_inset
+
+ (30,091), 
+\begin_inset Quotes eld
+\end_inset
+
+point
+\begin_inset Quotes erd
+\end_inset
+
+ (28,225), and 
+\begin_inset Quotes eld
+\end_inset
+
+cemetery
+\begin_inset Quotes erd
+\end_inset
+
+ (27,345).
+ Across the 57,903 unique toponyms/descriptions across both the events and
+ combined gazeteers, we find 45,131 unique stems, and 2,546 unique postfixes.
+\end_layout
+
+\begin_layout Subsubsection
+Locally Sensitive Hashing
+\end_layout
+
+\begin_layout Standard
+Unfortunately, the number of pairwise comparisons that must be made scales
+ quadradically in the number of items, over a billion comparisons for our
+ moderately sized dataset (k^2 / 2 = 45,131 stems^2 / 2= 1,018,403,580),
+ and so using only exact comparisons is impractical.
+ We therefore introduce an intermediate culling stage based on approximate
+ matching.
+ The suggester's goal is to strike a balance that minimizes the number of
+ false negatives at the cost of a reasonable number of false positives.
+ The approach we employ is called Locality Sensitive Hashing (LSH), and
+ it proceeds in two steps (Leskovec et al.
+ 2010, chapter 3).
+ First, we convert each toponym into a standardized sparse vector of binary
+ features.
+ Q-gram distance performed well for both the matcher and so we choose q-gram
+ profiles as our sparse feature set.
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Grams are simply counts of characters {'a','b','1'}, pairs of characters
+ {'ed','ac'} , sets of three characters in a row {'abc','ing'}, etc.
+ Skip grams extend this idea to allower for gaps between pairs or tripplets,
+ e.g.
+ {'a_c','c_e'}, etc.
+\end_layout
+
+\end_inset
+
+ The similarity between any two profiles is measured as the Jaccard distance
+ which is the just the count of shared items in both sets divided by the
+ total number of items in both.
+ To avoid having to calculate that distance for every single pair of items,
+ we apply a hash function that assigns two items to the same id with some
+ probability as a function of their jaccard distance.
+ By using multiple hashes, one can choose an arbitrary threshold for which
+ items below a certain distance will be matched with very high likelihood.
+ The advantage is this procedure only requires a single pass through the
+ entire set of items.
+ The downside is it provides only a hard yes or no match, and there is a
+ trade off between retrieving too many suggestions and losing too many real
+ matches which must be hand tuned.
+ Using the hand labeled training data, we experimentally determined the
+ optimal combination of gram features, and hash hyperparameters.
+ We settled on 1-grams, 2-grams, and 2-grams with a single skip, and LHS
+ parameters of 400 bands with 5 rows.
+ This produced a recall rate of 0.95 at the cost of an average of 72 suggestions
+ per item.
+ That reduces the number of comparisons we need to evaluate for the full
+ dataset from over a billion to just over three million, a 99.7% reduction.
+ Those pairs that pass the suggester's bar then go on to the matcher for
+ further refinement and a direct estimate of the likelihood of a match.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/suggester_grid_search.pdf
+	width 5.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Fuzzy Matcher
+\end_layout
+
+\begin_layout Standard
+We train a classifier to predict the likelihood of match between two toponyms
+ as a function of properties of each.
+ We consider both the full strings and also their stems.
+ For each, we employ nine types of string distance (Jaro, Optimal String
+ Alignment, Levenstein, Damerau Levenshtein, Longest Common Substring, q-grams
+ 1-5, cosine, Jaccard, and a count of the number of matching letters before
+ the first mismatch).
+ We include a count of the number of characters of A and B and the difference
+ between the lengths.
+ We also consider the context of each string as represented in Kenya Gazetter
+ including the number of times mentioned total, the minimum, mean, median,
+ and max years in which it was mentioned.
+\end_layout
+
+\begin_layout Standard
+The classifier we employ is tree based gradient boosting algorithm called
+ Extreme Gradient Boosting (XGBoost) (Chen et al.
+ 2016).
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+Chen, Tianqi, and Carlos Guestrin.
+ "Xgboost: A scalable tree boosting system." In Proceedings of the 22nd acm
+ sigkdd international conference on knowledge discovery and data mining,
+ pp.
+ 785-794.
+ ACM, 2016.
+\end_layout
+
+\end_inset
+
+ The method, in brief, is a greedy function aproximator, additively combining
+ multiple functions, that are estimated one at a time, each seeking to account
+ for the residuals of the prior functions (Friedman 2001).
+ 
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+Friedman, Jerome H.
+ "Greedy function approximation: a gradient boosting machine." Annals of
+ statistics (2001): 1189-1232.
+\end_layout
+
+\end_inset
+
+ In our case, each function is approximated by a nonparemtric decision tree
+ which starts at a root node containing every observation, and progressively
+ splits observations into purer and purer subsets using cut points along
+ their covariates.
+ We employ a custom loss function, seeking to minimize the log likelihood.
+ We account for the class imbalance by proportionally weighting positive
+ and negative cases.
+ To avoid over-fitting, we use early stopping, based on area under the receiver
+ operating characteristic curve (AUC) on the test set.
+ We observe convergence at about 318 iterations.
+\end_layout
+
+\begin_layout Standard
+The model performs well, with a classification error rate of 0.016.
+ The errors are balanced across classes, with an F-score of 0.99, and AUC
+ of 0.997, and an area under the Precision Recall Curve of 0.95.
+ Five features contribute disproportionately, all string distance measures,
+ Jaro Distance, q-gram 2, First Mismatch, Optimal String Alignment (Unormalized)
+, and q-gram 3.
+ Through combining different string distance measures, the model is deriving
+ ways in which two strings might match, by both starting with the same word,
+ sharing long substring toward the end, requiring small spelling changes
+ to match, etc.
+\begin_inset Note Note
+status collapsed
+
+\begin_layout Plain Layout
+ The ngram statistics of the search string flag as important, particularly
+ how often it appears and median and mean year of appearance in the text
+ corpus.
+ These let the model to condition how much flexibility to allow, for a string
+ that appears often in the corpus as a stand alone place can require stricter
+ tolerances to match than one that appears to be a unique misspelling.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+String Distance Measures
+\end_layout
+
+\begin_layout Standard
+We employ a number of string distance measures as features (Santos et al.
+ 2017), described in the table below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top" width="3in">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Feature
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+First Mismatch
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Counts the number of exact matching characters from the beginning of each
+ string
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Cosine Distance
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The cosine distance (method='cosine') is computed as 1-x
+\backslash
+cdot y/(
+\backslash
+|x
+\backslash
+|
+\backslash
+|y
+\backslash
+|), where x and y were defined above.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Levenshtein distance
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The Levenshtein distance (method='lv') counts the number of deletions, insertion
+s and substitutions necessary to turn b into a.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Optimal String Alignment distance
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Like the Levenshtein distance but also allows transposition of adjacent
+ characters.
+ Here, each substring may be edited only once.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Full Damerau-Levensthein distance
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Is like the optimal string alignment distance except that it allows for
+ multiple edits on substrings.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+longest common substring
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The lcs-distance is defined as the number of unpaired characters.
+ The distance is equivalent to the edit distance allowing only deletions
+ and insertions, each with weight one.
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Jaro distance
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+The Jaro distance is defined as 1-(1/3)(w_1m/|a| + w_2m/|b| + w_3(m-t)/m).
+ Here,|a| indicates the number of characters in a, m is the number of character
+ matches and t the number of transpositions of matching characters.
+ 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Linker Features.
+ Descriptions taken from the stringdist R package.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+\begin_inset Quotes eld
+\end_inset
+
+Ensembles
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+\begin_inset Quotes eld
+\end_inset
+
+Hand Rule Ensemble
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+\begin_inset Quotes eld
+\end_inset
+
+Supervised Ensemble
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We introduce a supervised learning approach to choosing the optimal gazeteer
+ match.
+ 
+\end_layout
+
+\begin_layout Standard
+Model: XGBoost implemented in the R package xgboost (Chen et al.
+ 2016).
+\end_layout
+
+\begin_layout Standard
+Unit of Observation: Event place description - Potential Gazeteer Match
+\end_layout
+
+\begin_layout Standard
+N:= 468,046
+\end_layout
+
+\begin_layout Standard
+Features: Gazeteer source, geometry type, fuzzy or exact string match, and
+ self reference; reporting district, the year of the event, and what level
+ geographic aggregation the event was reported at, e.g.
+ city, district, or province level.
+\end_layout
+
+\begin_layout Standard
+Loss: Mean square error
+\end_layout
+
+\begin_layout Standard
+Early stopping after 10 rounds, convering in 13 iterations.
+\end_layout
+
+\begin_layout Standard
+Five fold cross validation with approximately equal hold out sets divided
+ by event location description to prevent the same name from appearing in
+ both training and test splits.
+\end_layout
+
+\begin_layout Standard
+Out of sample error: root mean squared error of 1.088 log km.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename pasted19.png
+	width 5.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Variable Importance Plot for XGBoost model predicting distance between observed
+ location and each gazetteer match.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Evaluating the Consequences of Georeferencing Decisions
+\end_layout
+
+\begin_layout Subsection
+
+\shape italic
+Recall and Accuracy
+\end_layout
+
+\begin_layout Standard
+In the main paper we present the average accuracy of each gazeteer source
+ in terms of mean squared distance.
+ Here we present the cumulative distributions of each sources shortest possible
+ match, regardless of name, to the observed military coordinate.
+ This represent a hard bound for a source's coverage, there are not any
+ points of any kind from the source closer than the stated distance that
+ could even possibly be a match given a name.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename C:/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/best_case_cdf_combined.pdf
+	width 5.5in
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+The CDF line for polygon matches from any gazeteer is lower in places, because
+ it matches more with lower average accuracy.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Bias Estimates
+\end_layout
+
+\begin_layout Standard
+Each bias estimate is the result of an individual model fit to the subset
+ of points meeting the criteria described in the text.
+ Not described in the text are the hyper-parameters of the XGBoost model
+ employed, which are as follows.
+\end_layout
+
+\begin_layout Standard
+Model: XGBoost implemented in the R package xgboost (Chen et al.
+ 2016).
+\end_layout
+
+\begin_layout Standard
+Unit of Observation: Event place description - Potential Gazeteer Match
+\end_layout
+
+\begin_layout Standard
+N:= 468,046
+\end_layout
+
+\begin_layout Standard
+Features: Gazeteer source, geometry type, fuzzy or exact string match, and
+ self reference; reporting district, the year of the event, and what level
+ geographic aggregation the event was reported at, e.g.
+ city, district, or province level.
+\end_layout
+
+\begin_layout Standard
+Loss: Log Loss with proportionally weighted cases to account for class imbalance.
+\end_layout
+
+\begin_layout Standard
+Five fold cross validation with random hold out sets.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-1"
+
+\end_inset
+
+Chen, Tianqi, and Carlos Guestrin.
+ "Xgboost: A scalable tree boosting system." In Proceedings of the 22nd acm
+ sigkdd international conference on knowledge discovery and data mining,
+ pp.
+ 785-794.
+ ACM, 2016.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-2"
+
+\end_inset
+
+Leskovec, Jure, Anand Rajaraman, and Jeffrey David Ullman.
+ Mining of massive datasets.
+ Cambridge university press, 2014.
+\end_layout
+
+\begin_layout Bibliography
+\begin_inset CommandInset bibitem
+LatexCommand bibitem
+key "key-3"
+
+\end_inset
+
+Santos, Rui, Patricia Murrieta-Flores, and Bruno Martins.
+ "Learning to combine multiple string similarity metrics for effective toponym
+ matching." International Journal of Digital Earth (2017): 1-26.
+\end_layout
+
+\end_body
+\end_document

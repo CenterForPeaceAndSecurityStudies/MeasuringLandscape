@@ -178,7 +178,7 @@ vars_x_string_and_stem <- c(vars_x_string, vars_x_stem)
 
 fromscratch=F
 if(fromscratch){    
-    toponym_training_dataset <- create_training_dataset( 
+    toponym_training_dataset <- create_toponym_training_dataset( 
                                                          vars_id=vars_id,
                                                          vars_weights=vars_weights,
                                                          vars_y=vars_y,

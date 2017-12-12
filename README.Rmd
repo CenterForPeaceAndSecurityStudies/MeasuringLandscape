@@ -25,7 +25,7 @@ You can install the package MeasuringLandscapeCivilWar from github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("rexdouglass/MeasuringLandscapeCivilWar")
+devtools::install_github("rexdouglass/MeasuringLandscape")
 ```
 
 ### Replication Code and Analysis

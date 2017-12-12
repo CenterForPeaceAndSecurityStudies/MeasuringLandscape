@@ -14,7 +14,7 @@ editor_options:
 
 The fuzzy matcher predicts the likelihood that two toponyms are the same place even though their spellings might be different. It has two stages.
 
-This file develops Stage 2 of the fuzzy toponym matcher. Its job is to refine the prediction for the subset of plausible matches, and provide an actual probability of a match.
+This file develops Stage 2 of the fuzzy toponym matcher. It's job is to refine the prediction for the subset of plausible matches, and provide an actual probability of a match.
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE }
@@ -22,6 +22,7 @@ rm(list=ls()); gc()
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
 
+dir_figures <- glue(getwd(), "/../paper/figures/")
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
@@ -176,17 +177,19 @@ vars_x_string_and_stem <- c(vars_x_string, vars_x_stem)
 
 ```{r}
 
+handlabeled <- toponym_training_dataset_load()
+
 fromscratch=F
 if(fromscratch){    
-    toponym_training_dataset <- create_training_dataset( 
+  
+    toponym_training_dataset <- create_toponym_split_training_test( 
+                                                           handlabeled=handlabeled,
                                                            vars_id=vars_id,
                                                            vars_weights=vars_weights,
                                                            vars_y=vars_y,
                                                            vars_x=vars_x_everything,
                                                            neg_count=0, #you lose so many to cosine distance
-                                                           fromscratch=T,
-                                                           drop_zero_dist=F,
-                                                           drop_identical=T
+                                                           fromscratch=T
                                                          )
     
     saveRDS(toponym_training_dataset,
@@ -195,17 +198,31 @@ if(fromscratch){
 }
 toponym_training_dataset <- readRDS(system.file("extdata", "toponym_training_dataset.Rds", package = "MeasuringLandscapeCivilWar"))
   
+```
 
-temp <- as.data.frame(toponym_training_dataset[[1]][,vars_x_string, with=F])
-for(i in 1:ncol(temp)){
-  print(colnames(temp)[i])
-  print(
-    summary(
-      temp[toponym_training_dataset[[1]]$rex_match==1,i] 
-          )
-      )
-}
+# Summarize training data
 
+```{r}
+
+glue(" ")
+glue("Handlabeled Training Dataset")
+dim(handlabeled)
+table(handlabeled$rex_match)
+
+glue(" ")
+glue("All Data Resampled with Features \n")
+dim(toponym_training_dataset$xy_all)
+table(toponym_training_dataset$xy_all$rex_match)
+
+glue(" ")
+glue("Training Split \n")
+dim(toponym_training_dataset$xy_train)
+table(toponym_training_dataset$xy_train$rex_match)
+
+glue(" ")
+glue("Test Split \n")
+dim(toponym_training_dataset$xy_test)
+table(toponym_training_dataset$xy_test$rex_match)
 
 ```
 
@@ -216,39 +233,7 @@ for(i in 1:ncol(temp)){
 
 require(xgboost)
 require(methods)
-global_test <- toponym_training_dataset[['handlabeled']] %>% filter(test %in% T  & !is.na(rex_match) )
-
-sumwneg=sum(toponym_training_dataset[['xy_train']]$rex_match==0)
-sumwpos=sum(toponym_training_dataset[['xy_train']]$rex_match==1)
-
-# param1 <- list("objective" ="binary:logistic", #"objective" = logregobj,
-#               "scale_pos_weight" = sumwneg / sumwpos,
-#               "eta" = 0.3,
-#               "max_depth" = 6,
-#               "eval_metric" = "auc",
-#               #"eval_metric" = area_under_pr_curve_metric,
-#               #"eval_metric" = "ams@0.15",
-#               "silent" = 1,
-#               "nthread" = 48,
-#               'maximize'=T)
-# 
-# ####Model Everything
-# toponym_xb_everything <- train_an_xb(toponym_training_dataset[['xy_train']],
-#                                      toponym_training_dataset[['xy_test']] ,
-#                                      vars_x=vars_x_everything,
-#                                      param=param1,
-#                                      use_weights=F,
-#                                      extract_features=F,
-#                                      missing=NA )
-
-# toponym_xb_everything_extracted <- train_an_xb(toponym_training_dataset[['xy_train']],
-#                                      toponym_training_dataset[['xy_test']] ,
-#                                      vars_x=vars_x_everything,
-#                                      param=param1,
-#                                      use_weights=F,
-#                                      extract_features=T,
-#                                      missing=NA,
-#                   savefile="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/toponym_xb_everything_extracted.bin" )
+global_test <- toponym_training_dataset[['xy_all']] %>% filter(test %in% T  & !is.na(rex_match) )
 
 sumwneg=sum(toponym_training_dataset[['xy_train']]$rex_match==0)
 sumwpos=sum(toponym_training_dataset[['xy_train']]$rex_match==1)
@@ -273,40 +258,6 @@ xgb.save(toponym_xb_everything2,
          glue(getwd(), "/../inst/extdata/toponym_xb_everything2.bin")
          ) #Have to save seperately for some reason
 
-# sumwneg=sum(toponym_training_dataset_extraneg[['xy_train']]$rex_match==0)
-# sumwpos=sum(toponym_training_dataset_extraneg[['xy_train']]$rex_match==1)
-# param3 <- list("objective" = logregobj, #"objective" ="binary:logistic", #
-#               "scale_pos_weight" = sumwneg / sumwpos,
-#               "eta" = 0.3,
-#               "max_depth" = 6,
-#               "eval_metric" = "auc",
-#               #"eval_metric" = area_under_pr_curve_metric,
-#               #"eval_metric" = "ams@0.15",
-#               "silent" = 1,
-#               "nthread" = 48,
-#               'maximize'=T)
-# toponym_xb_everything3 <- train_an_xb(toponym_training_dataset_extraneg[['xy_train']],
-#                                      toponym_training_dataset_extraneg[['xy_test']] ,
-#                                      vars_x=vars_x_everything,
-#                                      param=param3,
-#                                      use_weights=F,
-#                                      extract_features=F,
-#                   savefile="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/toponym_xb_model_everything3.bin" )
-
-
-
-
-# #Isn't running as multithreaded for some reason
-# p_load(randomForestSRC)
-# rf <- rfsrc(rex_match ~ .,  na.action = "na.impute",
-#             data= cbind(rex_match= as.factor(toponym_training_dataset[['xy_train']]$rex_match), toponym_training_dataset[['xy_train']][,vars_x_everything, with=F] ),
-#             case.wt=toponym_training_dataset[['xy_train']]$weights
-#             )
-
-
-#Subsets of variables
-
-
 toponym_xb_onlystring <- train_an_xb(toponym_training_dataset[['xy_train']],
                                      toponym_training_dataset[['xy_test']] ,
                                      vars_x=vars_x_onlystring,
@@ -318,13 +269,6 @@ xgb.save(toponym_xb_onlystring,
          glue(getwd(), "/../inst/extdata/toponym_xb_onlystring.bin")
          ) #Have to save seperately for some reason
 
-#toponym_xb_stringcorpus <- train_an_xb(toponym_training_dataset[['xy_train']],
-#                                     toponym_training_dataset[['xy_test']] ,
-#                                     vars_x=vars_x_stringcorpus,
-#                                     param=param2,
-#                                     use_weights=F,
-#                                     extract_features=F,
-#                                     missing=NA)
 
 
 toponym_xb_string_and_stem <- train_an_xb(toponym_training_dataset[['xy_train']],
@@ -352,12 +296,6 @@ dtest<-xgb.DMatrix(data= as.matrix(as.data.frame(global_test)[,vars_x_everything
                    weight = global_test$weights,
                    missing = NA)
 
-#dtest_extracted <- xgb.create.features(model = toponym_xb_everything, as.matrix( as.data.frame(global_test)[,vars_x]))
-#new.dtest <- xgb.DMatrix(data = dtest_extracted, label = global_test$rex_match)
-
-#global_test$toponym_xb_everything <- predict(toponym_xb_everything, dtest ) #Only the first ones uses the normal cost function, all the other ones have to bre exponentiated
-
-#global_test$toponym_xb_everything_extracted <- predict(toponym_xb_everything_extracted, new.dtest )
 global_test$toponym_xb_everything2 <- predict(toponym_xb_everything2, dtest )
 global_test$toponym_xb_everything2 <- 1/(1 + exp(-global_test$toponym_xb_everything2))
 
@@ -368,63 +306,13 @@ global_test$toponym_xb_onlystring <- 1/(1 + exp(-global_test$toponym_xb_onlystri
 global_test$toponym_xb_string_and_stem <- predict(toponym_xb_string_and_stem, dtest )
 global_test$toponym_xb_string_and_stem <- 1/(1 + exp(-global_test$toponym_xb_string_and_stem))
 
-#global_test$toponym_xb_stringcorpus <- predict(toponym_xb_stringcorpus, dtest )
-#global_test$toponym_xb_stringcorpus <- 1/(1 + exp(-global_test$toponym_xb_stringcorpus))
-
-# global_test$toponym_xb_everything2_extra <- predict(toponym_xb_everything2_extra, dtest )
-# global_test$toponym_xb_everything2_extra <- 1/(1 + exp(-global_test$toponym_xb_everything2_extra))
-# 
-# global_test$toponym_xb_onlystring_extra <- predict(toponym_xb_onlystring_extra, dtest )
-# global_test$toponym_xb_onlystring_extra <- 1/(1 + exp(-global_test$toponym_xb_onlystring_extra))
-# 
-# global_test$toponym_xb_everything2_extra_large <- predict(toponym_xb_everything2_extra_large, dtest )
-# global_test$toponym_xb_everything2_extra_large <- 1/(1 + exp(-global_test$toponym_xb_everything2_extra_large))
-# 
-# global_test$toponym_xb_onlystring_extra_large <- predict(toponym_xb_onlystring_extra_large, dtest )
-# global_test$toponym_xb_onlystring_extra_large <- 1/(1 + exp(-global_test$toponym_xb_onlystring_extra_large))
-# 
-# global_test$toponym_xb_everything2_uber_large <- predict(toponym_xb_everything2_uber_large, dtest )
-# global_test$toponym_xb_everything2_uber_large <- 1/(1 + exp(-global_test$toponym_xb_everything2_uber_large))
-# 
-# global_test$toponym_xb_onlystring_uber_large <- predict(toponym_xb_onlystring_uber_large, dtest )
-# global_test$toponym_xb_onlystring_uber_large <- 1/(1 + exp(-global_test$toponym_xb_onlystring_uber_large))
-# 
-# table(global_test$rex_match, global_test$toponym_xb_onlystring_uber_large>.5)
-# 
-
-
-#global_test$toponym_xb_onlystring_tiny <- predict(toponym_xb_onlystring_tiny, dtest )
-
-#rf_predictions <-  predict(rf, newdata=global_test[,vars_x_everything] , na.action = "na.impute" )
-#global_test$toponym_rf_everything <-rf_predictions$predicted[,2]
-
-
-
-
-#table(global_test$rex_match, global_test$toponym_xb_everything>.5)
-
-#table(global_test$rex_match, global_test$toponym_xb_everything_extracted>.5)a#table(global_test$rex_match, global_test$toponym_rf_everything>.5)
-#table(global_test$rex_match, global_test$toponym_xb_everything2>.5)
-#table(global_test$rex_match, global_test$toponym_xb_everything3>.5)
-#table(global_test$rex_match, global_test$toponym_xb_everything4>.5)
-
-#table(global_test$rex_match, global_test$toponym_xb_onlystring>.5)
-
-# global_test$toponym_cnn  <- as.vector(
-#                          predict(cnn_all_distance,
-#                                list(as.matrix(sequences_a_df_test),
-#                                      as.matrix(sequences_b_df_test),
-#                                      input_ab_test)
-#                          , verbose=1)
-# )
-
-
 #p_load(Metrics)
 #p_load(MLmetrics)
-tocompare <- c("toponym_xb_everything2",
+tocompare <- c(#"toponym_xb_everything2",
                "toponym_xb_onlystring",
-               #"toponym_xb_stringcorpus",
-               "toponym_xb_string_and_stem") # "toponym_xb_everything",, "toponym_xb_everything2_extra","toponym_xb_onlystring_extra","toponym_xb_everything2_extra_large", "toponym_xb_onlystring_extra_large", "toponym_xb_everything2_uber_large" , "toponym_xb_onlystring_uber_large"
+               "toponym_xb_stringcorpus"#,
+               #"toponym_xb_string_and_stem"
+               ) # "toponym_xb_everything",, "toponym_xb_everything2_extra","toponym_xb_onlystring_extra","toponym_xb_everything2_extra_large", "toponym_xb_onlystring_extra_large", "toponym_xb_everything2_uber_large" , "toponym_xb_onlystring_uber_large"
 print("ce")
 sapply(tocompare, function(q) {  ce(actual=global_test$rex_match, predicted=global_test[,q]>.5)  })
 print("F1_Score")
@@ -440,11 +328,11 @@ msmdat1 <- evalmod( mmdata(scores=list(
                                 #global_test$toponym_xb_everything,
                                 #global_test$toponym_rf_everything,
                                 #global_test$toponym_xb_everything_extracted,
-                                global_test$toponym_xb_everything2, #highest PRC
+                                #global_test$toponym_xb_everything2, #highest PRC
                                 #global_test$toponym_xb_everything3,
                                 #global_test$toponym_xb_everything4,
-                                global_test$toponym_xb_string_and_stem,
-                                global_test$toponym_xb_onlystring#,
+                                global_test$toponym_xb_string_and_stem#,
+                                #global_test$toponym_xb_onlystring#,
                                 #global_test$toponym_xb_stringcorpus#,
                                 #global_test$toponym_xb_onlystring_tiny
                                 #global_test$toponym_xb_everything2_extra,
@@ -458,11 +346,11 @@ msmdat1 <- evalmod( mmdata(scores=list(
                            modnames = c(#"toponym_xb_everything",
                                         #"toponym_rf_everything",
                                         #"toponym_xb_everything_features",
-                                        "toponym_xb_everything2",
+                                        #"toponym_xb_everything2",
                                         #"toponym_xb_everything3",
                                         #"toponym_xb_everything4",
-                                        "toponym_xb_string_and_stem",
-                                        "toponym_xb_onlystring"#,
+                                        "toponym_xb_string_and_stem"#,
+                                        #"toponym_xb_onlystring"#,
                                         #"toponym_xb_stringcorpus"#,
                                         #"toponym_xb_onlystring_tiny"
                                         #"toponym_xb_everything2_extra",
@@ -475,7 +363,20 @@ msmdat1 <- evalmod( mmdata(scores=list(
                            ) )
 
 msmdat1
-autoplot(msmdat1)
+
+uauc1 <- evalmod(scores = global_test$toponym_xb_string_and_stem,
+                 labels=as.numeric(as.data.frame(global_test)$rex_match)#,
+                 #mode="aucroc"
+                 )
+
+plot(uauc1)
+
+#dev.off()
+pdf(file=glue(dir_figures, "p_auc_stage2.pdf"), width=5.5)
+plot(uauc1)
+#autoplot(uauc1)
+dev.off()
+autoplot(uauc1)
 
 ```
 
@@ -487,24 +388,13 @@ p_load(DiagrammeR)
 #xgb.plot.tree(model = xb)
 #xgb.plot.tree(model = toponym_xb_everything2, trees = 0, show_node_id = TRUE, render = TRUE)
 
-#importance_importance <- xgb.importance( model = xb2)
-#xgb.ggplot.deepness(xb2)
-importance_importance <- xgb.importance(feature_names=vars_x_everything, model = toponym_xb_everything2)
+importance_importance <- xgb.importance(feature_names=vars_x_string_and_stem, model = toponym_xb_string_and_stem)
 xgb.plot.importance(importance_importance)
 
-importance_importance <- xgb.importance(feature_names=vars_x_onlystring, model = toponym_xb_onlystring)
+pdf(file=glue(dir_figures, "p_variable_importance_stage2.pdf"), width=5.5, height=6)
 xgb.plot.importance(importance_importance)
-
-#importance_importance <- xgb.importance(feature_names=vars_x_onlystring, model = toponym_xb_onlystring_extra_large)
-#xgb.plot.importance(importance_importance)
-
-#importance_importance <- xgb.importance(feature_names=vars_x_everything, model = toponym_xb_everything2_extra_large)
-#xgb.plot.importance(importance_importance)
-
-
-#importance_importance <- xgb.importance(feature_names=vars_x_onlystring, model = toponym_xb_onlystring_uber_large)
-#xgb.plot.importance(importance_importance)
-
+#autoplot(uauc1)
+dev.off()
 
 ```
 
