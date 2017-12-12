@@ -422,22 +422,15 @@ georef_all_dt_handrule &lt;- georef_all_dt[,.SD[1], by=list(event_hash) ]
 y &lt;- events_sf$event_hash %in% georef_all_dt_handrule$event_hash #Which events received a imputed location under this rule
 table(y)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoieVxuRkFMU0UgIFRSVUUgXG4gMjI1OCAgODIxMSBcbiJ9 -->
-<pre><code>y
-FALSE  TRUE 
- 2258  8211 </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJlZF9zb3VyY2VfaGFuZHJ1bGUgPC0gcHJlZGljdF9taXNzaW5nbmVzc19kdih5KVxuYGBgIn0= -->
-<pre class="r"><code>pred_source_handrule &lt;- predict_missingness_dv(y)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdXHR0cmFpbi1hdWM6MC43ODIyODMrMC4wMDE4ODZcdHRlc3QtYXVjOjAuNzc2NzY5KzAuMDEwMDc0IFxuTXVsdGlwbGUgZXZhbCBtZXRyaWNzIGFyZSBwcmVzZW50LiBXaWxsIHVzZSB0ZXN0X2F1YyBmb3IgZWFybHkgc3RvcHBpbmcuXG5XaWxsIHRyYWluIHVudGlsIHRlc3RfYXVjIGhhc24ndCBpbXByb3ZlZCBpbiAxMCByb3VuZHMuXG5cblsyMV1cdHRyYWluLWF1YzowLjg0OTMzOCswLjAwMTc2OFx0dGVzdC1hdWM6MC44MjYwNDcrMC4wMTA4ODQgXG5bNDFdXHR0cmFpbi1hdWM6MC44NjA4MDgrMC4wMDI2NDRcdHRlc3QtYXVjOjAuODI3MjMzKzAuMDExNDMwIFxuWzUwXVx0dHJhaW4tYXVjOjAuODY1OTMzKzAuMDAzNzE1XHR0ZXN0LWF1YzowLjgyNzg2NiswLjAxMjE1OCBcbiJ9 -->
-<pre><code>[1] train-auc:0.782283+0.001886 test-auc:0.776769+0.010074 
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdXHR0cmFpbi1hdWM6MC43NzY0NTgrMC4wMDY1ODRcdHRlc3QtYXVjOjAuNzY2MTAzKzAuMDE1NTE2IFxuTXVsdGlwbGUgZXZhbCBtZXRyaWNzIGFyZSBwcmVzZW50LiBXaWxsIHVzZSB0ZXN0X2F1YyBmb3IgZWFybHkgc3RvcHBpbmcuXG5XaWxsIHRyYWluIHVudGlsIHRlc3RfYXVjIGhhc24ndCBpbXByb3ZlZCBpbiAxMCByb3VuZHMuXG5cblsyMV1cdHRyYWluLWF1YzowLjg0NzM5MCswLjAwMzQ3Mlx0dGVzdC1hdWM6MC44MjU2NzgrMC4wMTI5NDEgXG5bNDFdXHR0cmFpbi1hdWM6MC44NjA2MTIrMC4wMDI5ODNcdHRlc3QtYXVjOjAuODI3MDQ1KzAuMDExODg1IFxuU3RvcHBpbmcuIEJlc3QgaXRlcmF0aW9uOlxuWzM2XVx0dHJhaW4tYXVjOjAuODU3NzY4KzAuMDAzMDA0XHR0ZXN0LWF1YzowLjgyNzI5MCswLjAxMTkwMlxuIn0= -->
+<pre><code>[1] train-auc:0.776458+0.006584 test-auc:0.766103+0.015516 
 Multiple eval metrics are present. Will use test_auc for early stopping.
 Will train until test_auc hasn't improved in 10 rounds.
 
-[21]    train-auc:0.849338+0.001768 test-auc:0.826047+0.010884 
-[41]    train-auc:0.860808+0.002644 test-auc:0.827233+0.011430 
-[50]    train-auc:0.865933+0.003715 test-auc:0.827866+0.012158 </code></pre>
+[21]    train-auc:0.847390+0.003472 test-auc:0.825678+0.012941 
+[41]    train-auc:0.860612+0.002983 test-auc:0.827045+0.011885 
+Stopping. Best iteration:
+[36]    train-auc:0.857768+0.003004 test-auc:0.827290+0.011902</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXVjX2hhbmRydWxlX2RhdGFzZXQgPC0gTWV0cmljczo6YXVjKHByZWRfc291cmNlX2hhbmRydWxlJGxhYmVsLCBwcmVkX3NvdXJjZV9oYW5kcnVsZSR4YilcbnJlY2FsbF9oYW5kcnVsZV9kYXRhc2V0IDwtIHN1bShwcmVkX3NvdXJjZV9oYW5kcnVsZSRsYWJlbClcbiNFbnNlbWJsZSBSdWxlXG5nbHVlKFwiRW5zZW1ibGUgUnVsZVwiKVxuYGBgIn0= -->
 <pre class="r"><code>auc_handrule_dataset &lt;- Metrics::auc(pred_source_handrule$label, pred_source_handrule$xb)
@@ -448,28 +441,21 @@ glue(&quot;Ensemble Rule&quot;)</code></pre>
 <!-- rnb-output-begin eyJkYXRhIjoiRW5zZW1ibGUgUnVsZVxuIn0= -->
 <pre><code>Ensemble Rule</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0a2V5KGdlb3JlZl9hbGxfZHQsIHJ1bGVfZW5zZW1ibGUpXG5nZW9yZWZfYWxsX2R0X2Vuc2VtYmxlIDwtIGdlb3JlZl9hbGxfZHRbLC5TRFsxXSwgYnk9bGlzdChldmVudF9oYXNoKSBdXG55IDwtIGV2ZW50c19zZiRldmVudF9oYXNoICVpbiUgZ2VvcmVmX2FsbF9kdF9lbnNlbWJsZSRldmVudF9oYXNoICNXaGljaCBldmVudHMgcmVjZWl2ZWQgYSBpbXB1dGVkIGxvY2F0aW9uIHVuZGVyIHRoaXMgcnVsZVxudGFibGUoeSlcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc2V0a2V5KGdlb3JlZl9hbGxfZHQsIHJ1bGVfZW5zZW1ibGUpXG55IDwtIGV2ZW50c19zZiRldmVudF9oYXNoICVpbiUgZ2VvcmVmX2FsbF9kdF9lbnNlbWJsZSRldmVudF9oYXNoICNXaGljaCBldmVudHMgcmVjZWl2ZWQgYSBpbXB1dGVkIGxvY2F0aW9uIHVuZGVyIHRoaXMgcnVsZVxudGFibGUoeSlcbmBgYCJ9 -->
 <pre class="r"><code>setkey(georef_all_dt, rule_ensemble)
-georef_all_dt_ensemble &lt;- georef_all_dt[,.SD[1], by=list(event_hash) ]
 y &lt;- events_sf$event_hash %in% georef_all_dt_ensemble$event_hash #Which events received a imputed location under this rule
 table(y)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoieVxuRkFMU0UgIFRSVUUgXG4gMjI1OCAgODIxMSBcbiJ9 -->
+<!-- rnb-output-begin eyJkYXRhIjoieVxuRkFMU0UgIFRSVUUgXG4gMjI1OCBbMV1cdHRyYWluLWF1YzowLjc4MDI0NCswLjAwNTM2M1x0dGVzdC1hdWM6MC43NzEwMzkrMC4wMDYyNTUgXG5NdWx0aXBsZSBldmFsIG1ldHJpY3MgYXJlIHByZXNlbnQuIFdpbGwgdXNlIHRlc3RfYXVjIGZvciBlYXJseSBzdG9wcGluZy5cbldpbGwgdHJhaW4gdW50aWwgdGVzdF9hdWMgaGFzbid0IGltcHJvdmVkIGluIDEwIHJvdW5kcy5cblxuWzIxXVx0dHJhaW4tYXVjOjAuODQ4OTQ3KzAuMDAyODY2XHR0ZXN0LWF1YzowLjgyNjA2MSswLjAwMzIxMCBcbls0MV1cdHRyYWluLWF1YzowLjg2MTI5NCswLjAwMjA3Nlx0dGVzdC1hdWM6MC44Mjg0NjcrMC4wMDUwMTIgXG5bNTBdXHR0cmFpbi1hdWM6MC44NjQ5NTErMC4wMDIwMDZcdHRlc3QtYXVjOjAuODI4NjQ4KzAuMDA2MTUyIFxuIn0= -->
 <pre><code>y
 FALSE  TRUE 
- 2258  8211 </code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJlZF9zb3VyY2VfZW5zZW1ibGUgPC0gcHJlZGljdF9taXNzaW5nbmVzc19kdih5KVxuYGBgIn0= -->
-<pre class="r"><code>pred_source_ensemble &lt;- predict_missingness_dv(y)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdXHR0cmFpbi1hdWM6MC43Nzk3OTUrMC4wMDQ3OThcdHRlc3QtYXVjOjAuNzcyOTkxKzAuMDExODI0IFxuTXVsdGlwbGUgZXZhbCBtZXRyaWNzIGFyZSBwcmVzZW50LiBXaWxsIHVzZSB0ZXN0X2F1YyBmb3IgZWFybHkgc3RvcHBpbmcuXG5XaWxsIHRyYWluIHVudGlsIHRlc3RfYXVjIGhhc24ndCBpbXByb3ZlZCBpbiAxMCByb3VuZHMuXG5cblsyMV1cdHRyYWluLWF1YzowLjg0ODIxMiswLjAwMjQxNVx0dGVzdC1hdWM6MC44MjY5MjArMC4wMDc0MzMgXG5TdG9wcGluZy4gQmVzdCBpdGVyYXRpb246XG5bMjBdXHR0cmFpbi1hdWM6MC44NDc1NjIrMC4wMDI3NDhcdHRlc3QtYXVjOjAuODI3MDg4KzAuMDA3MzY5XG4ifQ== -->
-<pre><code>[1] train-auc:0.779795+0.004798 test-auc:0.772991+0.011824 
+ 2258 [1]   train-auc:0.780244+0.005363 test-auc:0.771039+0.006255 
 Multiple eval metrics are present. Will use test_auc for early stopping.
 Will train until test_auc hasn't improved in 10 rounds.
 
-[21]    train-auc:0.848212+0.002415 test-auc:0.826920+0.007433 
-Stopping. Best iteration:
-[20]    train-auc:0.847562+0.002748 test-auc:0.827088+0.007369</code></pre>
+[21]    train-auc:0.848947+0.002866 test-auc:0.826061+0.003210 
+[41]    train-auc:0.861294+0.002076 test-auc:0.828467+0.005012 
+[50]    train-auc:0.864951+0.002006 test-auc:0.828648+0.006152 </code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXVjX2Vuc2VtYmxlX2RhdGFzZXQgPC0gTWV0cmljczo6YXVjKHByZWRfc291cmNlX2Vuc2VtYmxlJGxhYmVsLCBwcmVkX3NvdXJjZV9lbnNlbWJsZSR4YilcbnJlY2FsbF9lbnNlbWJsZV9kYXRhc2V0IDwtIHN1bShwcmVkX3NvdXJjZV9lbnNlbWJsZSRsYWJlbClcbmBgYCJ9 -->
 <pre class="r"><code>auc_ensemble_dataset &lt;- Metrics::auc(pred_source_ensemble$label, pred_source_ensemble$xb)

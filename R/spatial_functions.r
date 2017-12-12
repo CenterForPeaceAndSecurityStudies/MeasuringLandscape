@@ -49,11 +49,7 @@ rbind_sf <- function(a, b) {
 }
 
 
-stem_locations <- function() {
-
-}
-
-clusterify <- function(coords, clusters) {
+stlusterify <- function(coords, clusters) {
   hull_list <- list()
   for (i in na.omit(unique(clusters))) {
     print(i)

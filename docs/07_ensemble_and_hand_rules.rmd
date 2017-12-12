@@ -146,7 +146,11 @@ georef_all_dt$toponym_xb_model_prediction  <- 1/(1 + exp(-georef_all_dt$toponym_
 
 vars_y <- "distance_km"
 vars_x <- c("source_dataset","geometry_type","SelfReference","fuzzy",
-            "document_district_clean","document_unit_type","document_date_best_year","toponym_xb_model_prediction","feature_code")
+            "document_district_clean",
+            "document_unit_type",
+            "document_date_best_year",
+            "toponym_xb_model_prediction",
+            "feature_code")
 
 vars_all <- c(vars_x,vars_y)
 xy_all <- georef_all_dt[,vars_all,with=F]

@@ -71,7 +71,7 @@
 \begin_body
 
 \begin_layout Title
-Online Appendix: Measuring the Landscape of Civil War
+Online Appendix: Measuring the Landscape of Civil War (v1.0)
 \end_layout
 
 \begin_layout Date
@@ -108,19 +108,6 @@ Dr.
 \end_layout
 
 \begin_layout Standard
-\begin_inset CommandInset toc
-LatexCommand tableofcontents
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
-Introduction
-\end_layout
-
-\begin_layout Standard
 This online appendix accompanies the paper 
 \begin_inset Quotes eld
 \end_inset
@@ -132,6 +119,31 @@ Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions
 
  It is intended to provide greater technical detail than was within the
  scope of the original article.
+ Please visit the online repository (available here[
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+https://github.com/rexdouglass/MeasuringLandscape
+\end_layout
+
+\end_inset
+
+]) for the most up to date version of this document as well as full technical
+ replication material for the paper .
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Introduction
 \end_layout
 
 \begin_layout Section
@@ -161,6 +173,72 @@ Gazetteers
 \end_layout
 
 \begin_layout Standard
+We employ a number of different gazeteer sources for this analysis including:
+\end_layout
+
+\begin_layout Enumerate
+The 1964 Official Kenya Gazetteer (United States Board of Geographic Names,
+ 1964);
+\end_layout
+
+\begin_layout Enumerate
+The U.S.
+ Board of Geographic Names’ database of foreign geographic feature names
+ or NGA (http://geonames.nga.mil/gns/html/namefiles.html);
+\end_layout
+
+\begin_layout Enumerate
+The National GeospatialIntelligence Agency’s GeoNet Names Server or GeoNames
+ (http://download.geonames.org/export/dump;
+\end_layout
+
+\begin_layout Enumerate
+Google Maps’ search API;
+\end_layout
+
+\begin_layout Enumerate
+Bing Maps’ search API;
+\end_layout
+
+\begin_layout Enumerate
+OpenStreetMap (Kenya extract retrieved from http://download.geofabrik.de/africa.htm
+l);
+\end_layout
+
+\begin_layout Enumerate
+Global Administrative Areas database or GADM (http://www.gadm.org); 
+\end_layout
+
+\begin_layout Enumerate
+Getty Thesaurus of Geographic Names (http://www.getty.edu/research/tools/vocabular
+ies/tgn/index.html);
+\end_layout
+
+\begin_layout Enumerate
+International Livestock Research Institute (http://192.156.137.110/gis/search.asp?id
+=386); 
+\end_layout
+
+\begin_layout Enumerate
+Wikidata (https://www.wikidata.org).
+\end_layout
+
+\begin_layout Subsubsection
+Gazetteer Coverage
+\end_layout
+
+\begin_layout Standard
+We subset each gazeteer to just the region of interest covering the conflict.
+ As you can see, the spatial coverage varied wildly from source to source,
+ with some like Geonames having very densive coverage of this area to others
+ like Openstreetmap having relatively sparse coverage.
+ Coverage for both Google and Bing map APIs is based on just the set of
+ entities returned when searching for the toponyms in our events data, not
+ their full coverage of this area.
+ 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
@@ -172,7 +250,7 @@ status open
 
 
 \begin_inset Graphics
-	filename /home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/flatfiles_sf_roi_facet_source_dataset_points.png
+	filename figures/flatfiles_sf_roi_facet_source_dataset_points.png
 	lyxscale 25
 	width 5.5in
 
@@ -240,7 +318,7 @@ status open
 
 
 \begin_inset Graphics
-	filename /home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/p_combs_long.pdf
+	filename figures/p_combs_long.pdf
 	width 5.5in
 
 \end_inset
@@ -303,7 +381,7 @@ status open
 
 
 \begin_inset Graphics
-	filename /home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/flatfiles_sf_roi_facet_source_dataset_notpoints.png
+	filename figures/flatfiles_sf_roi_facet_source_dataset_notpoints.png
 	lyxscale 25
 	width 5.5in
 
@@ -1409,6 +1487,26 @@ Example toponym variations across sources.
 \end_layout
 
 \begin_layout Subsubsection
+Training Data
+\end_layout
+
+\begin_layout Standard
+We treat this a supervised learning problem and develop a hand labeled dataset
+ of toponym matches (3,192) and mismatches (17,051).
+ We construct a training dataset by taking the 5,128 events with both text
+ and coordinates and pairing them with the ten gazetteer entries closest
+ in geographic proximity, for 51,280 event-gazetteer diads.
+ To avoid weighting locations with more events, we only keep one unique
+ example of each location description-gazetteer toponym diad.
+ We further exclude exact matches with identical text on both sides, leaving
+ 20,242 diads to consider.
+ We create a training split (80%) and testing split (20%) witheld only for
+ evaluating model performance by selecting 500 random toponym stems and
+ excluding any diad with the stem on either pole.
+ 
+\end_layout
+
+\begin_layout Subsubsection
 Stemming
 \end_layout
 
@@ -1580,9 +1678,18 @@ status open
 \end_inset
 
 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/suggester_grid_search.pdf
+	filename C:/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/suggester_grid_search.pdf
 	width 5.5in
+
+\end_inset
+
+
+\end_layout
 
 \end_inset
 
@@ -1612,22 +1719,6 @@ status open
 
 \begin_layout Subsubsection
 Fuzzy Matcher
-\end_layout
-
-\begin_layout Standard
-We treat this a supervised learning problem and develop a hand labeled dataset
- of toponym matches (3,192) and mismatches (17,051).
- We construct a training dataset by taking the 5,128 events with both text
- and coordinates and pairing them with the ten gazetteer entries closest
- in geographic proximity, for 51,280 event-gazetteer diads.
- To avoid weighting locations with more events, we only keep one unique
- example of each location description-gazetteer toponym diad.
- We further exclude exact matches with identical text on both sides, leaving
- 20,242 diads to consider.
- We create a training split (80%) and testing split (20%) witheld only for
- evaluating model performance by selecting 500 random toponym stems and
- excluding any diad with the stem on either pole.
- 
 \end_layout
 
 \begin_layout Standard
@@ -1968,6 +2059,17 @@ Ensembles
 \begin_inset Quotes eld
 \end_inset
 
+Hand Rule Ensemble
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+\begin_inset Quotes eld
+\end_inset
+
 Supervised Ensemble
 \begin_inset Quotes erd
 \end_inset
@@ -2030,9 +2132,18 @@ status open
 \end_inset
 
 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 \begin_inset Graphics
 	filename pasted19.png
 	width 5.5in
+
+\end_inset
+
+
+\end_layout
 
 \end_inset
 
@@ -2056,17 +2167,6 @@ Variable Importance Plot for XGBoost model predicting distance between observed
 
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection*
-\begin_inset Quotes eld
-\end_inset
-
-Hand Rule Ensemble
-\begin_inset Quotes erd
 \end_inset
 
 
@@ -2104,9 +2204,18 @@ status open
 \end_inset
 
 
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
 \begin_inset Graphics
-	filename /home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/best_case_cdf_combined.pdf
+	filename C:/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/best_case_cdf_combined.pdf
 	width 5.5in
+
+\end_inset
+
+
+\end_layout
 
 \end_inset
 
