@@ -2390,7 +2390,7 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-AUC and Precision Recall curves for Stage 2 toponym fuzzy matcher, predicting
+AUC and Precision Recall curves for toponym fuzzy matcher stage 2, predicting
  likelihood of a match.
 \end_layout
 
@@ -2458,8 +2458,8 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-AUC and Precision Recall curves for Stage 2 toponym fuzzy matcher, predicting
- likelihood of a match.
+Variable importance measures for toponym fuzzy matcher stage 2, based on
+ XGBoost classifier.
 \end_layout
 
 \end_inset
@@ -2491,17 +2491,6 @@ Ensembles
 \begin_inset Quotes eld
 \end_inset
 
-Hand Rules
-\begin_inset Quotes erd
-\end_inset
-
-
-\end_layout
-
-\begin_layout Subsection
-\begin_inset Quotes eld
-\end_inset
-
 Supervised Ensemble
 \begin_inset Quotes erd
 \end_inset
@@ -2512,47 +2501,49 @@ Supervised Ensemble
 \begin_layout Standard
 We introduce a supervised learning approach to choosing the optimal gazeteer
  match from among multiple possible matches.
+ The unit of analysis is the location-gazeteer suggestion diad.
+ In total we have 539,268 diads, of which 340,355 are labeled because of
+ the availability of known military coordinate.
  The outcome is the observed distance between the gazeteer suggestion and
- the known true location.
-  
+ the known true location (min 0km, mean 44 km, median 28 km, max 747km).
+ We divide the labeled cases into five mutually exclusive approximately
+ equal folds for cross validation.
+ We split on unique event location names, so that multiple matches to the
+ same event location text or multiple event location texts with different
+ military coordinates don't appear in both the training and validation sets.
+ Therefore the hold out sets aren't exactly balanced, ranging from size
+ 34 thousand to 114 thousand.
 \end_layout
 
 \begin_layout Standard
-Model: XGBoost implemented in the R package xgboost (Chen et al.
- 2016).
-\end_layout
-
-\begin_layout Standard
-Unit of Observation: Event place description - Potential Gazeteer Match
-\end_layout
-
-\begin_layout Standard
-N:= 468,046
-\end_layout
-
-\begin_layout Standard
-Features: Gazeteer source, geometry type, fuzzy or exact string match, and
- self reference; reporting district, the year of the event, and what level
- geographic aggregation the event was reported at, e.g.
+The features we employ are: gazeteer source, geometry type, fuzzy or exact
+ string match, and self reference; reporting district, the year of the event,
+ and what level geographic aggregation the event was reported at, e.g.
  city, district, or province level.
+ We further include the predicted probability of a match genderate by the
+ model from the second stage of the fuzzy toponym matcher.
+ Additionally, we include a one-hot encoding of the gazeteer feature type
+ (PPL=54,391, STM=31,207, ADMD=19,009, etc.).
 \end_layout
 
 \begin_layout Standard
-Loss: Mean square error
-\end_layout
-
-\begin_layout Standard
-Early stopping after 10 rounds, convering in 13 iterations.
-\end_layout
-
-\begin_layout Standard
-Five fold cross validation with approximately equal hold out sets divided
- by event location description to prevent the same name from appearing in
- both training and test splits.
-\end_layout
-
-\begin_layout Standard
-Out of sample error: root mean squared error of 1.088 log km.
+The model we employ is again XGBoost, implemented in the R package xgboost
+ (Chen et al.
+ 2016).
+ We minimize the mean squared error (on the log transformed distance in
+ kilometers).
+ To avoid over-fitting, we employ early stopping after 10 rounds, converging
+ in 63 iterations.
+ The model has an out of sample 5 fold cross-validated root mean squared
+ error of 1.033 log km.
+ Its predictions are monotonic but not linear in the true distance, shown
+ in the figure below.
+ We therefore find it plausible that the ensemble will do a good job in
+ rank ordering matches from best to worst, but perhaps not guessing correctly
+ how far away a particular match is.
+ The supervised ensemble's rank order correlation with true distance is
+ 0.47, compared to the set of fixed handmade rules whose rank order correlation
+ is 0.37.
 \end_layout
 
 \begin_layout Standard
@@ -2566,18 +2557,10 @@ status open
 \end_inset
 
 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
 \begin_inset Graphics
-	filename pasted19.png
+	filename figures/p_ensemble_risiduals.png
+	lyxscale 50
 	width 5.5in
-
-\end_inset
-
-
-\end_layout
 
 \end_inset
 
@@ -2592,8 +2575,49 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Variable Importance Plot for XGBoost model predicting distance between observed
- location and each gazetteer match.
+Predicted distance between event and gazeteer match versus observed true
+ distance.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figures/p_variable_importance_supervised_ensemble.pdf
+	width 5.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Variable importance measures for supervised ensemble match selection
 \end_layout
 
 \end_inset
@@ -2610,76 +2634,12 @@ Variable Importance Plot for XGBoost model predicting distance between observed
 Evaluating the Consequences of Georeferencing Decisions
 \end_layout
 
-\begin_layout Subsection
-
-\shape italic
-Recall and Accuracy
-\end_layout
-
 \begin_layout Standard
-In the main paper we present the average accuracy of each gazeteer source
- in terms of mean squared distance.
- Here we present the cumulative distributions of each sources shortest possible
- match, regardless of name, to the observed military coordinate.
- This represent a hard bound for a source's coverage, there are not any
- points of any kind from the source closer than the stated distance that
- could even possibly be a match given a name.
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-placement H
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset space \hfill{}
-\end_inset
-
-
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
-\begin_inset Graphics
-	filename C:/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/best_case_cdf_combined.pdf
-	width 5.5in
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\begin_inset space \hfill{}
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption Standard
-
-\begin_layout Plain Layout
-The CDF line for polygon matches from any gazeteer is lower in places, because
- it matches more with lower average accuracy.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
 
 \end_layout
 
 \begin_layout Section
-Bias Estimates
+Predictability of Missingness
 \end_layout
 
 \begin_layout Standard
@@ -2687,15 +2647,10 @@ Each bias estimate is the result of an individual model fit to the subset
  of points meeting the criteria described in the text.
  Not described in the text are the hyper-parameters of the XGBoost model
  employed, which are as follows.
-\end_layout
-
-\begin_layout Standard
-Model: XGBoost implemented in the R package xgboost (Chen et al.
+ The model is XGBoost implemented in the R package xgboost (Chen et al.
  2016).
-\end_layout
-
-\begin_layout Standard
-Unit of Observation: Event place description - Potential Gazeteer Match
+ The unit of analysis is the event place description - potential gazeteer
+ match diad.
 \end_layout
 
 \begin_layout Standard

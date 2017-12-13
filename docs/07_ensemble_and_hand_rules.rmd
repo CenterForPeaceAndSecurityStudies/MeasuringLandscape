@@ -23,6 +23,7 @@ rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
+dir_figures <- glue(getwd(), "/../paper/figures/")
 
 gc()
 
@@ -140,10 +141,9 @@ georef_all_dt$toponym_xb_model_prediction  <- 1/(1 + exp(-georef_all_dt$toponym_
 
 ```
 
+Select features
+
 ```{r}
-
-
-
 vars_y <- "distance_km"
 vars_x <- c("source_dataset","geometry_type","SelfReference","fuzzy",
             "document_district_clean",
@@ -153,6 +153,12 @@ vars_x <- c("source_dataset","geometry_type","SelfReference","fuzzy",
             "feature_code")
 
 vars_all <- c(vars_x,vars_y)
+
+```
+
+
+
+```{r}
 xy_all <- georef_all_dt[,vars_all,with=F]
 xy_all <- as.data.frame(xy_all)
 dim(xy_all)
@@ -164,6 +170,14 @@ condition <- !is.na(xy_all$distance_km) & xy_all$distance_km!=0
 x_all <- xy_all[,vars_x]
 x_all <- dummy.data.frame(x_all)
 x_train <- x_all[condition,]
+
+label <- log(xy_all$distance_km[condition])
+
+```
+
+Develop training and test splits
+
+```{r}
 ids <- georef_all_dt$name_cleaner[condition]
 ids_unique <- sample(sort(unique(ids)))
 chunks <- split(ids_unique, ceiling(seq_along(ids_unique)/ (length(ids_unique)/5)))
@@ -174,7 +188,9 @@ fold4 <- which(ids %in% chunks[[4]])
 fold5 <- which(ids %in% chunks[[5]])
 folds <- list(fold1,fold2,fold3,fold4,fold5)
 
-label <- log(xy_all$distance_km[condition])
+```
+
+```{r}
 
 #label= label #
 condition <- !is.na(label)
@@ -207,8 +223,6 @@ xb2 <- xgb.train(params=param,
                  #nfold=5,
                  prediction=T)
 
-importance_importance <- xgb.importance(feature_names=colnames(dtrain), model = xb2) #won't calculate on cv
-xgb.plot.importance(importance_importance)
 
 #predictions_train <- predict(xb2, dtrain)
 predictions_all <- predict(xb2, dpredict) #predict over everything 
@@ -218,8 +232,7 @@ cross_valid_predictions <-  xb$pred
 predictions_all[condition] <- cross_valid_predictions #but for the subset we trained on, only use predictions from out of sample folds.
 
 georef_all_dt$rule_ensemble <- exp(predictions_all)
-#plot(georef_all_dt$rule_ensemble, georef_all_dt$distance_km)
-georef_all_dt %>% ggplot(aes(x=log(distance_km), y=log(rule_ensemble) )) + geom_point()
+
 
 setkey(georef_all_dt, handrule )
 temp <- subset(georef_all_dt,event_hash=="be37b40f")
@@ -230,6 +243,46 @@ saveRDS(georef_all_dt,
 
 ```
 
+Evaluate accuracy
+
+```{r}
+#plot(georef_all_dt$rule_ensemble, georef_all_dt$distance_km)
+p_ensemble_risiduals <- georef_all_dt %>% ggplot(aes(x=log(distance_km), y=log(rule_ensemble) )) + 
+    geom_point(alpha=.01) + 
+    geom_smooth(span=.2) + 
+    theme_bw() +
+    ggtitle("Observed versus predicted Distance to Match (Ensemble Residuals)") +
+    xlab("Observed distance between event and gazeteer suggestion (log km)") +
+    ylab("Predicted distance between event and gazeteer suggestion (log km) (out of sample)")
+p_ensemble_risiduals
+
+ggsave(
+  filename = glue(dir_figures, "p_ensemble_risiduals.png"), #save as a png because there are too many points and it's crashing the pdf reader
+  plot = p_ensemble_risiduals,
+  width = 10,
+  height = 8#,
+  #device = cairo_pdf #have to use cairo to correctly embed the fonts
+)
+
+```
+
+
+Variable importance
+```{r}
+
+importance_importance <- xgb.importance(feature_names=colnames(dtrain), model = xb2) #won't calculate on cv
+
+pdf(file=glue(dir_figures, "p_variable_importance_supervised_ensemble.pdf"), width=5.5, height=6)
+xgb.plot.importance(importance_importance %>% 
+                      head(50) #Top 50 features
+                    )
+#autoplot(uauc1)
+dev.off()
+xgb.plot.importance(importance_importance %>% 
+                      head(50) #Top 50 features
+                    )
+```
+
 
 # Compare
 
@@ -237,6 +290,17 @@ saveRDS(georef_all_dt,
 
 #Rank correlation of only .41 between the hand rules and the estimated ensemble
 georef_all_dt$handrule_numeric <- as.numeric(as.factor(georef_all_dt$handrule))
+
+cor(log(georef_all_dt$distance_km),
+    georef_all_dt$rule_ensemble,
+    method="spearman", use="pairwise.complete")
+
+
+cor(log(georef_all_dt$distance_km),
+    georef_all_dt$handrule_numeric,
+    method="spearman", use="pairwise.complete")
+
+
 cor(georef_all_dt$handrule_numeric,
     georef_all_dt$rule_ensemble, method="spearman")
 
