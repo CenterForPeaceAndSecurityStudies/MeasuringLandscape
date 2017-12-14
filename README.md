@@ -3,6 +3,8 @@
 Measuring the Landscape of Civil War
 ====================================
 
+This is a test edit
+
 This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (forthcoming) 2017
 
 -   [Dr. Rex W. Douglass](www.rexdouglass.com)(University of California San Diego)
