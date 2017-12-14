@@ -309,9 +309,9 @@ global_test$toponym_xb_string_and_stem <- 1/(1 + exp(-global_test$toponym_xb_str
 #p_load(Metrics)
 #p_load(MLmetrics)
 tocompare <- c(#"toponym_xb_everything2",
-               "toponym_xb_onlystring",
-               "toponym_xb_stringcorpus"#,
-               #"toponym_xb_string_and_stem"
+               #"toponym_xb_onlystring"#,
+               #"toponym_xb_stringcorpus"#,
+               "toponym_xb_string_and_stem"
                ) # "toponym_xb_everything",, "toponym_xb_everything2_extra","toponym_xb_onlystring_extra","toponym_xb_everything2_extra_large", "toponym_xb_onlystring_extra_large", "toponym_xb_everything2_uber_large" , "toponym_xb_onlystring_uber_large"
 print("ce")
 sapply(tocompare, function(q) {  ce(actual=global_test$rex_match, predicted=global_test[,q]>.5)  })

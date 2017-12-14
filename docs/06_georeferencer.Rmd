@@ -18,6 +18,8 @@ rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
+dir_figures <- glue(getwd(), "/../paper/figures/")
+
 
 gc()
 

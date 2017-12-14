@@ -22,6 +22,8 @@ rm(list=ls()); gc()
 library(MeasuringLandscapeCivilWar)
 devtools::load_all()
 
+dir_figures <- glue(getwd(), "/../paper/figures/")
+
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
@@ -119,9 +121,9 @@ p_lhs_gridsearch
 
 ggsave(
   filename = glue(dir_figures, "p_lhs_gridsearch.pdf"),
-  plot = final,
-  width = 10,
-  height = 8,
+  plot = p_lhs_gridsearch,
+  width = 5.5,
+  #height = 8,
   device = cairo_pdf #have to use cairo to correctly embed the fonts
 )
 
@@ -420,16 +422,16 @@ if(fromscratch){
 
 }
 
-    evaluations_varying_ngrams <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_ngrams.Rds") 
+evaluations_varying_ngrams <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_ngrams.Rds") 
 
-    p1 <- ggplot(evaluations_varying_ngrams,
-           aes(x=recall,y=suggestions_per, label=ngrams_skips))  + geom_text(size=2) +
-       #scale_y_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$suggestions_per), by = 100),1)) +
-       scale_x_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$recall), by = .05),2)) + 
-      xlab("1-Recall") + ylab("Number of Suggestions Per Item") + 
-      ggtitle("Suggestion Count and Recall for Character Gram Types (Grams:Skips)") + theme_bw() +
-       scale_y_log10()
-    p1
+p1 <- ggplot(evaluations_varying_ngrams,
+       aes(x=recall,y=suggestions_per, label=ngrams_skips))  + geom_text(size=2) +
+   #scale_y_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$suggestions_per), by = 100),1)) +
+   scale_x_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$recall), by = .05),2)) + 
+  xlab("1-Recall") + ylab("Number of Suggestions Per Item") + 
+  ggtitle("Suggestion Count and Recall for Character Gram Types (Grams:Skips)") + theme_bw() +
+   scale_y_log10()
+p1
 
 ```
    
@@ -452,37 +454,37 @@ if(fromscratch){
 ```{r, eval=F, echo=F}
 
 
-    eval_lshr(bands_number=160, rows_per_band=8)
-    
-    p_load(parallelDist)
-    d <- parDist(as.matrix(stemmed_ab_grams), method = "binary") #calculate the jaccard distance directly
-    saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_2_1_skips.Rds") #.011 is about 300 and 0.015
+eval_lshr(bands_number=160, rows_per_band=8)
 
-    #saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_5.Rds") #.011 is about 300 and 0.015
-    #saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_6.Rds") #.011 is about 200 and 0.02
-    
-    d_m <- as.matrix(d)
-    #make sure the row and col names are right
-    #convert to
-    hist(d_m, breaks=50)
-    colnames(d_m) <- stemmed_ab
-    rownames(d_m) <- stemmed_ab
-    
-    d_m_long = data.table::melt(d_m) ; dim(d_m_long)
-    d_m_long$rex_match <- F
-    d_m_long <- as.data.table(d_m_long)
-    d_m_long[,ab:=paste(Var1, Var2, sep="_"),]
-    d_m_long[,ba:=paste(Var2, Var1, sep="_"),]
-    
-    condition <- d_m_long$ab %in% subset(handlabeled, rex_match==1)$stemmed_ab | d_m_long$ba %in% subset(handlabeled, rex_match==1)$stemmed_ab ; table(condition)
-    d_m_long$rex_match[condition] <- T
-    table(d_m_long$rex_match)
-    
-    d_m_long <- subset(d_m_long, value!=0) #exclude any with 0 distance, those aren't interesting
-    
-    p_load(ggjoy)
-    p <- ggplot(d_m_long, aes(x = value, y = rex_match)) + geom_joy2() 
-    p + ggtitle("Pairwise Character Gram Profile Distance") + ylab("Hand Labeled Match") + xlab("Jaccard Distance")
+p_load(parallelDist)
+d <- parDist(as.matrix(stemmed_ab_grams), method = "binary") #calculate the jaccard distance directly
+saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_2_1_skips.Rds") #.011 is about 300 and 0.015
+
+#saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_5.Rds") #.011 is about 300 and 0.015
+#saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_6.Rds") #.011 is about 200 and 0.02
+
+d_m <- as.matrix(d)
+#make sure the row and col names are right
+#convert to
+hist(d_m, breaks=50)
+colnames(d_m) <- stemmed_ab
+rownames(d_m) <- stemmed_ab
+
+d_m_long = data.table::melt(d_m) ; dim(d_m_long)
+d_m_long$rex_match <- F
+d_m_long <- as.data.table(d_m_long)
+d_m_long[,ab:=paste(Var1, Var2, sep="_"),]
+d_m_long[,ba:=paste(Var2, Var1, sep="_"),]
+
+condition <- d_m_long$ab %in% subset(handlabeled, rex_match==1)$stemmed_ab | d_m_long$ba %in% subset(handlabeled, rex_match==1)$stemmed_ab ; table(condition)
+d_m_long$rex_match[condition] <- T
+table(d_m_long$rex_match)
+
+d_m_long <- subset(d_m_long, value!=0) #exclude any with 0 distance, those aren't interesting
+
+p_load(ggjoy)
+p <- ggplot(d_m_long, aes(x = value, y = rex_match)) + geom_joy2() 
+p + ggtitle("Pairwise Character Gram Profile Distance") + ylab("Hand Labeled Match") + xlab("Jaccard Distance")
 
 ```
 

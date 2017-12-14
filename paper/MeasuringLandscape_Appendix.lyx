@@ -146,7 +146,6 @@ LatexCommand tableofcontents
 Introduction
 \end_layout
 
-
 \begin_layout Standard
 The structure of this document is designed to mirror that of the original
  article.
@@ -250,6 +249,7 @@ We subset each gazeteer to just the region of interest covering the conflict.
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -329,6 +329,7 @@ This appears to be an artifact of the automated process employed by a commercial
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -417,6 +418,7 @@ A number of our gazeteers included mixed geometry types, including points,
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -1706,15 +1708,18 @@ Grams are simply counts of characters {'a','b','1'}, pairs of characters
  The downsides are that it is approximate, provides only a hard yes or no
  match, and there is a trade off between retrieving too many suggestions
  and losing too many real matches which must be hand tuned.
- Using the hand labeled training data, we experimentally determined the
- optimal combination of gram features, and hash hyperparameters.
- We settled on 2-grams, and LHS parameters of 100 bands with 4 rows.
- On our training data, this produced a recall rate of 0.95 at the cost of
- an average of 72 suggestions per item.
- That reduces the number of comparisons we need to evaluate for the full
- dataset from over a billion to just over three million, a 99.7% reduction.
- Those pairs that pass the suggester's bar then go on to the matcher for
- further refinement and a direct estimate of the likelihood of a match.
+ 
+\end_layout
+
+\begin_layout Standard
+Using the hand labeled training data, we experimentally determined the optimal
+ combination of gram features, and hash hyperparameters.
+ We settled on 2-chaaracter ngrams, and LHS parameters of 100 minihashes,
+ 25 bands, and 4 rows.
+ On our training data, this produced a recall rate of 0.88 at the cost of
+ an average of 29 suggestions per item.
+ These pairs that pass the first sage's bar then go on to the second stage
+ for further refinement and a direct estimate of the likelihood of a match.
 \end_layout
 
 \begin_layout Standard
@@ -1728,18 +1733,9 @@ status open
 \end_inset
 
 
-\begin_inset Note Note
-status open
-
-\begin_layout Plain Layout
 \begin_inset Graphics
-	filename C:/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/suggester_grid_search.pdf
+	filename figures/p_lhs_gridsearch.pdf
 	width 5.5in
-
-\end_inset
-
-
-\end_layout
 
 \end_inset
 
@@ -1754,7 +1750,15 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-
+This figure shows the results of a grid search over number of bands used
+ in locality sensitive hashing.
+ The number of minihashes is fixed at 100, and so the number of rows is
+ the number of minihashes divided by the number of bands, which we vary
+ over 50,25,20,10,5 and 2.
+ The outcomes are the number of total suggested matches returned (both true
+ and false) per event location, and the number of false negatives (true
+ matches that are accidentally rejected).
+ Using an elbow rule, the best trade off appears to be 25 bands and 4 rows.
 \end_layout
 
 \end_inset
@@ -1777,18 +1781,12 @@ For training the next stage of the classifier, we refine our dataset of
  First, to ensure the classifier is invariant to the ordering of the diad,
  we add the inverse of each diad and remove duplicates again, leaving 34,496
  directed diads.
-\end_layout
-
-\begin_layout Standard
-To construct the test split, we first stem each toponym and then randomly
+ To construct the test split, we first stem each toponym and then randomly
  select 500 stems to serve as a test split.
- Any diad, with any toponym on either end that shares one of those 500 stems
+ Any diad, with a toponym on either end that shares one of those 500 stems
  is excluded for the testing split.
-\end_layout
-
-\begin_layout Standard
-The final division is 27,161 training directed diads and 5,521 testing directed
- diads, with 1,815 and 308 positive examples respectively.
+ The final division is 27,161 training directed diads and 5,521 testing
+ directed diads, with 1,815 and 308 positive examples respectively.
 \end_layout
 
 \begin_layout Standard
@@ -2076,10 +2074,10 @@ We train a classifier to predict the likelihood of match between two toponyms
  We consider both the full strings and also their stems.
  We employ a number of string distance measures as features (Santos et al.
  2017), described in the table below.
- For each, we employ nine types of string distance (Jaro, Optimal String
- Alignment, Levenstein, Damerau Levenshtein, Longest Common Substring, q-grams
- 1-5, cosine, Jaccard, and a count of the number of matching letters before
- the first mismatch).
+ For each, we employ a number of types of string distance (Jaro, Optimal
+ String Alignment, Levenstein, Damerau Levenshtein, Longest Common Substring,
+ q-grams 1-5, cosine, Jaccard, and a count of the number of matching letters
+ before the first mismatch).
  We include a count of the number of characters of A and B and the difference
  between the lengths.
  
@@ -2407,9 +2405,8 @@ AUC and Precision Recall curves for toponym fuzzy matcher stage 2, predicting
 
 \begin_layout Standard
 Four features contribute disproportionately, Jaro Distance of the stems,
- a distant second cosine distance of 2-character ngrams of thes stems, 2
- and then 3 character ngrams of the full toponym, and then a gradual decline
- from there on.
+ the cosine distance of 2-character ngrams of thes stems, 2 and then 3 character
+ ngrams of the full toponym, and then a gradual decline from there on.
  Through combining different string distance measures, the model is deriving
  ways in which two strings might match, by both starting with the same word,
  sharing long substring toward the end, requiring small spelling changes
@@ -2545,6 +2542,11 @@ The model we employ is again XGBoost, implemented in the R package xgboost
  The supervised ensemble's rank order correlation with true distance is
  0.47, compared to the set of fixed handmade rules whose rank order correlation
  is 0.37.
+ Visual inspection of the predictions and residuals on a case by case basis
+ reveal the model does a good job distinguishing top ranking matches from
+ poor alternatives, but there is little information available to further
+ sort between poor matches.
+ Poor matches tend to be indistinguishably bad from one another.
 \end_layout
 
 \begin_layout Standard
@@ -2618,7 +2620,9 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Variable importance measures for supervised ensemble match selection
+Variable importance measures for supervised ensemble match selection.
+ Categorical variables one-hot encoded.
+ Top 50 shown.
 \end_layout
 
 \end_inset
@@ -2635,38 +2639,85 @@ Variable importance measures for supervised ensemble match selection
 Evaluating the Consequences of Georeferencing Decisions
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
+\begin_inset Quotes eld
+\end_inset
+
 Predictability of Missingness
+\begin_inset Quotes erd
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-Each bias estimate is the result of an individual model fit to the subset
- of points meeting the criteria described in the text.
- Not described in the text are the hyper-parameters of the XGBoost model
- employed, which are as follows.
- The model is XGBoost implemented in the R package xgboost (Chen et al.
+In the paper we present results from a model predicting the likelihood of
+ an event to be missing exact military coordinates as a function of a number
+ of properties of the event as well as the document it was drawn from.
+ We show that location information is not missing at random, it is missing
+ systematically, and systematically in ways that are correlated with both
+ outcomes, covariates, and confounders that would go in any typical downstream
+ analysis of these data.
+ We replicated this excercise for other types of missigness (military coordinate
+s, text labels, coordinates and labels), and for missingness following imputatio
+n by every strategy and decsision discussed.
+ Those results are presented in the figure below.
+ Again the model is XGBoost implemented in the R package xgboost (Chen et
+ al.
  2016).
- The unit of analysis is the event place description - potential gazeteer
- match diad.
+ The unit of analysis is the event.
+ The loss function is log loss with proportionally weighted cases to account
+ for class imbalance.
+ The measure of accuracy of the model (predictability of missingness) is
+ Area Under the Receiver Operating Characteristic Curve.
+ Values near 0.5 are close to random accuracy, and values close to 1 are
+ perfect accuracy.
 \end_layout
 
 \begin_layout Standard
-N:= 468,046
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset space \hfill{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename figures/p_bias_dv.pdf
+	width 5.5in
+
+\end_inset
+
+
+\begin_inset space \hfill{}
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-Features: Gazeteer source, geometry type, fuzzy or exact string match, and
- self reference; reporting district, the year of the event, and what level
- geographic aggregation the event was reported at, e.g.
- city, district, or province level.
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+This figure shows the predictability of missingness of location information
+ for the raw data as well as each imputation strategy.
+ The features are properties of each event, such as the perpetrator, target,
+ type of action etc.
+ and properties of the document from which it was drawn, like reporting
+ district, year, time period covered, etc.
 \end_layout
 
-\begin_layout Standard
-Loss: Log Loss with proportionally weighted cases to account for class imbalance.
+\end_inset
+
+
 \end_layout
 
-\begin_layout Standard
-Five fold cross validation with random hold out sets.
+\end_inset
+
+
 \end_layout
 
 \begin_layout Bibliography
