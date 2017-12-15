@@ -5,11 +5,15 @@ Measuring the Landscape of Civil War
 
 This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (provisionally accepted for publication) 2017
 
-By \* [Dr. Rex W. Douglass](www.rexdouglass.com)(University of California San Diego) \* [Dr. Kristen Harkness](https://kristenharkness.com/)(University of St. Andrews)
+[Measuring the Landscape of Civil War - Read the Paper](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
 
-[Read the Paper](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
+[Measuring the Landscape of Civil War - Read the Online Appendix](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
 
-[Read the Online Appendix](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
+Authors
+
+-   [Dr. Rex W. Douglass](www.rexdouglass.com)(University of California San Diego)
+
+-   [Dr. Kristen Harkness](https://kristenharkness.com/)(University of St. Andrews)
 
 Replication Code and Analysis
 -----------------------------
