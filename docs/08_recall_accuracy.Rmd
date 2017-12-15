@@ -235,6 +235,8 @@ Combine and plot the results for every specific decision and the ensembles.
 
 p_load(Hmisc)
 sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+
+#The first time you run this, you'll need to install these additional fonts
 #install.packages("extrafont");
 #library(extrafont)
 #library(extrafont)
@@ -266,7 +268,7 @@ colours = c("Self Reference" = "#F8766D",
 
 p_load(ggrepel, tools)
 p_RecallBias <- recall_accuracy %>% 
-               filter(rule!="tgn") %>% #exclude TGN for being an outlier
+               filter(!label %in% "tgn") %>% #exclude TGN for being an outlier
                mutate(
                       label=sentence_case(label)
                       ) %>%
