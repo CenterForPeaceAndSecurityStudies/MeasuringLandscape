@@ -3,23 +3,27 @@
 Measuring the Landscape of Civil War
 ====================================
 
-This is a test edit
+This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (provisionally accepted for publication) 2017
 
-This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (forthcoming) 2017
+By \* [Dr. Rex W. Douglass](www.rexdouglass.com)(University of California San Diego) \* [Dr. Kristen Harkness](https://kristenharkness.com/)(University of St. Andrews)
 
--   [Dr. Rex W. Douglass](www.rexdouglass.com)(University of California San Diego)
--   [Dr. Kristen Harkness](https://kristenharkness.com/)(University of St. Andrews)
+[Read the Paper](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
 
-### Installation
+[Read the Online Appendix](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
 
-You can install the package MeasuringLandscapeCivilWar from github with:
+Replication Code and Analysis
+-----------------------------
+
+### Self Contained Package
+
+All of the files necessary for reproducing our analysis are including in a self contained R package "MeasuringLandscape." You can install the package MeasuringLandscapeCivilWar from github with:
 
 ``` r
 # install.packages("devtools")
 devtools::install_github("rexdouglass/MeasuringLandscape")
 ```
 
-### Replication Code and Analysis
+### R-Notebooks
 
 The analysis and figures in the paper and statistical appendix are produced in a number of R Notebooks
 
@@ -46,9 +50,3 @@ Analysis: Main analysis of the paper.
 -   [10 Predicted Effects](https://rexdouglass.github.io/MeasuringLandscape/10_predicted_effects.nb.html): Demonstrate what kinds of events tend to systematically get excluded. Here, in terms of whether the event would have received an original military coordinate or not.
 -   [11 Bias](https://rexdouglass.github.io/MeasuringLandscape/11_bias.nb.html): Demonstrate that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggeness, etc.
 -   [12 So What](https://rexdouglass.github.io/MeasuringLandscape/12_so_what.nb.html): Demonstrate that different georeferencing decisions will produce different results in a simple linear regression model in terms of both statistical significance and substantive effects.
-
-### Citation
-
-Please cite this compendium as:
-
-> Rex W. Douglass and Kristen Harkness, (2017). Measuring the Landscape of Civil War: Evaluating Geographic Coding Decisions with Historic Data from the Mau Mau Rebellion. Accessed 12 Dec 2017. Online at <https://doi.org/xxx/xxx>
