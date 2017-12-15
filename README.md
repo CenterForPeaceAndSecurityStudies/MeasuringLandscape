@@ -13,9 +13,9 @@ The Paper
 
 The Authors
 
--   [Dr. Rex W. Douglass](https://www.rexdouglass.com)(University of California San Diego)
+-   [Dr. Rex W. Douglass](http://www.rexdouglass.com)(University of California San Diego)
 
--   [Dr. Kristen Harkness](https://kristenharkness.com/)(University of St. Andrews)
+-   [Dr. Kristen Harkness](http://kristenharkness.com/)(University of St. Andrews)
 
 Replication Code and Analysis
 -----------------------------
