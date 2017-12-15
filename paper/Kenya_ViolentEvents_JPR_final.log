@@ -1,0 +1,1069 @@
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.5.24)  15 DEC 2017 03:34
+entering extended mode
+ restricted \write18 enabled.
+ file:line:error style messages enabled.
+ %&-line parsing enabled.
+**Kenya_ViolentEvents_JPR_final.tex
+(./Kenya_ViolentEvents_JPR_final.tex
+LaTeX2e <2015/01/01>
+Babel <3.9l> and hyphenation patterns for 79 languages loaded.
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2014/09/29 v1.4h Standard LaTeX document class
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/size12.clo
+File: size12.clo 2014/09/29 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count79
+\c@section=\count80
+\c@subsection=\count81
+\c@subsubsection=\count82
+\c@paragraph=\count83
+\c@subparagraph=\count84
+\c@figure=\count85
+\c@table=\count86
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/inputenc.sty
+Package: inputenc 2015/03/17 v1.2c Input encoding file
+\inpenc@prehook=\toks14
+\inpenc@posthook=\toks15
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/latin9.def
+File: latin9.def 2015/03/17 v1.2c Input encoding file
+))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/textcomp.sty
+Package: textcomp 2005/09/27 v1.99g Standard LaTeX package
+Package textcomp Info: Sub-encoding information:
+(textcomp)               5 = only ISO-Adobe without \textcurrency
+(textcomp)               4 = 5 + \texteuro
+(textcomp)               3 = 4 + \textohm
+(textcomp)               2 = 3 + \textestimated + \textcurrency
+(textcomp)               1 = TS1 - \textcircled - \t
+(textcomp)               0 = TS1 (full)
+(textcomp)             Font families with sub-encoding setting implement
+(textcomp)             only a restricted character set as indicated.
+(textcomp)             Family '?' is the default used for unknown fonts.
+(textcomp)             See the documentation for details.
+Package textcomp Info: Setting ? sub-encoding to TS1/1 on input line 79.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1enc.def
+File: ts1enc.def 2001/06/05 v3.0e (jk/car/fm) Standard LaTeX file
+)
+LaTeX Info: Redefining \oldstylenums on input line 334.
+Package textcomp Info: Setting cmr sub-encoding to TS1/0 on input line 349.
+Package textcomp Info: Setting cmss sub-encoding to TS1/0 on input line 350.
+Package textcomp Info: Setting cmtt sub-encoding to TS1/0 on input line 351.
+Package textcomp Info: Setting cmvtt sub-encoding to TS1/0 on input line 352.
+Package textcomp Info: Setting cmbr sub-encoding to TS1/0 on input line 353.
+Package textcomp Info: Setting cmtl sub-encoding to TS1/0 on input line 354.
+Package textcomp Info: Setting ccr sub-encoding to TS1/0 on input line 355.
+Package textcomp Info: Setting ptm sub-encoding to TS1/4 on input line 356.
+Package textcomp Info: Setting pcr sub-encoding to TS1/4 on input line 357.
+Package textcomp Info: Setting phv sub-encoding to TS1/4 on input line 358.
+Package textcomp Info: Setting ppl sub-encoding to TS1/3 on input line 359.
+Package textcomp Info: Setting pag sub-encoding to TS1/4 on input line 360.
+Package textcomp Info: Setting pbk sub-encoding to TS1/4 on input line 361.
+Package textcomp Info: Setting pnc sub-encoding to TS1/4 on input line 362.
+Package textcomp Info: Setting pzc sub-encoding to TS1/4 on input line 363.
+Package textcomp Info: Setting bch sub-encoding to TS1/4 on input line 364.
+Package textcomp Info: Setting put sub-encoding to TS1/5 on input line 365.
+Package textcomp Info: Setting uag sub-encoding to TS1/5 on input line 366.
+Package textcomp Info: Setting ugq sub-encoding to TS1/5 on input line 367.
+Package textcomp Info: Setting ul8 sub-encoding to TS1/4 on input line 368.
+Package textcomp Info: Setting ul9 sub-encoding to TS1/4 on input line 369.
+Package textcomp Info: Setting augie sub-encoding to TS1/5 on input line 370.
+Package textcomp Info: Setting dayrom sub-encoding to TS1/3 on input line 371.
+Package textcomp Info: Setting dayroms sub-encoding to TS1/3 on input line 372.
+
+Package textcomp Info: Setting pxr sub-encoding to TS1/0 on input line 373.
+Package textcomp Info: Setting pxss sub-encoding to TS1/0 on input line 374.
+Package textcomp Info: Setting pxtt sub-encoding to TS1/0 on input line 375.
+Package textcomp Info: Setting txr sub-encoding to TS1/0 on input line 376.
+Package textcomp Info: Setting txss sub-encoding to TS1/0 on input line 377.
+Package textcomp Info: Setting txtt sub-encoding to TS1/0 on input line 378.
+Package textcomp Info: Setting lmr sub-encoding to TS1/0 on input line 379.
+Package textcomp Info: Setting lmdh sub-encoding to TS1/0 on input line 380.
+Package textcomp Info: Setting lmss sub-encoding to TS1/0 on input line 381.
+Package textcomp Info: Setting lmssq sub-encoding to TS1/0 on input line 382.
+Package textcomp Info: Setting lmvtt sub-encoding to TS1/0 on input line 383.
+Package textcomp Info: Setting lmtt sub-encoding to TS1/0 on input line 384.
+Package textcomp Info: Setting qhv sub-encoding to TS1/0 on input line 385.
+Package textcomp Info: Setting qag sub-encoding to TS1/0 on input line 386.
+Package textcomp Info: Setting qbk sub-encoding to TS1/0 on input line 387.
+Package textcomp Info: Setting qcr sub-encoding to TS1/0 on input line 388.
+Package textcomp Info: Setting qcs sub-encoding to TS1/0 on input line 389.
+Package textcomp Info: Setting qpl sub-encoding to TS1/0 on input line 390.
+Package textcomp Info: Setting qtm sub-encoding to TS1/0 on input line 391.
+Package textcomp Info: Setting qzc sub-encoding to TS1/0 on input line 392.
+Package textcomp Info: Setting qhvc sub-encoding to TS1/0 on input line 393.
+Package textcomp Info: Setting futs sub-encoding to TS1/4 on input line 394.
+Package textcomp Info: Setting futx sub-encoding to TS1/4 on input line 395.
+Package textcomp Info: Setting futj sub-encoding to TS1/4 on input line 396.
+Package textcomp Info: Setting hlh sub-encoding to TS1/3 on input line 397.
+Package textcomp Info: Setting hls sub-encoding to TS1/3 on input line 398.
+Package textcomp Info: Setting hlst sub-encoding to TS1/3 on input line 399.
+Package textcomp Info: Setting hlct sub-encoding to TS1/5 on input line 400.
+Package textcomp Info: Setting hlx sub-encoding to TS1/5 on input line 401.
+Package textcomp Info: Setting hlce sub-encoding to TS1/5 on input line 402.
+Package textcomp Info: Setting hlcn sub-encoding to TS1/5 on input line 403.
+Package textcomp Info: Setting hlcw sub-encoding to TS1/5 on input line 404.
+Package textcomp Info: Setting hlcf sub-encoding to TS1/5 on input line 405.
+Package textcomp Info: Setting pplx sub-encoding to TS1/3 on input line 406.
+Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 407.
+Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 408.
+Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/amsmath/amsmath.sty
+Package: amsmath 2013/01/14 v2.14 AMS math features
+\@mathmargin=\skip43
+
+For additional information on amsmath, use the `?' option.
+(/usr/local/texlive/2015/texmf-dist/tex/latex/amsmath/amstext.sty
+Package: amstext 2000/06/29 v2.01
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/amsmath/amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0
+\@emptytoks=\toks16
+\ex@=\dimen103
+))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/amsmath/amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d
+\pmbraise@=\dimen104
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/amsmath/amsopn.sty
+Package: amsopn 1999/12/14 v2.01 operator names
+)
+\inf@bad=\count87
+LaTeX Info: Redefining \frac on input line 210.
+\uproot@=\count88
+\leftroot@=\count89
+LaTeX Info: Redefining \overline on input line 306.
+\classnum@=\count90
+\DOTSCASE@=\count91
+LaTeX Info: Redefining \ldots on input line 378.
+LaTeX Info: Redefining \dots on input line 381.
+LaTeX Info: Redefining \cdots on input line 466.
+\Mathstrutbox@=\box26
+\strutbox@=\box27
+\big@size=\dimen105
+LaTeX Font Info:    Redeclaring font encoding OML on input line 566.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 567.
+\macc@depth=\count92
+\c@MaxMatrixCols=\count93
+\dotsspace@=\muskip10
+\c@parentequation=\count94
+\dspbrk@lvl=\count95
+\tag@help=\toks17
+\row@=\count96
+\column@=\count97
+\maxfields@=\count98
+\andhelp@=\toks18
+\eqnshift@=\dimen106
+\alignsep@=\dimen107
+\tagshift@=\dimen108
+\tagwidth@=\dimen109
+\totwidth@=\dimen110
+\lineht@=\dimen111
+\@envbody=\toks19
+\multlinegap=\skip44
+\multlinetaggap=\skip45
+\mathdisplay@stack=\toks20
+LaTeX Info: Redefining \[ on input line 2665.
+LaTeX Info: Redefining \] on input line 2666.
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2014/10/28 v1.0g Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks21
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2014/10/28 v1.0p Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/graphics.cfg
+File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 94.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/infwarerr.sty
+Package: infwarerr 2010/04/08 v1.3 Providing info/warning/error messages (HO)
+)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
+Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
+)
+\Gread@gobject=\count99
+))
+\Gin@req@height=\dimen112
+\Gin@req@width=\dimen113
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/epsfig.sty
+Package: epsfig 1999/02/16 v1.7a (e)psfig emulation (SPQR)
+\epsfxsize=\dimen114
+\epsfysize=\dimen115
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/vmargin/vmargin.sty
+Package: vmargin 2004/07/15 V2.5 set document margins (VK)
+
+Package: vmargin 2004/07/15 V2.5 set document margins (VK)
+\PaperWidth=\dimen116
+\PaperHeight=\dimen117
+) (/usr/local/texlive/2015/texmf-dist/tex/latex/setspace/setspace.sty
+Package: setspace 2011/12/19 v6.7a set line spacing
+)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xy.sty
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xy.tex Bootstrap'ing:
+catcodes, docmode,
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xyrecat.tex)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xyidioms.tex)
+
+ Xy-pic version 3.8.9 <2013/10/06>
+ Copyright (c) 1991-2013 by Kristoffer H. Rose <krisrose@tug.org> and others
+ Xy-pic is free software: see the User's Guide for details.
+
+Loading kernel: messages; fonts; allocations: state,
+\X@c=\dimen118
+\Y@c=\dimen119
+\U@c=\dimen120
+\D@c=\dimen121
+\L@c=\dimen122
+\R@c=\dimen123
+\Edge@c=\toks22
+\X@p=\dimen124
+\Y@p=\dimen125
+\U@p=\dimen126
+\D@p=\dimen127
+\L@p=\dimen128
+\R@p=\dimen129
+\Edge@p=\toks23
+\X@origin=\dimen130
+\Y@origin=\dimen131
+\X@xbase=\dimen132
+\Y@xbase=\dimen133
+\X@ybase=\dimen134
+\Y@ybase=\dimen135
+\X@min=\dimen136
+\Y@min=\dimen137
+\X@max=\dimen138
+\Y@max=\dimen139
+\lastobjectbox@=\box28
+\zerodotbox@=\box29
+\almostz@=\dimen140
+ direction,
+\d@X=\dimen141
+\d@Y=\dimen142
+\K@=\count100
+\KK@=\count101
+\Direction=\count102
+\K@dXdY=\dimen143
+\K@dYdX=\dimen144
+\xyread@=\read1
+\xywrite@=\write3
+\csp@=\count103
+\quotPTK@=\dimen145
+
+utility macros; pictures: \xy, positions,
+\swaptoks@@=\toks24
+\connectobjectbox@@=\box30
+ objects,
+\styletoks@=\toks25
+ decorations;
+kernel objects: directionals, circles, text; options; algorithms: directions,
+edges, connections;  Xy-pic loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/ifpdf.sty
+Package: ifpdf 2011/01/30 v2.3 Provides the ifpdf switch (HO)
+Package ifpdf Info: pdfTeX in PDF mode is detected.
+)
+Package: xy 2013/10/06 Xy-pic version 3.8.9
+
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xyall.tex
+ Xy-pic option: All features v.3.8
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xycurve.tex
+ Xy-pic option: Curve and Spline extension v.3.12 curve,
+\crv@cnt@=\count104
+\crvpts@=\toks26
+\splinebox@=\box31
+\splineval@=\dimen146
+\splinedepth@=\dimen147
+\splinetol@=\dimen148
+\splinelength@=\dimen149
+ circles,
+\L@=\dimen150
+ loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xyframe.tex
+ Xy-pic option: Frame and Bracket extension v.3.14 loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xycmtip.tex
+ Xy-pic option: Computer Modern tip extension v.3.7
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xytips.tex
+ Xy-pic option: More Tips extension v.3.11 loaded) loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xyline.tex
+ Xy-pic option: Line styles extension v.3.10
+\xylinethick@=\dimen151
+ loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xyrotate.tex
+ Xy-pic option: Rotate and Scale extension v.3.8 loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xycolor.tex
+ Xy-pic option: Colour extension v.3.11 loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xymatrix.tex
+ Xy-pic option: Matrix feature v.3.14
+\Row=\count105
+\Col=\count106
+\queue@=\toks27
+\queue@@=\toks28
+\qcount@=\count107
+\qcount@@=\count108
+\matrixsize@=\count109
+ loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xyarrow.tex
+ Xy-pic option: Arrow and Path feature v.3.9 path, \ar, loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xygraph.tex
+ Xy-pic option: Graph feature v.3.11 loaded) loaded)
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xypdf.tex
+ Xy-pic option: PDF driver v.1.7 Xy-pic pdf driver: `color' extension support
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xypdf-co.tex loaded)
+Xy-pic pdf driver: `curve' extension support
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xypdf-cu.tex loaded)
+Xy-pic pdf driver: `frame' extension support
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xypdf-fr.tex loaded)
+Xy-pic pdf driver: `line' extension support
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xypdf-li.tex loaded)
+Xy-pic pdf driver: `rotate' extension support
+(/usr/local/texlive/2015/texmf-dist/tex/generic/xypic/xypdf-ro.tex loaded)
+loaded)) (/usr/local/texlive/2015/texmf-dist/tex/latex/multirow/multirow.sty
+\bigstrutjot=\dimen152
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/graphics/lscape.sty
+Package: lscape 2000/10/22 v3.01 Landscape Pages (DPC)
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/hanging/hanging.sty
+Package: hanging 2009/09/02 v1.2b hanging paragraphs and punctuation
+\h@ngcommawd=\skip46
+\h@ngfstopwd=\skip47
+\h@ngquotewd=\skip48
+\h@ngdquotewd=\skip49
+\h@ngquerywd=\skip50
+\h@ngexclwd=\skip51
+\h@ngcolonwd=\skip52
+\h@ngscolonwd=\skip53
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/rotating/rotating.sty
+Package: rotating 2009/03/28 v2.16a rotated objects in LaTeX
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
+)
+\c@r@tfl@t=\count110
+\rotFPtop=\skip54
+\rotFPbot=\skip55
+\rot@float@box=\box32
+\rot@mess@toks=\toks29
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/array.sty
+Package: array 2014/10/28 v2.4c Tabular extension package (FMi)
+\col@sep=\dimen153
+\extrarowheight=\dimen154
+\NC@list=\toks30
+\extratabsurround=\skip56
+\backup@length=\skip57
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count111
+\float@exts=\toks31
+\float@box=\box33
+\@float@everytoks=\toks32
+\@floatcapt=\box34
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/rotfloat/rotfloat.sty
+Package: rotfloat 2004/01/04 v1.2 Combining float+rotating package (AS)
+Package rotfloat Info: float package v1.3 detected on input line 74.
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2013/05/02 v3.3-89 Customizing captions (AR)
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2013/05/02 v1.6-88 caption3 kernel (AR)
+Package caption3 Info: TeX engine: e-TeX on input line 57.
+\captionmargin=\dimen155
+\captionmargin@=\dimen156
+\captionwidth=\dimen157
+\caption@tempdima=\dimen158
+\caption@indent=\dimen159
+\caption@parindent=\dimen160
+\caption@hangindent=\dimen161
+)
+\c@ContinuedFloat=\count112
+Package caption Info: float package is loaded.
+Package caption Info: rotating package is loaded.
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/pdfpages/pdfpages.sty
+Package: pdfpages 2015/05/11 v0.4x Insert pages of external PDF documents (AM)
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tools/calc.sty
+Package: calc 2014/10/28 v4.3 Infix arithmetic (KKT,FJ)
+\calc@Acount=\count113
+\calc@Bcount=\count114
+\calc@Adimen=\dimen162
+\calc@Bdimen=\dimen163
+\calc@Askip=\skip58
+\calc@Bskip=\skip59
+LaTeX Info: Redefining \setlength on input line 80.
+LaTeX Info: Redefining \addtolength on input line 81.
+\calc@Ccount=\count115
+\calc@Cskip=\skip60
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/eso-pic/eso-pic.sty
+Package: eso-pic 2015/04/20 v2.0e eso-pic (RN)
+
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/atbegshi.sty
+Package: atbegshi 2011/10/05 v1.16 At begin shipout hook (HO)
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2007/01/21 v2.11 LaTeX color extensions (UK)
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/color.cfg
+File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
+)
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1337.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1341.
+Package xcolor Info: Model `RGB' extended on input line 1353.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1355.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1356.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1357.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1358.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1359.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1360.
+))
+\AM@pagewidth=\dimen164
+\AM@pageheight=\dimen165
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/pdfpages/pppdftex.def
+File: pppdftex.def 2015/05/11 v0.4x Pdfpages driver for pdfTeX (AM)
+)
+\AM@pagebox=\box35
+\AM@toc@title=\toks33
+\c@AM@survey=\count116
+\AM@templatesizebox=\box36
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/abstract/abstract.sty
+Package: abstract 2009/06/08 v1.2a configurable abstracts
+\abstitleskip=\skip61
+\absleftindent=\skip62
+\absrightindent=\skip63
+\absparindent=\skip64
+\absparsep=\skip65
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/tablefootnote/tablefootnote.sty
+Package: tablefootnote 2014/01/26 v1.1c Table foot notes (HMM)
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/letltxmacro.sty
+Package: letltxmacro 2010/09/02 v1.4 Let assignment for LaTeX macros (HO)
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/xifthen/xifthen.sty
+Package: xifthen 2009/04/17 v1.3 Extended ifthen features
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/etex-pkg/etex.sty
+Package: etex 2015/03/02 v2.1 eTeX basic definition package (PEB,DPC)
+\et@xins=\count117
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/ifmtarg/ifmtarg.sty
+Package: ifmtarg 2009/09/02 v1.2a check for an empty argument
+))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/etoolbox/etoolbox.sty
+Package: etoolbox 2015/05/04 v2.2 e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count118
+))
+(./Kenya_ViolentEvents_JPR_final.aux)
+\openout1 = `Kenya_ViolentEvents_JPR_final.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 43.
+LaTeX Font Info:    ... okay on input line 43.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 43.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 43.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/base/ts1cmr.fd
+File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    ... okay on input line 43.
+
+(/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count119
+\scratchdimen=\dimen166
+\scratchbox=\box37
+\nofMPsegments=\count120
+\nofMParguments=\count121
+\everyMPshowfont=\toks34
+\MPscratchCnt=\count122
+\MPscratchDim=\dimen167
+\MPnumerator=\count123
+\makeMPintoPDFobject=\count124
+\everyMPtoPDFconversion=\toks35
+) (/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/pdftexcmds.sty
+Package: pdftexcmds 2011/11/29 v0.20 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/ifluatex.sty
+Package: ifluatex 2010/03/01 v1.3 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+Package pdftexcmds Info: LuaTeX not detected.
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+)
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
+
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/kvdefinekeys.sty
+Package: kvdefinekeys 2011/04/07 v1.3 Define keys (HO)
+))
+(/usr/local/texlive/2015/texmf-dist/tex/latex/oberdiek/kvoptions.sty
+Package: kvoptions 2011/06/30 v3.11 Key value format for package options (HO)
+
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/kvsetkeys.sty
+Package: kvsetkeys 2012/04/25 v1.16 Key value parser (HO)
+
+(/usr/local/texlive/2015/texmf-dist/tex/generic/oberdiek/etexcmds.sty
+Package: etexcmds 2011/02/16 v1.5 Avoid name clashes with e-TeX commands (HO)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+Package grfext Info: Graphics extension search list:
+(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 452.
+
+(/usr/local/texlive/2015/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+Package xypdf Info: Line width: 0.47998pt on input line 43.
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+\AtBeginShipoutBox=\box38
+
+Underfull \hbox (badness 10000) in paragraph at lines 61--62
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 63--64
+
+ []
+
+[1
+
+{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
+Underfull \hbox (badness 10000) in paragraph at lines 65--66
+
+ []
+
+
+Overfull \hbox (50.92152pt too wide) in paragraph at lines 67--68
+\OT1/cmr/m/n/12 along with the on-line ap-pendix, can be found at https://githu
+b.com/rexdouglass/MeasuringLandscape.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 67--68
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 70--71
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 72--73
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 74--75
+
+ []
+
+[2] [1] [2] [3] [4]
+Underfull \hbox (badness 1082) in paragraph at lines 131--131
+[][]\OT1/cmr/m/n/10 See code-books at https://www.start.umd.edu/gtd/downloads/C
+odebook.pdf and http://data.gdelt
+ []
+
+[5] [6] [7]
+Overfull \hbox (4.94005pt too wide) in paragraph at lines 148--149
+\OT1/cmr/m/n/12 ized iden-ti-fiers (such as co-or-di-nates) through databases o
+f ge-o-graphic in-for-ma-tion (gazetteers),
+ []
+
+[8]
+Overfull \hbox (4.88686pt too wide) in paragraph at lines 163--163
+\OMS/cmsy/m/n/12 !$|  
+ []
+
+
+Overfull \hbox (4.88686pt too wide) in paragraph at lines 163--163
+\OMS/cmsy/m/n/12 !$|  
+ []
+
+
+Overfull \hbox (4.88686pt too wide) in paragraph at lines 163--163
+\OMS/cmsy/m/n/12 !$|  
+ []
+
+[9] [10] [11] [12] [13] [14] [15] [16] [17] [18] [19] [20]
+<rf_mapcoordinate_clean_missing.pdf, id=80, 722.7pt x 578.16pt>
+File: rf_mapcoordinate_clean_missing.pdf Graphic file (type pdf)
+
+<use rf_mapcoordinate_clean_missing.pdf>
+Package pdftex.def Info: rf_mapcoordinate_clean_missing.pdf used on input line 
+247.
+(pdftex.def)             Requested size: 469.75499pt x 375.80836pt.
+ [21] [22 <./rf_mapcoordinate_clean_missing.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 260--260
+[][]\OT1/cmr/m/n/10 Kenya 1:50,000 se-ries (Sheet 103/II), avail-able through t
+he British Li-brary Maps at
+ []
+
+[23] <RecallBias.pdf, id=96, 650.43pt x 433.62pt>
+File: RecallBias.pdf Graphic file (type pdf)
+ <use RecallBias.pdf>
+Package pdftex.def Info: RecallBias.pdf used on input line 266.
+(pdftex.def)             Requested size: 578.15999pt x 385.47066pt.
+
+Overfull \hbox (2.32602pt too wide) in paragraph at lines 266--267
+ [][] 
+ []
+
+<p_openstreetmap_kenyamap.png, id=97, 578.16pt x 433.62pt>
+File: p_openstreetmap_kenyamap.png Graphic file (type png)
+
+<use p_openstreetmap_kenyamap.png>
+Package pdftex.def Info: p_openstreetmap_kenyamap.png used on input line 277.
+(pdftex.def)             Requested size: 469.75499pt x 352.31538pt.
+ [24] [25 <./RecallBias.pdf>] [26 <./p_openstreetmap_kenyamap.png (PNG copy)>] 
+[27]
+<p_pop.png, id=148, 317.988pt x 289.08pt>
+File: p_pop.png Graphic file (type png)
+ <use p_pop.png>
+Package pdftex.def Info: p_pop.png used on input line 304.
+(pdftex.def)             Requested size: 90.3375pt x 82.124pt.
+
+<p_roads.png, id=149, 317.988pt x 289.08pt>
+File: p_roads.png Graphic file (type png)
+ <use p_roads.png>
+Package pdftex.def Info: p_roads.png used on input line 304.
+(pdftex.def)             Requested size: 90.3375pt x 82.124pt.
+
+<p_rugged.png, id=150, 317.988pt x 289.08pt>
+File: p_rugged.png Graphic file (type png)
+ <use p_rugged.png>
+Package pdftex.def Info: p_rugged.png used on input line 306.
+(pdftex.def)             Requested size: 90.3375pt x 82.124pt.
+
+<p_rain.png, id=151, 317.988pt x 289.08pt>
+File: p_rain.png Graphic file (type png)
+ <use p_rain.png>
+Package pdftex.def Info: p_rain.png used on input line 306.
+(pdftex.def)             Requested size: 90.3375pt x 82.124pt.
+
+<p_forest.png, id=152, 317.988pt x 289.08pt>
+File: p_forest.png Graphic file (type png)
+ <use p_forest.png>
+Package pdftex.def Info: p_forest.png used on input line 308.
+(pdftex.def)             Requested size: 90.3375pt x 82.124pt.
+
+<p_bias_in_covariates_by_source.pdf, id=153, 1156.32pt x 216.81pt>
+File: p_bias_in_covariates_by_source.pdf Graphic file (type pdf)
+
+<use p_bias_in_covariates_by_source.pdf>
+Package pdftex.def Info: p_bias_in_covariates_by_source.pdf used on input line 
+318.
+(pdftex.def)             Requested size: 614.295pt x 115.18002pt.
+
+Overfull \hbox (38.46103pt too wide) in paragraph at lines 318--319
+ [][] 
+ []
+
+[28] [29 <./p_pop.png> <./p_roads.png> <./p_rugged.png (PNG copy)> <./p_rain.pn
+g (PNG copy)> <./p_forest.png>] [30 <./p_bias_in_covariates_by_source.pdf>]
+<p_lm.pdf, id=173, 650.43pt x 433.62pt>
+File: p_lm.pdf Graphic file (type pdf)
+ <use p_lm.pdf>
+Package pdftex.def Info: p_lm.pdf used on input line 333.
+(pdftex.def)             Requested size: 578.15999pt x 385.47066pt.
+
+Overfull \hbox (2.32602pt too wide) in paragraph at lines 333--334
+ [][] 
+ []
+
+[31] [32 <./p_lm.pdf>] [33] [34] [35]
+Underfull \hbox (badness 10000) in paragraph at lines 356--357
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 359--360
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 361--362
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 363--364
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 365--366
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 367--368
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 369--370
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 371--372
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 373--374
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 375--376
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 377--378
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 379--380
+
+ []
+
+[36]
+Underfull \hbox (badness 10000) in paragraph at lines 381--382
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 383--384
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 385--386
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 387--388
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 389--390
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 391--392
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 393--394
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 395--396
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 397--398
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 399--400
+
+ []
+
+[37]
+Underfull \hbox (badness 10000) in paragraph at lines 401--402
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 403--404
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 405--406
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 407--408
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 409--410
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 411--412
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 413--414
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 415--416
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 417--418
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 419--420
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 421--422
+
+ []
+
+[38]
+Underfull \hbox (badness 10000) in paragraph at lines 423--424
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 425--426
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 427--428
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 429--430
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 431--432
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 433--434
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 435--436
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 437--438
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 439--440
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 441--442
+
+ []
+
+[39]
+Underfull \hbox (badness 10000) in paragraph at lines 443--444
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 445--446
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 447--448
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 449--450
+
+ []
+
+
+Overfull \hbox (2.57912pt too wide) in paragraph at lines 451--452
+[]\OT1/cmr/m/n/12 Sundberg, Ralp & Erik Me-lander (2013) In-tro-duc-ing the UCD
+P Geo-ref-er-enced Event Dataset.
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--452
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 453--454
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 455--456
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 457--458
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 459--460
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 461--462
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 463--464
+
+ []
+
+[40]
+Underfull \hbox (badness 10000) in paragraph at lines 465--466
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 467--468
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 469--470
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 471--472
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 473--474
+
+ []
+
+[41] (./Kenya_ViolentEvents_JPR_final.aux) )
+(\end occurred inside a group at level 17)
+
+### semi simple group (level 17) entered at line 343 (\begingroup)
+### semi simple group (level 16) entered at line 337 (\begingroup)
+### semi simple group (level 15) entered at line 322 (\begingroup)
+### semi simple group (level 14) entered at line 312 (\begingroup)
+### semi simple group (level 13) entered at line 287 (\begingroup)
+### semi simple group (level 12) entered at line 281 (\begingroup)
+### semi simple group (level 11) entered at line 270 (\begingroup)
+### semi simple group (level 10) entered at line 251 (\begingroup)
+### semi simple group (level 9) entered at line 235 (\begingroup)
+### semi simple group (level 8) entered at line 215 (\begingroup)
+### semi simple group (level 7) entered at line 197 (\begingroup)
+### semi simple group (level 6) entered at line 191 (\begingroup)
+### semi simple group (level 5) entered at line 170 (\begingroup)
+### semi simple group (level 4) entered at line 146 (\begingroup)
+### semi simple group (level 3) entered at line 129 (\begingroup)
+### semi simple group (level 2) entered at line 118 (\begingroup)
+### semi simple group (level 1) entered at line 81 (\begingroup)
+### bottom level 
+Here is how much of TeX's memory you used:
+ 8489 strings out of 493089
+ 119679 string characters out of 6134842
+ 246425 words of memory out of 5000000
+ 11775 multiletter control sequences out of 15000+600000
+ 12256 words of font info for 48 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 38i,15n,39p,3261b,1068s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmr12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mr17.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr
+7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.p
+fb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pf
+b></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb
+>
+Output written on Kenya_ViolentEvents_JPR_final.pdf (43 pages, 1125276 bytes).
+PDF statistics:
+ 277 PDF objects out of 1000 (max. 8388607)
+ 183 compressed objects within 2 object streams
+ 0 named destinations out of 1000 (max. 500000)
+ 51 words of extra memory for PDF output out of 10000 (max. 10000000)
+
