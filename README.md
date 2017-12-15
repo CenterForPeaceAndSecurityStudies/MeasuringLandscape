@@ -13,7 +13,7 @@ The Paper
 
 The Authors
 
--   [Dr. Rex W. Douglass](www.rexdouglass.com)(University of California San Diego)
+-   [Dr. Rex W. Douglass](https://www.rexdouglass.com)(University of California San Diego)
 
 -   [Dr. Kristen Harkness](https://kristenharkness.com/)(University of St. Andrews)
 
