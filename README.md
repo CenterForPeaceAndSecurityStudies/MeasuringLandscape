@@ -7,7 +7,7 @@ This is a package, documentation, and replication repository for the paper "Meas
 
 [Measuring the Landscape of Civil War - Read the Paper](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
 
-[Measuring the Landscape of Civil War - Read the Online Appendix](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscapeOfCivilWar_2017.pdf)
+[Measuring the Landscape of Civil War - Read the Online Appendix](https://github.com/rexdouglass/MeasuringLandscape/blob/master/paper/MeasuringLandscape_Appendix.pdf)
 
 Authors
 
