@@ -2363,6 +2363,7 @@ The model performs well, with a classification error rate of 0.014.
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2430,6 +2431,7 @@ status collapsed
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2551,6 +2553,7 @@ The model we employ is again XGBoost, implemented in the R package xgboost
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2594,6 +2597,7 @@ Predicted distance between event and gazeteer match versus observed true
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open
@@ -2620,7 +2624,9 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Variable importance measures for supervised ensemble match selection
+Variable importance measures for supervised ensemble match selection.
+ Categorical variables one-hot encoded.
+ Top 50 shown.
 \end_layout
 
 \end_inset
@@ -2633,6 +2639,517 @@ Variable importance measures for supervised ensemble match selection
 
 \end_layout
 
+\begin_layout Section
+\begin_inset Quotes eld
+\end_inset
+
+New data on the Mau Mau: The data generating process
+\begin_inset Quotes erd
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Here we descibe the ontology we developed for coding natural language text
+ descriptions of actions into a consistent series of distinct events.
+ This is for illustration only.
+ Please see the online R-Notebooks for the precise cleaning steps and conversion
+s that were employed.
+\end_layout
+
+\begin_layout Subsection
+Event Types
+\end_layout
+
+\begin_layout Itemize
+Physical Violence
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Abduction • document language: “abduction”, “kidnapping” • description:
+ individuals, regardless of identity or participation on either side of
+ the conflict, were forcefully abducted by participants in the conflict
+\end_layout
+
+\begin_layout Itemize
+Assault • document language: “assault”, “attack” • description: individuals,
+ regardless of identity or participation on either side of the conflict,
+ were physically assaulted by participants in the conflict
+\end_layout
+
+\begin_layout Itemize
+Murder • document language: “murder”, “elimination” • description: individuals,
+ regardless of identity or participation on either side of the conflict,
+ were killed by participants in the conflict 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Property Destruction
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Arson • document language: “arson”, “burn” • description: suspected participants
+ in the conflict set fire to buildings
+\end_layout
+
+\begin_layout Itemize
+Cattle Slashing • document language: “cattle slashing”, “slashed” • description:
+ suspected participants in the conflict killed cattle by slashing them,
+ usually with a panga (similar to a machete)
+\end_layout
+
+\begin_layout Itemize
+Vandalism • document language: “vandalism” • description: suspected participants
+ in the conflict vandalized private or public property
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Property Theft • document language: “theft” • description: suspected participant
+s in the conflict stole public or private property 
+\end_layout
+
+\begin_layout Itemize
+Rebel Captures • document language: “capture” • description: suspected rebels
+ were captured by government authorities, security forces, or civilians
+ 
+\end_layout
+
+\begin_layout Itemize
+Oathing • document language: “oathing”, “oath”.
+ “recruitment” • description: Mau Mau insurgents routinely entered communities
+ and administered “oaths,” sometimes voluntarily and sometimes through coercion.
+ Oathing was a traditional practice in Kikuyu, Embu, and Meru communities
+ that bound the participants to their oaths through the threat of religious
+ and spiritual punishment.
+ The Mau Mau administered two types of oaths: the first was administered
+ broadly to civilians and bound them to silence.
+ Reporting rebel movements, plans, or activities to government officials
+ was considered a violation of the oath.
+ The second level of oath was only administered after the first oath and
+ only to those committed to participating in Mau Mau.
+ It was referred to as the Batuni (or killing) oath.
+ The intelligence reports do not routinely distinguish between the two types
+ of oaths.
+ 
+\end_layout
+
+\begin_layout Itemize
+Security Operations
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+• Contact • document language: “contact”, “drove off”, “chased off”, “ambush”
+ • description: security forces, usually on patrol or as a part of operations,
+ made contact with suspected rebel forces.
+ Sometimes this resulted in a violent engagement and other times the rebel
+ forces simply fled.
+ [***keep an eye out to make sure “drove off” is being categorized correctly***]
+\end_layout
+
+\begin_layout Itemize
+• Patrols • document language: “patrol”, “sweep” • description: security
+ forces sent units on patrol regardless of whether they made contact.
+ If contact was made, the patrol was coded as a contact rather than a patrol.
+ 
+\end_layout
+
+\begin_layout Itemize
+• Punishment • document language: “confiscate”, “sentenced” • description:
+ government authorities or security forces confiscated property (presumably
+ of suspected insurgents or their sympathizers) or suspected insurgents
+ received punishments through the colonial legal system (although this was
+ usually not reported in the intelligence documents)
+\end_layout
+
+\begin_layout Itemize
+• Screening • document language: “screening” • description: Colonial authorities
+ set up screening panels in local communities and interviewed individuals
+ to try and determine whether they were Mau Mau or rebel sympathizers.
+ Those deemed “guilty” by the screening committee were often sent to detention
+ camps or tried and sentenced through the legal system.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Unclassified (at mid-level of aggregation)
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Desertion • document language: “desertion” • description: soldiers deserting
+ their units
+\end_layout
+
+\begin_layout Itemize
+Escape • document language: “escape” • description: suspected rebels escaping
+ from civil authorities, security units, or others attempting to capture
+ them
+\end_layout
+
+\end_deeper
+\begin_layout Subsection
+Instigator/Target Types
+\end_layout
+
+\begin_layout Itemize
+Government 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Civil Authorities
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Colonial Authorities • document language: “councillor”, “district commissioner”,
+ “district officer” or “d.o.” or “do”, “forest ranger”, “game ranger”, “game
+ warden”, “government”, “government employees”, “port authority”, “public
+ works department”, “screening team”, “wakamba screening team” • description:
+ employees and officials of the colonial government excluding tribal authorities
+ and members of the security forces.
+ 
+\end_layout
+
+\begin_layout Itemize
+Tribal Authorities • document language: “chief”, “elders”, “headman” • descripti
+on: chiefs, headman, and their personal details were part of the tribal
+ authority structure that worked with the colonial government to govern
+ the various tribal areas.
+ Many were loyal to the colonial government during the emergency while others
+ were suspected or accused of clandestinely supporting the Mau Mau.
+ 
+\end_layout
+
+\begin_layout Itemize
+Home Guard • document language: “Embu guard”, “farm guard”, “forest guard”,
+ “home guard”, “Ikandine guard”, “Kathanjure guard”, “Kijabe guard, “Kikuyu
+ guard”, “Masai guard”, “Meru guard”, “Nandi guard”, “Nkubu guard,” “stock
+ guard”, “Tigoni guard” (and abbreviations such as e.g., h.g., k.g., m/g, ng,
+ etc.) • description: home guards were local defense forces recruited and
+ based at the village or sublocation administrative level and were usually
+ headed by the local chief or headman.
+ Many were referred to by the ethnic group which they were recruited from
+ (Embu, Kikuyu, Masai, Meru, Nandi, etc.).
+ Others were referred to by their primary duty (farm guard, forest guard,
+ etc.) or by their location (Kathanjure guard,etc.
+ ).
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Military
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Arab combat units • document language: “arab combat” • description: military
+ units recruited from Middle Eastern immigrants and their descendants
+\end_layout
+
+\begin_layout Itemize
+Asian combat units • document language: “asian combat”, “asian combat team”,
+ “asian combat unit” • description: military units recruited from Indian
+ and Pakistani immigrants and their descendants
+\end_layout
+
+\begin_layout Itemize
+British Military • document language: “Devonshire regiment” or “devons”
+ or “ a co devon”, “Field Intelligence Assistant” or “fia”, “Field Intelligence
+ Officer” or “FIO” or “fios”, “Gloucestershire regiment” or “glosters”,
+ “Lancashire fusiliers”, “King's Shropshire light infantry” or “ksli”, “Royal
+ East Kent regiment” or “buffs”, “Royal fusiliers”, “Royal Highland regiment”
+ or “Black Watch” or “watch” or “bw”, “Royal Inniskilling fusiliers” or
+ “royal innisks” or “inniskillings”, “Royal Irish fusiliers”, “Royal Northumberl
+and fusiliers” or “RNF” (and abbreviations such as BW, LF, RIF, etc.), “army”,
+ “platoon support company”, “c company”, “d company”, “a company”, “d force”
+ • description: units of the British Army whose members were recruited in
+ the United Kingdom and were sent to Kenya to support locally recruited
+ forces.
+ For a complete listing of such units see http://www.britains-smallwars.com/kenya/
+Units.html.
+\end_layout
+
+\begin_layout Itemize
+King’s African Rifles • document language: 3 KAR, 4 KAR, 5 KAR, 6 KAR, 7
+ KAR, 23 KAR, 26 KAR (and variations) • description: The King’s African
+ Rifles were East African colonial military units.
+ While they were officered almost exclusively by British officers, their
+ rank-and-file were recruited locally from African communities in Kenya,
+ Uganda, and Tanganyika.
+ The 3rd, 5th, 7th, 11th, and 23rd battalions were recruited from Kenya,
+ the 4th from Uganda, and the 6th and 26th from Tanganyika.
+ Kenya Regiment • document language: “Kenya regiment”, “kenreg”, “kenregg”,
+ kenya regiment sergeant”, “kr”, “Captain Folliott’s team” • description:
+ the Kenya Regiment was a military unit recruited from local settlers of
+ European descent.
+ Conscription began in 1950 from the European settler community.
+ Officers were often seconded to the KAR battalions.
+ 
+\end_layout
+
+\begin_layout Itemize
+Military (generic) • document language: “captain”, “company” or “coy”, “military
+”, “military property”, “platoon” (and abbreviations), “security forces”,
+ “security force”, “sentry”, “striking force” • description: military units
+ that could not be coded in a more specific category because the document
+ language was too vague 
+\end_layout
+
+\begin_layout Itemize
+Pseudo Gangs • document language: “pseudo gang”, “pseudo gangs”, “pseudo
+ team”, “pseudo teams”, “tracker group,” “trojan”, “trojan team” • description:
+ the British military developed special forces called “pseudo gangs” that
+ went into the forest disguised as Mau Mau gangs in order to gather intelligence
+ and infiltrate actual Mau Mau gangs.
+\end_layout
+
+\begin_layout Itemize
+Royal Air Force • document language: “RAF”, “raf lincolns”, “bombers”, “air
+ strike”, “flying squard”, “harvards” (a type of aircraft) • description:
+ British RAF units
+\end_layout
+
+\begin_layout Itemize
+Paramilitary • document language: “General Service Unit”, “GSU” • description:
+ the General Service Unit was a special forces paramilitary unit recruited
+ from both police and military units.
+ It was comprised of white officers and African rank-and-file.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Police
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+CID • document language: “CID” or “cid” • description: Criminal Investigations
+ Division of the police 
+\end_layout
+
+\begin_layout Itemize
+Kenya Police • document language: “Kenya police”, “KP” • description: The
+ regular Kenya police were a mixed force of white settlers and Africans.
+ 
+\end_layout
+
+\begin_layout Itemize
+Kenya Police Reserve • document language: “Kenya police reserve”, “KPR”,
+ “KPR officers”, “reserve police officer” or “RPO” or “rpos” • description:
+ The Kenya Police Reserve was formed for emergency purposes and was recruited
+ from the European settler committee.
+ Settlers could fulfill their conscription duties by serving in the KPR.
+\end_layout
+
+\begin_layout Itemize
+Police (generic) • document language: “constable”, “police”, “police party”
+ • description: police units that could not be coded in a more specific
+ category because the document language was too vague
+\end_layout
+
+\begin_layout Itemize
+Railway Police • document language: “railway police” • description: special
+ police units for the railway
+\end_layout
+
+\begin_layout Itemize
+Special Branch • document language: “sb officers”, “special branch”, “special
+ branch team”, “blue doctor team” • description: Special Branch was an intellige
+nce unit within the colonial police forces responsible for gathering information
+ on subversion and other threats to the state.
+ They conducted interrogations, analyzed captured documents, and compiled
+ and distributed regular intelligence reports and appreciations from both
+ police and military intelligence sources.
+ 
+\end_layout
+
+\begin_layout Itemize
+Tribal Police • document language: “African special constable”, “Githumu
+ police”, “Masai special constable”, “tribal police”, “TP”, “tpeg” • description
+: tribal police were locally recruited units of Africans, organized at the
+ district level, that helped maintain law and order in the native reserve
+ areas.
+ African constables from the Kenya Police were often seconded to tribal
+ police units as commanders.
+ The tribal police officially came under the command of the District Officer
+ or District Commissioner.
+\end_layout
+
+\begin_layout Itemize
+Tribal Police Reserve • document language: “tribal police reserve”, “TPR”
+ • description: additional tribal police units that supported the tribal
+ police during the emergency.
+ The were recruited from the local African population.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Civilians
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Civilians • document language: “african”, “Africans”, “children”, “civilians”,
+ “driver”, “embu”, “employees”, “european”, “evangelist”, “family”, “farm
+ boys”, “farm labour”, “farmer”, “girls”, “herd boys”, “houseboy”, “informer”,
+ “Kikuyu”, “kuria tribesman”, “labour”, “laborour”, “local labour”, “loyalist”,
+ “manager”, “Masai”, “masai party”, “men”, “mission staff”, “mrhiggins”,
+ “owner”, “passengers”, “people”, “shopkeeper”, “samburu”, “sikh”, “stranger”,
+ “students”, “teachers”, “tribesmen,” “Turkana”, “vet officer”, “vigilantes”,
+ “woman”, “women”, “workers” • description: individuals identified in the
+ documents specifically as civilians or non-participants in the conflict.
+ 
+\end_layout
+
+\begin_layout Itemize
+Communities • document language: “camp”, “manyatta”, “fishing camp”, “sublocatio
+n”, “village” • description: sets of individuals identified in the documents
+ by a communal affiliation.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+Suspected Rebels
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Detainees • document language: “detainees” • description: individuals detained
+ by the government on suspicion of insurgent activity.
+\end_layout
+
+\begin_layout Itemize
+Suspected Insurgents • document language: “bandits”, “food foragers”, “gangs”,
+ “gunmen”, “Kiama Kia Muingi” or “KKM” (offshoot of Mau Mau later in the
+ conflict), “komerera” (means ill disciplined fighter), “Mau Mau”, “oath
+ administrator”, “passive wing”, “passive wing members”, “rebels”, “resistance
+ groups”, “suspects”, “terrorist”, “terrorists” • description: individuals
+ identified in the documents as insurgents.
+ The colonial authorities and security forces were quick to identify as
+ an insurgent any individual they harmed or who they found committing a
+ crime in a conflict area or in possession of a weapon (including pangas
+ which were used for harvesting).
+ Thus this category likely includes many civilians as well as actual insurgents.
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Property
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Armaments
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Ammunition • document language: “ammunition” • description: bullets and
+ other ammunition for firearms.
+ 
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Explosives • document language: “explosives”, “gelignite” • description:
+ materials used for building explosives.
+\end_layout
+
+\begin_layout Itemize
+Firearms • document language: “arms”, “firearm”, “gun”, “pistol”, “rifle”
+ • description: any type of firearm.
+\end_layout
+
+\begin_layout Itemize
+Other Weapons • document language: “axe”, “panga”, “scabbard”, “weapons”
+ • description: any other type of weapon not considered a firearm or an
+ explosive.
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Itemize
+Private Property • document language: “buildings”, “cattle boma”, “cattle
+ dip”, “coffee trees”, “duka”, “farms”, “garage”, “homes” or “huts”, “hotel”,
+ “land rover”, “lorry”, “market”, “office”, “oxcart”, “property”, “pump
+ house”, “sawmill”, “shops” or “stores”, “tractor”, “vehicle”, “windmill”
+ • description: any property that could be considered private (excluding
+ government and military property, infrastructure such as roads, and property
+ used for public use even if privately owned such as churches and schools).
+ 
+\end_layout
+
+\begin_layout Itemize
+Provisions
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Cash • document language: “cash”, “funds”, “money” • description: currency.
+\end_layout
+
+\begin_layout Itemize
+Food • document language: “banana”, “barley”, “bran”, “cabbage”, “coffee”,
+ “corn”, “cream”, “crops”, “dairy”, “food”, “fruit”, “grain”, “honey”, “maize”,
+ “meat”, “milk”, “oats”, “posho”, “potatoes”, “sugar”, “vegetable”, “wheat”
+ • description: food items.
+\end_layout
+
+\begin_layout Itemize
+Livestock • document language: “beast”, “cattle”, “cow”, “herd”, “livestock”,
+ “pig”, “sheep”, “steer”, “stock” • description: livestock.
+\end_layout
+
+\begin_layout Itemize
+Medicine • document language: “medical supplies”, “medicine”, “m&b tablets”
+ • description: pharmaceuticals and other medical supplies.
+\end_layout
+
+\begin_layout Itemize
+Supplies • document language: “bags”, “bedding”, “blankets”, “books”, “charcoal”
+, “cloth”, “clothing”, “cooking utensils”, “cutlery”, “dairy item”, “equipment”,
+ “farm implements”, “household items”, “instruments”, “iron”, “pails”, “petrol”,
+ “provisions”, “oil”, “railway uniforms”, “sacks”, “supplies”, “tarpaulin”,
+ “thatch,” “timber”, “tobacco”, “tools”, “uniforms”, “wire”, “wireless set”,
+ “whiskey” • description: general household and farm goods.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Public Buildings
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Church • document language: “church” • description: churches.
+\end_layout
+
+\begin_layout Itemize
+Infrastructure • document language: “airstrip”, “bridges”, “half built village”,
+ “military property”, “prison camp”, “roads”, “trenches”, “water tank” •
+ description: general government or security forces infrastructure.
+ 
+\end_layout
+
+\begin_layout Itemize
+School • document language: “school” • description: schools (including both
+ private and religious schools).
+\end_layout
+
+\end_deeper
+\end_deeper
 \begin_layout Section
 Evaluating the Consequences of Georeferencing Decisions
 \end_layout
@@ -2674,6 +3191,7 @@ n by every strategy and decsision discussed.
 
 \begin_layout Standard
 \begin_inset Float figure
+placement H
 wide false
 sideways false
 status open

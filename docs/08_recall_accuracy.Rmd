@@ -97,14 +97,16 @@ setkey(georef_all_dt, event_hash, handrule) #Sort by event and then hand rule
 georef_all_dt_handrule <- georef_all_dt[,.SD[1], by=list(event_hash) ] #Take the smallest hand rule score, lower is better
 georef_all_dt_handrule_summary <- georef_all_dt_handrule[,list(
                                                rule="Hand Rule",
-                                              distance_rmse=sqrt(mean(distance_km^2, na.rm=T)) ,
+                                              distance_rmse=sqrt(mean(distance_km^2, na.rm=T)), 
+                                              distance_mse=mean(distance_km^2, na.rm=T),
+                                              distance_me=mean(distance_km, na.rm=T),
+                                              distance_median=median(distance_km, na.rm=T),
                                               source_dataset_count=.N
                                               )
                                         ]
 
 print("Distance for Hand Rule")
-summary(georef_all_dt_handrule$distance_km)
-
+georef_all_dt_handrule_summary
 
 
 ```
@@ -125,12 +127,15 @@ georef_all_dt_ensemble <- georef_all_dt[,.SD[1], by=list(event_hash) ] #Take the
 georef_all_dt_ensemble_summary <- georef_all_dt_ensemble[,list(
                                                rule="Ensemble Rule",
                                               distance_rmse=sqrt(mean(distance_km^2, na.rm=T)) ,
+                                              distance_mse=mean(distance_km^2, na.rm=T),
+                                              distance_me=mean(distance_km, na.rm=T),
+                                              distance_median=median(distance_km, na.rm=T),
                                               source_dataset_count=.N
                                               )
                                         ]
 
 print("Distance for Ensemble")
-summary(georef_all_dt_ensemble$distance_km)
+georef_all_dt_ensemble_summary
 
 rbind(georef_all_dt_handrule %>% mutate(label="hand"),
       georef_all_dt_ensemble %>% mutate(label="ensemble")) %>% 
@@ -212,9 +217,10 @@ recall_accuracy <- rbindlist(list(
   georef_all_dt_ensemble_summary %>% mutate(label="Ensemble Rule") %>% mutate(Type="Rule"),
   georef_all_dt_bysource_summary %>% mutate(label=source_dataset) %>% mutate(Type="Source Gazetteer"),
   georef_all_dt_byfuzzy_summary %>% mutate(label=ifelse(fuzzy, "Fuzzy","Exact")) %>% mutate(Type="Match Type"),
-  georef_all_dt_byselfreference_summary %>% mutate(label=ifelse(SelfReference, "Match To Other Events","No Match To Other Events")) %>% mutate(Type="Allow Match To Other Events"),
+  georef_all_dt_byselfreference_summary %>% mutate(label=ifelse(SelfReference, "Match To Other Events","No Match To Other Events")) %>%
+    mutate(Type="Allow Match To Other Events"),
   georef_all_dt_bygeometry_type %>% mutate(label=geometry_type) %>% mutate(Type="Geometry Type")
-))
+),fill=T) %>% mutate(recall_rate=source_dataset_count/10469)
 
 #p_load(DT)
 DT::datatable(recall_accuracy)

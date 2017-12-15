@@ -2363,7 +2363,6 @@ The model performs well, with a classification error rate of 0.014.
 
 \begin_layout Standard
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status open
@@ -2431,7 +2430,6 @@ status collapsed
 
 \begin_layout Standard
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status open
@@ -2553,7 +2551,6 @@ The model we employ is again XGBoost, implemented in the R package xgboost
 
 \begin_layout Standard
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status open
@@ -2597,7 +2594,6 @@ Predicted distance between event and gazeteer match versus observed true
 
 \begin_layout Standard
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status open
@@ -3060,6 +3056,7 @@ Ammunition • document language: “ammunition” • description: bullets and
  
 \end_layout
 
+\begin_deeper
 \begin_layout Itemize
 Explosives • document language: “explosives”, “gelignite” • description:
  materials used for building explosives.
@@ -3076,6 +3073,7 @@ Other Weapons • document language: “axe”, “panga”, “scabbard”, “
  explosive.
 \end_layout
 
+\end_deeper
 \end_deeper
 \begin_layout Itemize
 Private Property • document language: “buildings”, “cattle boma”, “cattle
@@ -3189,7 +3187,6 @@ n by every strategy and decsision discussed.
 
 \begin_layout Standard
 \begin_inset Float figure
-placement H
 wide false
 sideways false
 status open
