@@ -1,0 +1,20 @@
+---
+title: "R Notebook"
+output: html_notebook
+editor_options: 
+  chunk_output_type: inline
+---
+
+This file specifies some dependencies that might be specifc.
+
+```{r}
+
+require(devtools)
+#install_version("backports", version = "1.1.0")
+#library(backports)
+
+#devtools::install_github("tidyverse/ggplot2") # geom_sf requires ggplot installed off of the dev server
+
+
+```
+

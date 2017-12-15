@@ -72,7 +72,7 @@ events_sf_roi <- events_sf %>% subset_roi(region_of_interest_sf_utm) %>%
                  filter(!is.na(name) & name !="" & !is.na(latitude) & !is.na(longitude)) %>%
                  distinct()
 
-# Moderately Size Point Sources
+# Moderate Size Point Sources
 nga_sf_roi <- load_nga(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 geonames_sf_roi <- load_geonames(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 historical_sf_roi <- load_historical(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
@@ -81,7 +81,7 @@ historical_sf_roi <- load_historical(roi = region_of_interest_sf_utm, fromscratc
 googlemaps_sf_roi <- load_googlemaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 bingmaps_sf_roi <- load_bingmaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
-# Moderately Size mixed or polygon sources
+# Moderate Size mixed or polygon sources
 KEN_adm_sf_roi <- load_ken_adm(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 livestock_sf_roi <- load_livestock(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 kenya_districts1962_sf_roi <- load_kenya_districts1962(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
@@ -319,9 +319,13 @@ ggsave(
 p_points
 # flatfiles_sf_roi %>% filter(region_of_interest_intersects==T) %>% ggplot(aes(col=as.factor(source_dataset))) + geom_sf(alpha = 0.1)
 
+
+#devtools::install_github("tidyverse/ggplot2") # geom_sf requires ggplot installed off of the dev server
+
 p_notpoints <- flatfiles_sf_roi %>%
   filter(!geometry_type %in% "POINT") %>%
-  ggplot(aes(color = as.factor(source_dataset))) + geom_sf(alpha = 0.1, size = 1) +
+  ggplot(aes(color = as.factor(source_dataset))) + ### geom_sf requires ggplot installed off of the dev server
+  geom_sf(alpha = 0.1, size = 1) +
   facet_wrap(~as.factor(source_dataset), drop = T) +
   # ggtitle("Locations in Region of Interest Stratified by Source") +
   guides(color = FALSE) +

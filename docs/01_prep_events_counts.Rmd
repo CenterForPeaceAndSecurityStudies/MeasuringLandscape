@@ -28,6 +28,12 @@ devtools::load_all()
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width = 12, fig.height = 8, warning = FALSE, message = FALSE, cache = TRUE)
 options(width = 160)
+```
+
+
+# Load Events Data
+
+```{r}
 
 events <- prep_events(fromscratch = F)
 
@@ -490,8 +496,13 @@ events <- events %>%
   mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*gsu.*", "gsu", ., ignore.case =T))) %>%
   mutate_at(vars(starts_with("target_clean_")), funs(gsub(".*watch.*", "watch", ., ignore.case =T))) %>%
   mutate_at(vars(starts_with("target_clean_")), funs(trimws(.)))
-table(events$target_clean_1)
 
+events$target_clean_1 %>%
+  tabyl(sort = TRUE) %>%
+  adorn_crosstab(digits = 1)
+```
+
+```{r}
 events <- events %>%
   mutate(target_clean_1_agglow = recode(target_clean_1, initiator_target_master_clean)) %>%
   mutate(target_clean_2_agglow = recode(target_clean_2, initiator_target_master_clean)) %>%

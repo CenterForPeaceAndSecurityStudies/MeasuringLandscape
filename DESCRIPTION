@@ -3,12 +3,12 @@ Title: Replication file for the paper Measuring the Landscape of CivilWar
 Version: 0.0.0.9000
 Authors@R: person("Rex", "Douglass", email = "rexdouglass@gmail.com", role = c("aut", "cre"))
 Description: This is a replication package to recreate the figures and analysis found in the paper.
-Depends: R (>= 3.4.1), lettercase, dummies, DT, kableExtra, foreach, parallel, quanteda, proxy, MLmetrics, Metrics, precrec, PRROC, data.table, devtools, textreuse, LSHR, rasterVis, ggplot2, rgdal, raster, rgdal, maptools, plyr, raster, glue, devtools, mosaic, stringr,stringi, lubridate,stringr, janitor, digest, tidyverse, dplyr,knitr,DT,magrittr, rgeos, rgdal, digest, ggmap, bookdown, stringdist, sf, tidyverse, viridis, rvest, re2r, knitr, xgboost
+Depends: R (>= 3.4.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rexdouglass/MeasuringLandscapeCivilWar
 BugReports: https://github.com/rexdouglass/MeasuringLandscapeCivilWar/issues
-Imports: bookdown
+Imports: backports, bookdown,  lettercase, dummies, DT, kableExtra, foreach, parallel, quanteda, proxy, MLmetrics, Metrics, precrec, PRROC, data.table, devtools, textreuse, LSHR, rasterVis, ggplot2, rgdal, raster, rgdal, maptools, plyr, raster, glue, devtools, mosaic, stringr,stringi, lubridate,stringr, janitor, digest, tidyverse, dplyr,knitr,DT,magrittr, rgeos, rgdal, digest, ggmap, bookdown, stringdist, sf, tidyverse, viridis, rvest, re2r, knitr, xgboost
 Suggests: testthat
 RoxygenNote: 6.0.1
