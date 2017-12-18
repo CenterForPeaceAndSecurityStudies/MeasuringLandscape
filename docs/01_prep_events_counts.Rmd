@@ -2,11 +2,13 @@
 title: "01 Prep Events Counts"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
-output: 
+output:
   html_notebook:
-    toc: true
-    toc_float: true
-editor_options: 
+    toc: yes
+    toc_float: yes
+  html_document:
+    toc: yes
+editor_options:
   chunk_output_type: inline
 ---
 <style>
@@ -1260,10 +1262,10 @@ events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_lon
 #events_sf$event_hash <- NULL #Make sure we're not hashing on the previous hash which might be a random walk
 
 events_sf <- events_sf %>%
-            st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"),
+            sf::st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"),
                      crs = 4326, agr = "constant", remove = F, na.fail = F) # %>% 
              #mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #Do this once and only once
-valid <- st_is_valid(events_sf$geometry); table(valid)
+valid <- sf::st_is_valid(events_sf$geometry); table(valid)
 
 eventsnames_sf <- events_sf %>% 
   select("name_cleaner", "geometry") %>% 
