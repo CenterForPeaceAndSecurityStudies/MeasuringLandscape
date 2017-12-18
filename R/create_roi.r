@@ -5,7 +5,7 @@ create_roi <- function(bottom_left_x,
                        top_right_y,
                        crs_in=4326,
                        crs_out="+proj=utm +zone=37 +datum=WGS84") {
-  region_of_interest_sf <- st_sfc(st_polygon(list(
+  region_of_interest_sf <- sf::st_sfc(st_polygon(list(
     rbind(
       c(bottom_left_x, bottom_left_y),
       c(top_right_x, bottom_left_y),
