@@ -2,7 +2,7 @@ Package: MeasuringLandscape
 Title: Replication file for the paper Measuring the Landscape of CivilWar
 Version: 0.0.0.9000
 Authors@R: person("Rex", "Douglass", email = "rexdouglass@gmail.com", role = c("aut", "cre"))
-Description: DiagrammerR
+Description: Replication file for the paper Measuring the Landscape of CivilWar
 Depends: R (>= 3.4.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
