@@ -9,7 +9,12 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
-  
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
+
 Given a location string, and multiple possible matches to real world places, this provides some logic for how to rank some matches as better than others.
 
 First, using simple hand rules of what kind of match to prefer over others. 

@@ -9,6 +9,11 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
 
 Demonstrate what kinds of events tend to systematically get excluded. Here, in terms of whether the event would have received an original military coordinate or not.
 

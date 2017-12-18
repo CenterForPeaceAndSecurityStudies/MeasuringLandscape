@@ -9,6 +9,11 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
 
 Takes in locations of events described as text, and returns all possible matches across different gazeteers.
 

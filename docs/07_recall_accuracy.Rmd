@@ -9,6 +9,11 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
 
 Demonstrates that georeferencing options vary terms of recall (how many event locations they recover) and accuracy (how far away their imputed locations tend to be from the true location)
 

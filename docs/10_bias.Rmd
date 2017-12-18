@@ -9,6 +9,11 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
 
 This file demonstrates that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggeness, etc.
 

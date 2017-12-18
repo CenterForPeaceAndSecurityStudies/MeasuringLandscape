@@ -9,6 +9,11 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
 
 Demonstrate that different georeferencing decisions will produce different results in a simple linear regression model in terms of both statistical significance and substantive effects.
 

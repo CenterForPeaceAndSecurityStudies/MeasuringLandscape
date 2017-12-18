@@ -9,6 +9,11 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
 
 Demonstrates that georeferencing options vary in how systematically they include some kinds of events while excluding other kinds. Asks whether or not missingness of geographic information is truly random, or if certain kinds of events or places are being dropped.
 
