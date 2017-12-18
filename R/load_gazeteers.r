@@ -23,12 +23,12 @@ region_of_interest_sf_utm$a <- NULL
 subset_roi <- function(shapes_sf, roi) {
   print(dim(shapes_sf))
 
-  newcrs <- st_crs(shapes_sf)$epsg
+  newcrs <- sf::st_crs(shapes_sf)$epsg
 
   condition <- as.vector(
-    st_intersects(
+    sf::st_intersects(
       shapes_sf,
-      st_transform(roi, newcrs),
+      sf::st_transform(roi, newcrs),
       sparse = F
     )
   )
@@ -109,7 +109,7 @@ load_wikidata <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
     mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
    tidyr::unnest(name) %>%
     as.data.frame() %>%
-    st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
+    sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
     mutate(timeperiod = "2017-01-01")
 
   return(wikidata_sf_roi)
@@ -193,7 +193,7 @@ load_tgn <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
     mutate_at(c("latitude", "longitude"), as.numeric) %>%
     mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
    tidyr::unnest(name) %>%
-    st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
+    sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
     mutate(timeperiod = "2017-01-01")
 
   return(tgn_sf)
@@ -212,7 +212,7 @@ load_historical <- function(roi, fromscratch=F) {
       mutate(name_alternates = sapply(strsplit(name, ";| see | SEE | check if same as "), FUN = function(x) paste(x, collapse = ";"))) %>%
       mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
      tidyr::unnest(name) %>%
-      st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
+      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
 
     saveRDS(
       historical_sf %>% subset_roi(roi),
@@ -258,7 +258,7 @@ load_geonames <- function(roi, fromscratch=F) {
       mutate(name = gsub(";NA", "", name, fixed = T)) %>%
       mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
      tidyr::unnest(name) %>%
-      st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
+      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
 
     saveRDS(
       geonames_sf %>% subset_roi(roi),
@@ -280,7 +280,7 @@ load_nga <- function(roi, fromscratch=F) {
       mutate(source_dataset = "nga") %>%
       mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
      tidyr::unnest(name) %>%
-      st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
+      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
 
     saveRDS(
       nga_sf %>% subset_roi(roi),
@@ -303,7 +303,7 @@ load_googlemaps <- function(roi, fromscratch=F) {
       select(c("searchtext", "types_all", "long_name", "location_lat", "location_lng")) %>%
       setNames(c("searchtext", "feature_code", "name", "latitude", "longitude")) %>%
       mutate(source_dataset = "google") %>%
-      st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
+      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
       mutate(timeperiod = "2017-01-01")
 
     saveRDS(
@@ -327,7 +327,7 @@ load_bingmaps <- function(roi, fromscratch=F) {
       mutate(name = gsub(", Kenya$|, kenya$", "", name)) %>% # remove , Kenya from the end of the line
       filter(name != "Kenya") %>% # Remove any that are just "Kenya"
       filter(is.na(suggestion_number) | suggestion_number == 1) %>% # Limit to just the first google/bing suggestion
-      st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
+      sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
       mutate(timeperiod = "2017-01-01")
 
     saveRDS(
@@ -346,58 +346,58 @@ load_bingmaps <- function(roi, fromscratch=F) {
 
 load_ken_adm <- function(roi, fromscratch=F) {
   if (fromscratch) {
-    KEN_adm1_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm1.shp", crs = 4326) %>%
+    KEN_adm1_sf <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm1.shp", crs = 4326) %>%
       common_cleaning() %>%
       select(c("engtype_1", "name_1", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "gadm")
 
     KEN_adm1_sf %>%
-      st_write(
+      sf::st_write(
         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm1.gpkg",
         delete_layer = T
       )
 
-    KEN_adm2_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm2.shp", crs = 4326) %>%
+    KEN_adm2_sf <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm2.shp", crs = 4326) %>%
       common_cleaning() %>%
       select(c("engtype_2", "name_2", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "gadm")
     KEN_adm2_sf %>%
-      st_write(
+      sf::st_write(
         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm2.gpkg",
         delete_layer = T
       )
 
-    KEN_adm3_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/KEN_adm3.shp", crs = 4326) %>%
+    KEN_adm3_sf <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/KEN_adm3.shp", crs = 4326) %>%
       common_cleaning() %>%
       select(c("engtype_3", "name_3", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "gadm")
     KEN_adm3_sf %>%
-      st_write(
+      sf::st_write(
         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm3.gpkg",
         delete_layer = T
       )
 
-    KEN_adm4_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/KEN_adm4.shp", crs = 4326) %>%
+    KEN_adm4_sf <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/KEN_adm4.shp", crs = 4326) %>%
       common_cleaning() %>%
       select(c("engtype_4", "name_4", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "gadm")
     KEN_adm4_sf %>%
-      st_write(
+      sf::st_write(
         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm4.gpkg",
         delete_layer = T
       )
 
-    KEN_adm5_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/KEN_adm5.shp", crs = 4326) %>%
+    KEN_adm5_sf <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/KEN_adm5.shp", crs = 4326) %>%
       common_cleaning() %>%
       select(c("engtype_5", "name_5", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "gadm")
     KEN_adm5_sf %>%
-      st_write(
+      sf::st_write(
         "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/KEN_adm5.gpkg",
         delete_layer = T
       )
@@ -436,7 +436,7 @@ load_openstreetmap <- function(roi, fromscratch=F) {
     )
 
     for (filename in filenames) {
-      openstreetmap_list[[filename]] <- st_read(glue("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/", filename))
+      openstreetmap_list[[filename]] <- sf::st_read(glue("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/", filename))
     }
 
     openstreetmap_sf <- openstreetmap_list %>%
@@ -468,7 +468,7 @@ load_kenya_cadastral <- function(roi, fromscratch=F) {
   # install.packages('udunits2',configure.args='--with-udunits2-include=/usr/include/udunits2') #sudo yum install *units2*
   if (fromscratch) {
     p_load(sf)
-    kenya_cadastral_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_cadastral.shp", crs = 4326) %>%
+    kenya_cadastral_sf <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_cadastral.shp", crs = 4326) %>%
       filter(type %in% c("forest", "lake", "mountain", "Native Reserve", "reserve")) %>%
       common_cleaning() %>%
       mutate(name = paste(district, type)) %>%
@@ -494,7 +494,7 @@ load_kenya_cadastral <- function(roi, fromscratch=F) {
 load_kenya_cadastral_district <- function(roi, fromscratch=F) {
   if (fromscratch) {
     kenya_cadastral_district_sf <-
-      st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_cadastral_district.shp", crs = 4326) %>%
+      sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_cadastral_district.shp", crs = 4326) %>%
       common_cleaning() %>%
       filter(district != "Temp") %>%
       mutate(name = paste(district, type)) %>%
@@ -505,7 +505,7 @@ load_kenya_cadastral_district <- function(roi, fromscratch=F) {
   
     kenya_cadastral_district_sf %>% 
       subset_roi(roi) %>% 
-      st_write("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_cadastral_district.gpkg", delete_layer = T)
+      sf::st_write("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_cadastral_district.gpkg", delete_layer = T)
     
     kenya_cadastral_district_sf %>% 
       subset_roi(roi) %>% 
@@ -523,7 +523,7 @@ load_kenya_cadastral_district <- function(roi, fromscratch=F) {
 
 load_kenya_districts1962 <- function(roi, fromscratch=F) {
   if (fromscratch) {
-    kenya_districts1962_sf <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/kenya_districts1962.shp", crs = 4326) %>%
+    kenya_districts1962_sf <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/Violent Events//data/gis_data/kenya_districts1962.shp", crs = 4326) %>%
       common_cleaning() %>%
       setNames(c("name", "geometry")) %>%
       mutate(source_dataset = "kenya_district1962") %>%
@@ -547,26 +547,26 @@ load_livestock <- function(roi, fromscratch=F) {
 
   # Almanac Characterization Tool (ACT) database
   if (fromscratch) {
-    livestock_villages <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_villages.shp", crs = 4326) %>%
+    livestock_villages <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_villages.shp", crs = 4326) %>%
       common_cleaning() %>%
       select(c("theme", "name", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "livestock_points")
 
-    livestock_towns <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_all_towns.shp", crs = 4326) %>%
+    livestock_towns <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_all_towns.shp", crs = 4326) %>%
       common_cleaning() %>%
       select(c("town_type", "town_name", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "livestock_points")
 
-    livestock_locations <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_locations.shp", crs = 4326) %>%
+    livestock_locations <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_locations.shp", crs = 4326) %>%
       common_cleaning() %>%
       mutate(feature_code = "location") %>%
       select(c("feature_code", "location", "geometry")) %>%
       setNames(c("feature_code", "name", "geometry")) %>%
       mutate(source_dataset = "livestock_boundaries")
 
-    livestock_sublocations <- st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_sublocations.shp", crs = 4326) %>%
+    livestock_sublocations <- sf::st_read("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/kenya_sublocations.shp", crs = 4326) %>%
       common_cleaning() %>%
       mutate(feature_code = "sublocations") %>%
       select(c("feature_code", "subloc", "geometry")) %>%
