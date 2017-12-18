@@ -15,6 +15,7 @@ editor_options:
     }
 </style>
 
+
 This file demonstrates that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggeness, etc.
 
 ```{r , results='hide', message=FALSE, warning=FALSE}

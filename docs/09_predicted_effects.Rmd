@@ -15,6 +15,7 @@ editor_options:
     }
 </style>
 
+
 Demonstrate what kinds of events tend to systematically get excluded. Here, in terms of whether the event would have received an original military coordinate or not.
 
 ```{r , results='hide', message=FALSE, warning=FALSE}

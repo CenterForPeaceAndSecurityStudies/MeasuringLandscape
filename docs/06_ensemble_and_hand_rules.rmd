@@ -15,6 +15,7 @@ editor_options:
     }
 </style>
 
+
 Given a location string, and multiple possible matches to real world places, this provides some logic for how to rank some matches as better than others.
 
 First, using simple hand rules of what kind of match to prefer over others. 
