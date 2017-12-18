@@ -8,7 +8,7 @@ toponym_training_dataset_load <- function(
   #Load the hand labels
   handlabeled <- fread(
     system.file("extdata", "event_flatfile_matches_for_hand_labeling - event_flatfile_matches_for_hand_labeling.csv",
-                package = "MeasuringLandscapeCivilWar"),
+                package = "MeasuringLandscape"),
     data.table=T) 
 
   #Drop any diad missing a label on either side  
@@ -32,7 +32,7 @@ toponym_training_dataset_load <- function(
   
   if(drop_zero_dist){
     print("Drop labels with low similarity")
-    handlabeled[,temp_q_cos:= stringsim(name_cleaner_a,name_cleaner_b,"cos", nthread= detectCores(),q=2),]
+    handlabeled[,temp_q_cos:= stringsim(name_cleaner_a,name_cleaner_b,"cos", nthread= parallel::detectCores(),q=2),]
     handlabeled <- handlabeled[temp_q_cos>.3] ; dim(handlabeled)
     
     #handlabeled[,temp_q_gram_2:= stringsim(name_cleaner_a,name_cleaner_b,"qgram", nthread=48,q=2),]

@@ -198,7 +198,7 @@ kenya_location_strip_suffix_train_trainingsplit_y <- function(timesteps=5,
   library(data.table)
 
   if(is.null(inpath)) {
-    tokens_hand_labeled <- fread(system.file("extdata", "tokens_hand_labeled.csv", package = "MeasuringLandscapeCivilWar"))
+    tokens_hand_labeled <- fread(system.file("extdata", "tokens_hand_labeled.csv", package = "MeasuringLandscape"))
   } else {
     tokens_hand_labeled <- fread(inpath)
   }

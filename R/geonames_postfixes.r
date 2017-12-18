@@ -43,7 +43,7 @@ geonames_postfixes <- function(fromscratch=F,
     )
   } else {
     print("Loading Preexisting")
-    geonames_all_names_unique_spaced_nofront_df <- readRDS(system.file("extdata", "geonames_all_names_unique_spaced_nofront_df.Rdata", package = "MeasuringLandscapeCivilWar"))
+    geonames_all_names_unique_spaced_nofront_df <- readRDS(system.file("extdata", "geonames_all_names_unique_spaced_nofront_df.Rdata", package = "MeasuringLandscape"))
   }
   
   post_fix_combined <- c(as.character(geonames_all_names_unique_spaced_nofront_df$geonames_all_names_unique_spaced_nofront[geonames_all_names_unique_spaced_nofront_df$N >= cutoff]))

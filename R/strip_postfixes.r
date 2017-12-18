@@ -1,4 +1,7 @@
-
+#
+#This function strips common postifxes from toponyms
+#It takes in a vector of toponyms
+#And returns a list of original toponyms, stripped toponyms, and the postfixes that were removed
 
 
 strip_postfixes <- function(to_be_striped,
@@ -9,7 +12,7 @@ strip_postfixes <- function(to_be_striped,
                               "lari", "matara"
                             ),
                             verbose=F) {
-  p_load(re2r)
+  #p_load(re2r)
   # to_be_striped[is.na(to_be_striped)] <- ""
 
   # length(post_fix_combined) #160,052
@@ -31,32 +34,39 @@ strip_postfixes <- function(to_be_striped,
   }
   
 
-  d=length(postfix_possible)/detectCores()
+  d=length(postfix_possible)/parallel::detectCores()
   chunks <- split(
                   postfix_possible,
                   ceiling(seq_along(1:length(postfix_possible))/d
               ))
 
-  library(doParallel)
-  library(foreach)
-  cl<- makeCluster(detectCores()) #change the 2 to your number of CPU cores
-  registerDoParallel(cl)
-  condition <- foreach(q=chunks, .combine='c') %dopar%  check_any_ending(q)
-  stopCluster(cl)
+  #library(doParallel)
+  #library(foreach)
+  #`%dopar%` <- foreach::`%dopar%`
+  #`%do%` <- foreach::`%do%`
+  
+  cl<- parallel::makeCluster(parallel::detectCores()) #change the 2 to your number of CPU cores
+  #doParallel::registerDoParallel(cl)
+  
+  #condition <- foreach::foreach(q=chunks, .combine='c') %dopar%  check_any_ending(q)
+  #parallel::clusterExport(cl, c("check_any_ending"))
+  condition <-unlist(parallel::parLapply(cl=cl,chunks, fun=function(q) check_any_ending(q)))
+  #doParallel::stopCluster(cl)
+  parallel::stopCluster(cl)
   
   
   
-  #detectCores()
+  #parallel::detectCores()
   #condition <-   mclapply(
   #  postfix_possible,
   #  FUN = function(q) sum(endsWith(to_be_strip_unique, suffix = q)),
-  #  mc.cores = detectCores()
+  #  mc.cores = parallel::detectCores()
   #)
   postfix_confirmed <- as.character(postfix_possible[condition > 0])
   length(postfix_confirmed) # 2,473 confirmed
 
   # We do this on the original flatfile so that we can aggregate by stem if we choose
-  to_be_striped_cleaner <- trimws(tolower(str_replace_all(to_be_striped, "[[:punct:]]|`", "")))
+  to_be_striped_cleaner <- trimws(tolower(stringr::str_replace_all(to_be_striped, "[[:punct:]]|`", "")))
   to_be_striped_cleaner_nospace <- gsub(" ", "", to_be_striped_cleaner)
 
   name_cleaner_stemmed <- gsub("-", " ", to_be_striped_cleaner) # remove dashes
@@ -96,22 +106,22 @@ strip_postfixes <- function(to_be_striped,
   )
   prefixes <- paste0("^", prefixes, " ")
   prefixes <- prefixes[order(nchar(prefixes), decreasing = T)]
-  regexp <- re2(paste(prefixes, collapse = "|"))
-  name_cleaner_prefix <- re2_extract(name_cleaner_stemmed, regexp, parallel = T)
-  name_cleaner_stemmed <- re2_replace(name_cleaner_stemmed, regexp, replacement = "", parallel = T)
+  regexp <- re2r::re2(paste(prefixes, collapse = "|"))
+  name_cleaner_prefix <- re2r::re2_extract(name_cleaner_stemmed, regexp, parallel = T)
+  name_cleaner_stemmed <- re2r::re2_replace(name_cleaner_stemmed, regexp, replacement = "", parallel = T)
 
   # I can skip this loop by ordering the regex from bigger to smaller
   # Don't strip anything that ends with something on the white list
   reg <- paste0(" ", postfix_confirmed, "$")
-  regexp <- re2(paste(reg, collapse = "|"))
+  regexp <- re2r::re2(paste(reg, collapse = "|"))
 
-  name_cleaner_suffix <- re2_extract(name_cleaner_stemmed, regexp, parallel = T)
-
-  condition <- !name_cleaner_stemmed %in% whitelist
-  name_cleaner_stemmed[condition] <- re2_replace(name_cleaner_stemmed[condition], regexp, replacement = "", parallel = T)
+  name_cleaner_suffix <- re2r::re2_extract(name_cleaner_stemmed, regexp, parallel = T)
 
   condition <- !name_cleaner_stemmed %in% whitelist
-  name_cleaner_stemmed[condition] <- re2_replace(name_cleaner_stemmed[condition], regexp, replacement = "", parallel = T) # Run it twice
+  name_cleaner_stemmed[condition] <- re2r::re2_replace(name_cleaner_stemmed[condition], regexp, replacement = "", parallel = T)
+
+  condition <- !name_cleaner_stemmed %in% whitelist
+  name_cleaner_stemmed[condition] <- re2r::re2_replace(name_cleaner_stemmed[condition], regexp, replacement = "", parallel = T) # Run it twice
 
   # condition <- name_cleaner_stemmed %in% postfixes
   # name_cleaner_suffix[condition] <- name_cleaner_stemmed[condition]

@@ -21,11 +21,11 @@ clean_noascii <- function(text) {
 
 common_cleaning <- function(q) {
   q %>%
-    clean_names() %>%
-    remove_empty_rows() %>%
-    remove_empty_cols() %>%
+    janitor::clean_names() %>%
+    janitor::remove_empty_rows() %>%
+    janitor::remove_empty_cols() %>%
     mutate_if(is.factor, as.character) %>%
-    mutate_if(is.character, funs(stri_enc_toascii)) %>%
+    mutate_if(is.character, funs(stringi::stri_enc_toascii)) %>%
     mutate_if(is.character, funs(gsub("\032", "", .))) %>% # converts everything to character and proper UTF8
     mutate_if(is.character, funs(trimws)) %>% # remove whitespace
     distinct() %>%

@@ -40,12 +40,12 @@ create_toponym_split_training_test <- function(
   #        file=glue(getwd(), "/../inst/extdata/handlabeled.Rds")
 
   
-  #handlabeled <- readRDS(system.file("extdata", "handlabeled.Rds", package = "MeasuringLandscapeCivilWar"))
+  #handlabeled <- readRDS(system.file("extdata", "handlabeled.Rds", package = "MeasuringLandscape"))
 
   vars_id_y_x_weights <- c(vars_id,vars_y,vars_x,vars_weights)
   
   #Load preselected random sample of stems to serve as test diads
-  id_test <- readRDS(system.file("extdata", "id_test.Rds", package = "MeasuringLandscapeCivilWar"))
+  id_test <- readRDS(system.file("extdata", "id_test.Rds", package = "MeasuringLandscape"))
   length(id_test)
   
   xy_all$test <- F

@@ -10,7 +10,7 @@ lhs_textreuse <- function(minhash_count=240,  bands=80, ngram_count=2){
   stemmed_ab_spaced <- sapply(strsplit(stemmed_ab, split="") , paste, collapse=" ")
   
   minhash <- minhash_generator(n = minhash_count, seed = 1)
-  options("mc.cores" = detectCores()) #Much faster when paralized
+  options("mc.cores" = parallel::detectCores()) #Much faster when paralized
   #options("mc.cores" = 1) #Much faster when paralized
   
   corpus_ab_spaced <- TextReuseCorpus(text = stemmed_ab_spaced,
@@ -22,18 +22,22 @@ lhs_textreuse <- function(minhash_count=240,  bands=80, ngram_count=2){
   #buckets <- lsh(corpus_ab_spaced, bands = 80, progress = T) #Single threaded but should be parallizable
 
   #p_load(multicore)
-  n.cores <- detectCores()
+  n.cores <- parallel::detectCores()
   cuts <- cut(1:length(corpus_ab_spaced), n.cores)
   #buckets_list <- mclapply(levels(cuts),
   #               function(q) lsh(corpus_ab_spaced[cuts==q], bands = bands, progress = T) ,
   #               mc.cores = n.cores)
   #buckets <- do.call(rbind, buckets_list)
   
-  library(doParallel)
-  library(foreach)
-  cl<- makeCluster(detectCores()) #change the 2 to your number of CPU cores
-  registerDoParallel(cl)
-  buckets <- foreach(q=levels(cuts), .combine='rbind', .packages=c('textreuse')) %dopar%  
+  #library(doParallel)
+  #library(foreach)
+  cl<- parallel::makeCluster(parallel::detectCores()) #change the 2 to your number of CPU cores
+  doParallel::registerDoParallel(cl)
+  
+  `%dopar%` <- foreach::`%dopar%`
+  `%do%` <- foreach::`%do%`
+  
+  buckets <- foreach::foreach(q=levels(cuts), .combine='rbind', .packages=c('textreuse')) %dopar%
                 lsh(corpus_ab_spaced[cuts==q], bands = bands, progress =F)
   stopCluster(cl)
   

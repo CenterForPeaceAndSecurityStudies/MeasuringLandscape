@@ -24,7 +24,7 @@ create_toponym_dataset_forlabeling <- function(){
   #
   
   #You know, centroids should be enough. If the river or polygon is much bigger than this then I shouldn't be merging it anyway
-  p_load(RANN)
+  #p_load(RANN)
   coords_events <- st_coordinates(events_sf_utm)
   coords_events[!is.finite(coords_events)] <- NA
   condition_events <- !is.na(coords_events[,1]); table(condition_events)
@@ -46,7 +46,8 @@ create_toponym_dataset_forlabeling <- function(){
   #summary(nearest_gaz$nn.dists[nearest_gaz$nn.dists<100])
   nearest_long <- as.data.table(nearest_gaz$nn.idx)
   nearest_long$event_hash <- events_sf_utm$event_hash[condition_events]
-  library(reshape2)
+  
+  #library(reshape2)
   m_within <- melt(nearest_long, id.vars=c("event_hash"))
   #m_within$variable <- NULL
   m_within$place_hash <- flatfiles_sf_roi_utm_centroid$place_hash[condition_flatfiles][m_within$value]
@@ -66,7 +67,7 @@ create_toponym_dataset_forlabeling <- function(){
   m_within$rex_match[m_within$name_cleaner_a==m_within$name_cleaner_b] <- 1
   
   m_within <- subset(m_within, !duplicated(paste(name_cleaner_a,name_cleaner_b)))
-  m_within$string_dist_osa <-  stringdist(m_within$name_cleaner_a, m_within$name_cleaner_b, method ="osa", nthread= detectCores())
+  m_within$string_dist_osa <-  stringdist(m_within$name_cleaner_a, m_within$name_cleaner_b, method ="osa", nthread= parallel::detectCores())
   
   m_within <- subset(m_within, !is.na(name_cleaner_a) & !is.na(name_cleaner_b) )
   

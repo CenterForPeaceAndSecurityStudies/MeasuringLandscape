@@ -3,7 +3,7 @@
 
 # This function takes in a dataframe with two strings, a and b, and then calculates string distance features on them.
 p_load(stringdist)
-toponym_add_distances_dt <- function(dt, fromscratch=F, nthread=detectCores()) {
+toponym_add_distances_dt <- function(dt, fromscratch=F, nthread=parallel::detectCores()) {
   dt <- as.data.table(dt)
 
   print("1 of 24")
@@ -147,7 +147,7 @@ toponym_add_corpus <- function(data, fromscratch=F) {
 
   # Count number of mentions across gazeteers
   if (fromscratch) {
-    flatfiles_sf <- readRDS(system.file("extdata", "flatfiles_sf.Rdata", package = "MeasuringLandscapeCivilWar"))
+    flatfiles_sf <- readRDS(system.file("extdata", "flatfiles_sf.Rdata", package = "MeasuringLandscape"))
     temp <- strip_postfixes(flatfiles_sf$name_cleaner)
     flatfiles_sf$name_cleaner_stem <- temp[[1]]
 

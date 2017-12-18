@@ -1,0 +1,497 @@
+---
+title: "03 Fuzzy Matcher Stage 1 (Locality Sensitive Hashing) "
+author: "Rex W. Douglass and Kristen Harkness"
+date: "12/9/2017"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+editor_options: 
+  chunk_output_type: inline
+---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
+
+# Fuzzy Matcher Stage 1
+
+The fuzzy matcher predicts the likelihood that two toponyms are the same place even though their spellings might be different. It has two stages.
+
+This file develops Stage 1 of the fuzzy toponym matcher. Its job is to screen out the vast majority of suggestions that are too dissimilar to ever be a plausible match. It will have a high false positive rate, which can then be further refined in stage 2.
+
+
+```{r , results='hide', message=FALSE, warning=FALSE}
+rm(list=ls()); gc()
+library(MeasuringLandscape)
+
+devtools::load_all()
+
+dir_figures <- glue::glue(getwd(), "/../paper/figures/")
+
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width='100%',  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)
+
+```
+
+# Load Hand Labeled Place Matches
+
+
+```{r}
+
+#Load Hand Labeled Examples
+handlabeled <- fread(system.file("extdata",
+                                 "event_flatfile_matches_for_hand_labeling - event_flatfile_matches_for_hand_labeling.csv",
+                                 package = "MeasuringLandscape"), data.table=T) %>% distinct() 
+dim(handlabeled)
+
+#Remove exact matches because they're never interesting
+#Rewrote  with foreach so it'll parallel on windows, but it's still relatively slow code now with only 8 cores.
+handlabeled$stemmed_a <- strip_postfixes(to_be_striped=handlabeled$name_cleaner_a)[[1]]
+handlabeled$stemmed_b <- strip_postfixes(to_be_striped=handlabeled$name_cleaner_b)[[1]]
+
+handlabeled_unique <- subset(handlabeled, stemmed_a!=stemmed_b) # very important we're dropping any with identical stems for evaluation
+table(handlabeled_unique$rex_match) #1090 matches, 16978 nonmatches
+
+#Stem them
+handlabeled_unique$stemmed_a <- strip_postfixes(handlabeled_unique$name_cleaner_a)[[1]]
+handlabeled_unique$stemmed_b <- strip_postfixes(handlabeled_unique$name_cleaner_b)[[1]]
+handlabeled_unique$stemmed_ab <- sapply(lapply(strsplit(paste(handlabeled_unique$stemmed_a,
+                                                              handlabeled_unique$stemmed_b, sep="_"),
+                                                        "_"),
+                                               sort),
+                                        paste,
+                                        collapse="_")
+
+#handlabeled <- readRDS(file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything.Rds")[[1]]
+dim(handlabeled)
+handlabeled$a <- handlabeled$name_cleaner_a
+handlabeled$b <- handlabeled$name_cleaner_b
+handlabeled[,ab:=paste(a,b,sep="_")]
+handlabeled[,ba:=paste(b,a,sep="_")]
+
+stemmed_ab <- unique(c(handlabeled$stemmed_a, handlabeled$stemmed_b)) ; length(stemmed_ab) #where ab is the unique toponym strings found in the data
+
+#Generate qgrams using parameters we picked below
+#ab_grams <- qgram_hash(strings=ab, n=1,k=0) ; dim(ab_grams)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=100, rows_per_band=4)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=100, rows_per_band=2)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=80, rows_per_band=2)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=40, rows_per_band=2)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=32, rows_per_band=16)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=64, rows_per_band=16)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=128, rows_per_band=16)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=256, rows_per_band=16)
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=512, rows_per_band=16) #1080 and 39 at 6.8 million , 3% error rate
+# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=250, rows_per_band=8) #1087 and 3 at 16.8 million , 3% error rate
+
+```
+
+Grid search optimal parameters for locality sensitve hashing.
+
+Settling on 20 bands, 5 rows, and qgram of 1 letter
+
+```{r}
+
+#lhs_textreuse(minhash_count=100,  bands=50) #good trade off
+#lhs_textreuse(minhash_count=100,  bands=50) #good trade off
+#lhs_textreuse(minhash_count=100,  bands=25) #good trade off
+#lhs_textreuse(minhash_count=100,  bands=20) #good trade off
+fromsrcatch=F
+if(fromsrcatch){
+  grid_search_lhs <- list()
+  for(q in c(2,5,10,20,25,50)){
+    print(q)
+    grid_search_lhs[[as.character(q)]] <- lhs_textreuse(minhash_count=100,  bands=q) #good trade off
+    print(grid_search_lhs[[as.character(q)]])
+  }
+  grid_search_lhs_dt <- rbindlist(grid_search_lhs)
+  
+  saveRDS(grid_search_lhs_dt,
+          glue::glue(getwd(), "/../inst/extdata/grid_search_lhs_dt.Rds"))
+}
+
+grid_search_lhs_dt <- readRDS(system.file("extdata", "grid_search_lhs_dt.Rds", package = "MeasuringLandscape"))
+
+```
+
+There's a big discontinuity between 50 bands and 25, and then dimishing returns with increasingly higher false negative rates thereafter. Choosing 25 as nice compromise between low false negative rate and fewer suggestions per case.
+
+```{r}
+
+p_lhs_gridsearch <- ggplot(grid_search_lhs_dt, aes(x=false_negative,y=suggestions_per, label=bands)) + geom_label() + ggtitle("")
+p_lhs_gridsearch
+
+ggsave(
+  filename = glue::glue(dir_figures, "p_lhs_gridsearch.pdf"),
+  plot = p_lhs_gridsearch,
+  width = 5.5,
+  #height = 8,
+  device = cairo_pdf #have to use cairo to correctly embed the fonts
+)
+
+```
+
+
+
+
+
+```{r, eval=F, echo=F}
+
+nthread=parallel::::detectCores()
+pairwise_cor <- list()
+
+for(i in 1:3){
+  print(i)
+  #handlabeled[, q_gram := stringsim(a, b, "cosine", nthread = nthread, q = i), ]
+  
+  #pairwise_cor[[i]] <- data.frame(q=i,
+  #                                correlation= cor(handlabeled$q_gram , handlabeled$rex_match, use="pairwise.complete.obs", method="spearman")
+  #                                )
+  
+  #First we hash each toponym, size 4, no skips
+  #3 grams is nearly as close but has a third of the columns
+  ab_grams <- quanteda::dfm(
+                  quanteda::tokens(
+                                   stemmed_ab,
+                                   what = "character",
+                                   ngrams = 1:i,
+                                   skip = 0:1, 
+                                   concatenator = "_",
+                                   hash = F)
+                  )
+  ab_grams <- as(ab_grams, "dgCMatrix")
+  class(ab_grams)
+  dim(ab_grams)
+  rownames(ab_grams) <- stemmed_ab    
+
+  #On how to scale the columns of a sparse matrix
+  #https://stackoverflow.com/questions/39284774/column-rescaling-for-a-very-large-sparse-matrix-in-r
+  #p_load('proxy') # Library of similarity/dissimilarity measures for 'dist()'
+  ab_grams_scaled <- ab_grams
+  ab_grams_scaled@x <- ab_grams_scaled@x / rep.int(colSums(ab_grams_scaled), diff(ab_grams_scaled@p))
+  
+  #ab_grams_scaled <- scale(ab_grams)
+  x=as.matrix(ab_grams_scaled[handlabeled$stemmed_a,]) #Lookup by rownames. Not the safest.
+  y=as.matrix(ab_grams_scaled[handlabeled$stemmed_b,]) #Lookup by rownames. Not the safest.
+  handlabeled$q_gram_cosine_similarity <- 1 - 
+                                          proxy::dist(x,y, method="cosine", pairwise=T, #
+                                          by_rows=T #counter intuitive but right
+                                          ) #Takes a short while but is pretty fast
+  
+  boxplot(q_gram_cosine_similarity ~rex_match , data=handlabeled)
+  
+  pairwise_cor[[as.character(i)]] <- data.frame(grams=i,
+                                  correlation= cor(handlabeled$q_gram_cosine_similarity,
+                                                   handlabeled$rex_match,
+                                                   use="pairwise.complete.obs",
+                                                   method="pearson")
+                                  )
+}
+pairwise_cor_df  <- data.table::rbindlist(pairwise_cor)
+pairwise_cor_df
+
+ggplot(pairwise_cor_df, aes(x=grams,y=correlation)) + geom_point() + 
+  ggtitle("Pairwise Correlation with Human Labeled Matches") + xlab("Qgram Size")
+
+
+```
+
+
+```{r, eval=F, echo=F}
+
+ab_grams <- dfm(
+                quanteda::tokens(
+                                 stemmed_ab,
+                                 what = "character",
+                                 ngrams = 1:2,
+                                 skip = 0:1, 
+                                 concatenator = "_",
+                                 hash = F)
+                )
+ab_grams <- as(ab_grams, "dgCMatrix")
+class(ab_grams)
+dim(ab_grams)
+rownames(ab_grams) <- stemmed_ab    
+
+#On how to scale the columns of a sparse matrix
+#https://stackoverflow.com/questions/39284774/column-rescaling-for-a-very-large-sparse-matrix-in-r
+#p_load('proxy') # Library of similarity/dissimilarity measures for 'dist()'
+ab_grams_scaled <- ab_grams
+ab_grams_scaled@x <- ab_grams_scaled@x / rep.int(colSums(ab_grams_scaled), diff(ab_grams_scaled@p))
+
+#ab_grams_scaled <- scale(ab_grams)
+x=as.matrix(ab_grams_scaled[handlabeled$stemmed_a,]) #Lookup by rownames. Not the safest.
+y=as.matrix(ab_grams_scaled[handlabeled$stemmed_b,]) #Lookup by rownames. Not the safest.
+handlabeled$q_gram_cosine_similarity <- 1 - 
+                                        proxy::dist(x,y, method="cosine", pairwise=T, #
+                                        by_rows=T #counter intuitive but right
+                                        ) #Takes a short while but is pretty fast
+
+#p_load('proxy') # Library of similarity/dissimilarity measures for 'dist()'
+handlabeled$q_gram_2_cosine_similarity <- 1 - proxy::dist(x,y, method="cosine", pairwise=T, 
+           by_rows=T #counter intuitive but right
+            ) #Takes a short while but is pretty fast
+
+#Cosine distance on a qgram is a little different than normalized string distance
+ggplot(handlabeled, aes(y=q_gram_2_cosine_similarity, x=as.factor(rex_match))) + geom_boxplot() + 
+  ggtitle("Pairwise Correlation with Human Labeled Matches") + xlab("No Match/Match") + ylab("Cosine Similarity")
+
+
+#p_load(rpart)
+#p_load(party)
+weights=rep(1, length(handlabeled$rex_match)) #Positive cases worth twice as much as negative cases
+tree <- ctree(as.factor(rex_match) ~ q_gram_2_cosine_similarity,
+              data=handlabeled,
+              weights=weights,
+              control=ctree_control(maxdepth=1)) #Find an optimal split 0.15
+tree
+#plot(tree)
+table(predict(tree),handlabeled$rex_match)
+
+weights=handlabeled$rex_match+1 #Positive cases worth twice as much as negative cases
+tree <- ctree(as.factor(rex_match) ~ q_gram_2_cosine_similarity,
+              data=handlabeled,
+              weights=weights,
+              control=ctree_control(maxdepth=1)) #Find an optimal split 0.15
+tree
+#plot(tree)
+table(predict(tree),handlabeled$rex_match)
+
+weights=(handlabeled$rex_match*9)+1 #Positive cases worth 10 times as much as negative cases
+tree <- ctree(as.factor(rex_match) ~ q_gram_2_cosine_similarity,
+              data=handlabeled,
+              weights=weights,
+              control=ctree_control(maxdepth=1)) #Find an optimal split 0.15
+tree
+#plot(tree)
+table(predict(tree),handlabeled$rex_match)
+
+results_list <- list()
+for(i in 0:100){
+  print(i)
+  weights=(handlabeled$rex_match*i)+1 #Positive cases worth 10 times as much as negative cases
+  tree <- ctree(as.factor(rex_match) ~ q_gram_2_cosine_similarity,
+                data=handlabeled,
+                weights=weights,
+                control=ctree_control(maxdepth=1)) #Find an optimal split 0.15
+  #tree
+  #plot(tree)
+  d <- table(predict(tree),handlabeled$rex_match)
+  results_list[[as.character(i)]] <- data.frame(i=i,
+                                                true_negative=d[1,1],
+                                                false_negative=d[1,2],
+                                                false_positive=d[2,1],
+                                                true_positive=d[2,2], 
+                                                cosine_similarity=tree@tree$psplit$splitpoint)
+}
+results_df <- rbindlist(results_list)
+results_df$true_negative  <- ( results_df$true_negative / sum(handlabeled$rex_match==0)  ) %>% round(digits=3)
+results_df$false_negative <- ( results_df$false_negative / sum(handlabeled$rex_match==1) ) %>% round(digits=3)
+results_df$false_positive     <- ( results_df$false_positive / sum(handlabeled$rex_match==0)     ) %>% round(digits=3)
+results_df$true_positive      <- ( results_df$true_positive / sum(handlabeled$rex_match==1)      ) %>% round(digits=3)
+
+results_df$cosine_similarity <- results_df$cosine_similarity %>% round(digits=2)
+results_df_unique <- subset(results_df, !duplicated(cosine_similarity))
+results_df_unique <- subset(results_df_unique, !duplicated(false_negative))
+
+ggplot(results_df_unique,
+       aes(false_negative,false_positive,
+           label=cosine_similarity)) + 
+      geom_text() + 
+      ggtitle("Cosine Similarity Threshold and False Pos./Neg. Rate")
+
+table(handlabeled$q_gram_2_cosine_similarity>.05, handlabeled$rex_match)
+table(handlabeled$q_gram_2_cosine_similarity>.1, handlabeled$rex_match)
+table(handlabeled$q_gram_2_cosine_similarity>.2, handlabeled$rex_match)
+
+
+```
+
+
+
+
+
+
+
+```{r, eval=F, echo=F}
+
+s_curve <- get_s_curve_new(
+                       1000,
+                       n_bands_min = 1,
+                       n_rows_per_band_min = 1
+                       )
+
+s_curve <- get_s_curve_new(
+                       256,
+                       n_bands_min = 1,
+                       n_rows_per_band_min = 1
+                       )
+
+```
+
+```{r, eval=F, echo=F}
+
+#Grid search I'm no longer doing
+
+#This produces plots that help in choosing the hyper parameters used above
+#They take a few minutes to run and output three plots
+fromscratch=T
+if(fromscratch){
+
+    
+    s_curve <- get_s_curve_new(
+                           1000,
+                           n_bands_min = 1,
+                           n_rows_per_band_min = 1
+                           )
+    
+    #Error: rows_per_band <= 32L is not TRUE
+    s_curve <- subset(s_curve, n_rows_per_band<=32)
+    
+    #using cosine you can't have more than 32 bands, so starting at 80   
+    s_curve$n_bands_n_rows_per_band <- paste(s_curve$n_bands,s_curve$n_rows_per_band, sep=":")
+    s_curve_unique <- s_curve %>%
+                       filter(!duplicated(n_bands_n_rows_per_band) &
+                                n_bands>=100 #more bands means higher aproximate probability of matching if similarity is about some amount
+                              )
+    
+    s_curve_unique
+    
+    eval_list <- list()
+    for(i in 1:nrow(s_curve_unique)) {
+      print(i)
+      eval_list[[i]] <-   eval_lshr(
+                                    strings=stemmed_ab,
+                                    grams=ab_grams_scaled ,
+                                    data=handlabeled_unique,
+                                    bands_number=s_curve_unique$n_bands[i],
+                                    rows_per_band=s_curve_unique$n_rows_per_band[i]
+                                    )
+      print(eval_list[[i]])
+    }
+    evaluations_varying_bands <- rbindlist(eval_list)
+    evaluations_varying_bands$bands_number_rows_per_band <- paste(evaluations_varying_bands$bands_number,evaluations_varying_bands$rows_per_band, sep=":")
+    evaluations_varying_bands$recall <- round( evaluations_varying_bands$misses/ (evaluations_varying_bands$hits + evaluations_varying_bands$misses ) , 2)
+    evaluations_varying_bands$suggestions_per_fraction <- evaluations_varying_bands$suggestions_per/length(ab)
+    
+    #saveRDS(evaluations_varying_bands,
+    #    "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_bands.Rds") #.011 is about 300 and 0.015
+}
+    
+    #evaluations_varying_bands <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscape/inst/extdata/evaluations_varying_bands.Rds") 
+
+    p2 <- ggplot(evaluations_varying_bands,
+         aes(x=recall,y=suggestions_per+1, label=bands_number_rows_per_band))  + geom_text(size=2) +
+     #scale_y_continuous(breaks = round(seq(0, max(evaluations_varying_bands$suggestions_per), by = 100),1)) +
+     scale_x_continuous(breaks = round(seq(0, max(evaluations_varying_bands$recall), by = .1),1)) + 
+    xlab("1-Recall") + ylab("Number of Suggestions Per Item") + 
+    ggtitle("Suggestion Count and Recall for LHS Parameters (Bands:Rows)") + theme_bw() +
+       scale_y_log10()
+    p2
+    
+```
+
+
+     
+```{r, eval=F, echo=F}
+
+# GRID Search over different ngram features
+  
+fromsrcatch=F
+if(fromscratch){
+  
+    #Then figure out what features we want
+    eval_list <- list()
+    for(i in 1:5){
+      for(k in 0:5){
+        index <- paste(i,k, sep="_")
+        print(index)
+        ab_grams <- qgram_hash(strings=ab, n=i,k=k) ; dim(ab_grams)
+        eval_list[[index]] <- eval_lshr(strings=ab, grams=ab_grams , data=handlabeled_unique, bands_number=400, rows_per_band=5)
+        eval_list[[index]]$ngrams=i
+        eval_list[[index]]$skips=k
+      }
+    }
+    evaluations_varying_ngrams <- rbindlist(eval_list)
+    setkey(evaluations_varying_ngrams, ngrams, skips)
+    #apparently ngrams1 of 1 with skips just tack on extra columns of the same thing
+    evaluations_varying_ngrams$ngrams_skips <- paste(evaluations_varying_ngrams$ngrams,evaluations_varying_ngrams$skips, sep=":")
+    evaluations_varying_ngrams$recall <- round( evaluations_varying_ngrams$misses/ (evaluations_varying_ngrams$hits + evaluations_varying_ngrams$misses ) , 2)
+
+    saveRDS(evaluations_varying_ngrams,
+            "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_ngrams.Rds") #.011 is about 300 and 0.015
+
+
+}
+
+evaluations_varying_ngrams <- readRDS("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/evaluations_varying_ngrams.Rds") 
+
+p1 <- ggplot(evaluations_varying_ngrams,
+       aes(x=recall,y=suggestions_per, label=ngrams_skips))  + geom_text(size=2) +
+   #scale_y_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$suggestions_per), by = 100),1)) +
+   scale_x_continuous(breaks = round(seq(0, max(evaluations_varying_ngrams$recall), by = .05),2)) + 
+  xlab("1-Recall") + ylab("Number of Suggestions Per Item") + 
+  ggtitle("Suggestion Count and Recall for Character Gram Types (Grams:Skips)") + theme_bw() +
+   scale_y_log10()
+p1
+
+```
+   
+    
+```{r, eval=F, echo=F}
+    #p_load(cowplot)
+    p_combined <- plot_grid(p1, p2,
+                            #labels = c("A", "B"),
+                            align = "h")
+    save_plot("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/analysis/figures/suggester_grid_search.pdf", p_combined,
+          base_aspect_ratio = 1.3 , # make room for figure legend
+          base_width=10
+    )
+
+
+```
+
+
+
+```{r, eval=F, echo=F}
+
+
+eval_lshr(bands_number=160, rows_per_band=8)
+
+#p_load(parallelDist)
+d <- parDist(as.matrix(stemmed_ab_grams), method = "binary") #calculate the jaccard distance directly
+saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_2_1_skips.Rds") #.011 is about 300 and 0.015
+
+#saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_5.Rds") #.011 is about 300 and 0.015
+#saveRDS(d,"/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/humanlabeled_ngram_dist_6.Rds") #.011 is about 200 and 0.02
+
+d_m <- as.matrix(d)
+#make sure the row and col names are right
+#convert to
+hist(d_m, breaks=50)
+colnames(d_m) <- stemmed_ab
+rownames(d_m) <- stemmed_ab
+
+d_m_long = data.table::melt(d_m) ; dim(d_m_long)
+d_m_long$rex_match <- F
+d_m_long <- as.data.table(d_m_long)
+d_m_long[,ab:=paste(Var1, Var2, sep="_"),]
+d_m_long[,ba:=paste(Var2, Var1, sep="_"),]
+
+condition <- d_m_long$ab %in% subset(handlabeled, rex_match==1)$stemmed_ab | d_m_long$ba %in% subset(handlabeled, rex_match==1)$stemmed_ab ; table(condition)
+d_m_long$rex_match[condition] <- T
+table(d_m_long$rex_match)
+
+d_m_long <- subset(d_m_long, value!=0) #exclude any with 0 distance, those aren't interesting
+
+#p_load(ggjoy)
+p <- ggplot(d_m_long, aes(x = value, y = rex_match)) + geom_joy2() 
+p + ggtitle("Pairwise Character Gram Profile Distance") + ylab("Hand Labeled Match") + xlab("Jaccard Distance")
+
+```
+
+
+

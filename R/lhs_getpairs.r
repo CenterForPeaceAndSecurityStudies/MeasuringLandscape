@@ -5,7 +5,7 @@
 #
 # library(textreuse)
 # library(LSHR)
-lhs_getpairs <- function(strings, grams, bands_number=400, rows_per_band=5, mc.cores = detectCores()) {
+lhs_getpairs <- function(strings, grams, bands_number=400, rows_per_band=5, mc.cores = parallel::detectCores()) {
   
   pairs <- get_similar_pairs_cosine(
     grams,
@@ -13,7 +13,7 @@ lhs_getpairs <- function(strings, grams, bands_number=400, rows_per_band=5, mc.c
     rows_per_band = rows_per_band, # basically shrink this number
     #distance = "cosine",  #redundant if you use pairs_cosine
     seed = 1, 
-    mc.cores = detectCores(),
+    mc.cores = parallel::detectCores(),
     verbose = T
   )
 

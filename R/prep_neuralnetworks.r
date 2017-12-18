@@ -6,7 +6,7 @@ generate_sequences <- function(text, maxlength=20, mask=0, intcutoff=256) {
     mclapply(
       text,
       FUN = function(x) as.data.frame(t(utf8ToInt(x))),
-      mc.cores = detectCores()
+      mc.cores = parallel::detectCores()
     )
     , fill = T
   )

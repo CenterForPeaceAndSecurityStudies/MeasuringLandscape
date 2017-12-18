@@ -9,6 +9,11 @@ output:
 editor_options: 
   chunk_output_type: inline
 ---
+<style>
+    body .main-container {
+        max-width: 100%;
+    }
+</style>
 
 This is the entry point for the paper "Measuring the Landscape of Civil War." 
 
@@ -20,14 +25,13 @@ In this file, a raw csv file of the events dataset created for the Mau Mau rebel
 ```{r , results='hide', message=FALSE, warning=FALSE}
 
 rm(list=ls()); gc()
-
-library(MeasuringLandscapeCivilWar)
+library(MeasuringLandscape)
 devtools::load_all()
-# global_loads()
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width = 12, fig.height = 8, warning = FALSE, message = FALSE, cache = TRUE)
 options(width = 160)
+
 ```
 
 
@@ -46,30 +50,29 @@ Basic cleaning. Generaly format is DD.MM.YYYY Sometimes multiple days are includ
 ```{r }
 
 #p_load(date)
-
-events$event_date_clean <- events$event_date %>%
-                           str_replace_all("[[:digit:]]+/", "") %>% #strip off extra day at the front 01/02.12.1950
-                           str_replace_all("\\.", "/")          %>% #Convert periods to slashes
-                           trimws()                             %>% #trim whitespace
-                           str_replace_all("/52", "/1952")      %>% #convert 2 digit years to 4 digit years
-                           str_replace_all("/53", "/1953")      %>% #convert 2 digit years to 4 digit years
-                           str_replace_all("/54", "/1954")      %>% #convert 2 digit years to 4 digit years
-                           str_replace_all("/55", "/1955")      %>% #convert 2 digit years to 4 digit years
-                           str_replace_all("/56", "/1956")      %>% #convert 2 digit years to 4 digit years
-                           str_replace_all("/19524", "/1954")   %>% #clean typo
-                           dmy()                                    #Feed to lubridate
-
+events <- events %>%
+          mutate(event_date=stringr::str_replace_all(event_date,"[[:digit:]]+/", "")) %>% #strip off extra day at the front 01/02.12.1950
+          mutate(event_date=stringr::str_replace_all(event_date,"\\.", "/")) %>% #Convert periods to slashes
+          mutate(event_date=trimws(event_date)) %>% #trim whitespace
+          mutate(event_date=stringr::str_replace_all(event_date,"/52", "/1952")) %>% #convert 2 digit years to 4 digit years
+          mutate(event_date=stringr::str_replace_all(event_date,"/53", "/1953")) %>%
+          mutate(event_date=stringr::str_replace_all(event_date,"/54", "/1954")) %>%
+          mutate(event_date=stringr::str_replace_all(event_date,"/55", "/1955")) %>%
+          mutate(event_date=stringr::str_replace_all(event_date,"/56", "/1956")) %>%
+          mutate(event_date=stringr::str_replace_all(event_date,"/19524", "/1954")) %>% #clean typo
+           mutate(event_date= lubridate::dmy(event_date) ) #Feed to lubridate
+  
 events %>% filter(is.na(event_date_clean)) %>% dplyr::select(starts_with("event_date")) %>% distinct() %>% print(n=40) #visualize errors
 
 events$event_date_clean_year <- year(events$event_date_clean)
-events$event_date_clean_year %>% tabyl() %>% round(3)
+events$event_date_clean_year %>% janitor::tabyl() %>% round(3)
 
 ```
 
 How often are event dates missing?
 
 ```{r }
-table(events$event_date=="")
+table(is.na(events$event_date))
 ```
 
 The documents also have dates, sometimes spanning a period of time. Can use that to nail down missing dates.
@@ -80,54 +83,50 @@ The documents also have dates, sometimes spanning a period of time. Can use that
                              tolower() %>% 
                              mosaic::derivedFactor(
                                           "unknown" = T,
-                                          "missing"     = str_detect(.,"obscured|missing|illegible|xx|Document missing"),
-                                          "on the"      = str_detect(.,"on the"),
-                                          "to"          = str_detect(.," to"),
-                                          "for"         = str_detect(.,"For "),
-                                          "week"        = str_detect(.,"week"),
-                                          "week ending" = str_detect(.,"week ending"),
-                                          "period"      = str_detect(.,"period"),
-                                          "fortnight"   = str_detect(.,"fortnight"),
-                                          "ending"      = str_detect(.,"ending"),
+                                          "missing"     = stringr::str_detect(.,"obscured|missing|illegible|xx|Document missing"),
+                                          "on the"      = stringr::str_detect(.,"on the"),
+                                          "to"          = stringr::str_detect(.," to"),
+                                          "for"         = stringr::str_detect(.,"For "),
+                                          "week"        = stringr::str_detect(.,"week"),
+                                          "week ending" = stringr::str_detect(.,"week ending"),
+                                          "period"      = stringr::str_detect(.,"period"),
+                                          "fortnight"   = stringr::str_detect(.,"fortnight"),
+                                          "ending"      = stringr::str_detect(.,"ending"),
                                           .method = "last",
                                           .default = "unknown"
                             ) 
- ) %>% tabyl() 
+ ) %>% janitor::tabyl() 
 
 
 events$document_date_clean <- events$document_date %>% tolower() %>% 
-                             str_replace_all("Fortnight Ended |period|week ending|for |the |fortnight |ending |week |From |on ","") %>%
-                             str_replace_all("[Digits]*th|[Digits]*st|[Digits]*rd|[Digits]*nd","")
+                             stringr::str_replace_all("Fortnight Ended |period|week ending|for |the |fortnight |ending |week |From |on ","") %>%
+                             stringr::str_replace_all("[Digits]*th|[Digits]*st|[Digits]*rd|[Digits]*nd","")
 
 events <- events %>% 
          dplyr::select(-one_of("document_date_1","document_date_2")) %>%  #separate will continue to add columns every time its run
-                              separate(col=document_date_clean,
+                              tidyr ::separate(col=document_date_clean,
                                         into=c("document_date_1","document_date_2"),
                                         sep = " to|to |To | - ", remove=F, extra="drop", fill="right")
 
 events$document_date_clean_1 <- events$document_date_1 %>% 
-                                 str_replace_all("[[:digit:]]+/", "")   %>% #strip off extra day at the front 01/02.12.1950
-                                 str_replace_all("\\.", "/")             %>% #Convert periods to slashes
+                                 stringr::str_replace_all("[[:digit:]]+/", "")   %>% #strip off extra day at the front 01/02.12.1950
+                                 stringr::str_replace_all("\\.", "/")             %>% #Convert periods to slashes
                                  trimws() %>%                            
-                                 dmy()
+                                 lubridate::dmy()
 
 events$document_date_clean_2 <- events$document_date_2 %>% 
-                                 str_replace_all("[[:digit:]]+/", "")   %>% #strip off extra day at the front 01/02.12.1950
-                                 str_replace_all("\\.", "/")             %>% #Convert periods to slashes
+                                 stringr::str_replace_all("[[:digit:]]+/", "")   %>% #strip off extra day at the front 01/02.12.1950
+                                 stringr::str_replace_all("\\.", "/")             %>% #Convert periods to slashes
                                  trimws() %>%                            
-                                 dmy()    
+                                 lubridate::dmy()    
 
 events %>% filter(is.na(document_date_clean_1)) %>% dplyr::select(starts_with("document_date")) %>% distinct() %>% print(n=40) #visualize errors
 
-parse_date_time(c("2016", "2016-04"), orders = c("Y", "Ym"))
-parse_date_time(c("2016", "jan-55"), orders = c("Y", "Ym","bY"))
-
-parse_date_time("1904-jan", "yb") #ok so there are jan-54 that don't parse, there are 25 march to 11 april 1953, where the second parses but not the first
 
 events$document_date_best_date <- events$document_date_clean_2
 condition <- is.na(events$document_date_best_date)
 events$document_date_best_date[condition] <- events$document_date_clean_1[condition]
-(events$document_date_best_year <- year(events$document_date_best_date)) %>% tabyl() %>% round(3)
+(events$document_date_best_year <- year(events$document_date_best_date)) %>% janitor::tabyl() %>% round(3)
 
 ```
 
@@ -140,11 +139,11 @@ Heads up, some of these event types in the codebook don't exist in the data. If 
 ```{r , results="asis"}
 
 cat("\014")
-p_load(car, stringi, stringr, xtable, SnowballC)
-events$type_clean <- str_trim(stri_trans_totitle(events$type))
+#p_load(car, stringi, stringr, xtable, SnowballC)
+events$type_clean <- stringr::str_trim(stringi::stri_trans_totitle(events$type))
 
-(events$type_clean_agglow <- events$type_clean %>%
-  str_trim() %>%
+events$type_clean_agglow <- events$type_clean %>%
+  stringr::str_trim() %>%
   tolower() %>%
   car::recode("
              'desertion'='desertion';
@@ -164,9 +163,13 @@ events$type_clean <- str_trim(stri_trans_totitle(events$type))
              c('patrol','police and kpr patrol','sweep')='patrol';
              c('screening','sreening')='screening';
              c('type')='unclassified'
-             ")) %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+             ")
+
+events$type_clean_agglow %>%
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(.,digits = 1)
+
+
 ```
 
 ## Collapse Event Types
@@ -180,18 +183,21 @@ events$type_clean <- str_trim(stri_trans_totitle(events$type))
                                  c('contact','screening','sreening','patrol','punishment')='security operations';
                                  c('desertion','escape','unclassified')='unclassified';
                             ")) %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
 ```
 
 ```{r ,cache=T}
 
-(events$type_clean_agghigh <- recode(events$type_clean_aggmed, "
+events$type_clean_agghigh <- car::recode(events$type_clean_aggmed, "
                                  c('oathing','physical violence','property destruction','theft')='rebel activity';
                                  c('rebel capture','security operations')='government activity';
-                            ")) %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+                            ")
+
+events$type_clean_agghigh %>%
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
+
 ```
 
 
@@ -390,11 +396,11 @@ c('')=NA
 "
 
 regex <- "\\.|patrol|[1-9]\\s*rd|[1-9]\\s*th" # with regex start trying to get more of these to automatically map instead of generating lots of hand codings
-events$initiator_clean <- events$initiator %>% str_trim() %>% gsub(regex, "", ., ignore.case =T)
+events$initiator_clean <- events$initiator %>% stringr::str_trim() %>% gsub(regex, "", ., ignore.case =T)
 
 events <- events %>%
   dplyr::select(-one_of("initiator_clean_1", "initiator_clean_2", "initiator_clean_3")) %>% # separate will continue to add columns every time its run
-  separate(
+  tidyr ::separate(
     col = initiator_clean,
     into = c("initiator_clean_1", "initiator_clean_2", "initiator_clean_3"),
     sep = "and|\\\\|/|\\&|,", remove = F, extra = "drop", fill = "right"
@@ -412,9 +418,9 @@ events <- events %>%
   mutate_at(vars(starts_with("initiator_clean_")), funs(trimws(.)))
 
 events <- events %>%
-  mutate(initiator_clean_1_agglow = recode(initiator_clean_1, initiator_target_master_clean)) %>%
-  mutate(initiator_clean_2_agglow = recode(initiator_clean_2, initiator_target_master_clean)) %>%
-  mutate(initiator_clean_3_agglow = recode(initiator_clean_3, initiator_target_master_clean))
+  mutate(initiator_clean_1_agglow = car::recode(initiator_clean_1, initiator_target_master_clean)) %>%
+  mutate(initiator_clean_2_agglow = car::recode(initiator_clean_2, initiator_target_master_clean)) %>%
+  mutate(initiator_clean_3_agglow = car::recode(initiator_clean_3, initiator_target_master_clean))
 
 # sort(table(events$initiator_clean_1_agglow))
 
@@ -449,8 +455,8 @@ events <- events %>%
   )
 
 events$initiator_clean_2_aggmed %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
 ```
 
 ```{r Collapse Event Initators High ,cache=T}
@@ -467,8 +473,8 @@ events <- events %>%
   )
 
 events$initiator_clean_3_agghigh %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
 ```
 
 # Target of Event
@@ -476,11 +482,11 @@ events$initiator_clean_3_agghigh %>%
 ```{r , cache=T}
 
 regex <- "\\.|patrol|[1-9]\\s*rd|[1-9]\\s*th" # with regex start trying to get more of these to automatically map instead of generating lots of hand codings
-events$target_clean <- events$initiator %>% str_trim() %>% tolower() %>% gsub(regex, "", .)
+events$target_clean <- events$initiator %>% stringr::str_trim() %>% tolower() %>% gsub(regex, "", .)
 
 events <- events %>%
   dplyr::select(-one_of("target_clean_1", "target_clean_2", "target_clean_3")) %>% # separate will continue to add columns every time its run
-  separate(
+  tidyr ::separate(
     col = initiator_clean,
     into = c("target_clean_1", "target_clean_2", "target_clean_3"),
     sep = "and|\\\\|/|\\&|,", remove = F, extra = "drop", fill = "right"
@@ -498,15 +504,15 @@ events <- events %>%
   mutate_at(vars(starts_with("target_clean_")), funs(trimws(.)))
 
 events$target_clean_1 %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
 ```
 
 ```{r}
 events <- events %>%
-  mutate(target_clean_1_agglow = recode(target_clean_1, initiator_target_master_clean)) %>%
-  mutate(target_clean_2_agglow = recode(target_clean_2, initiator_target_master_clean)) %>%
-  mutate(target_clean_3_agglow = recode(target_clean_3, initiator_target_master_clean))
+  mutate(target_clean_1_agglow = car::recode(target_clean_1, initiator_target_master_clean)) %>%
+  mutate(target_clean_2_agglow = car::recode(target_clean_2, initiator_target_master_clean)) %>%
+  mutate(target_clean_3_agglow = car::recode(target_clean_3, initiator_target_master_clean))
 
 lowlevelagg <- c(
   "church", "kenya police", "medicine", "tribal police reserve", "detainees", "kenya regiment", "other weapons",
@@ -520,8 +526,8 @@ events <- events %>%
    mutate(target_clean_2_agglow=ifelse(target_clean_2_agglow  %in% lowlevelagg & !is.na(target_clean_2_agglow),target_clean_2_agglow, "uncategorized")) %>%    mutate(target_clean_3_agglow=ifelse(target_clean_3_agglow  %in% lowlevelagg & !is.na(target_clean_3_agglow),target_clean_3_agglow, "uncategorized"))
 
 events$target_clean_1_agglow %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
 ```
 
 
@@ -545,8 +551,8 @@ events <- events %>%
   )
 
 events$initiator_clean_1_aggmed %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
 ```
 
 ```{r Collapse Event Initators ,cache=T}
@@ -565,8 +571,8 @@ events <- events %>%
   )
 
 events$target_clean_1_agghigh %>%
-  tabyl(sort = TRUE) %>%
-  adorn_crosstab(digits = 1)
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
 ```
 
 
@@ -904,6 +910,7 @@ recodings <- matrix(recodings, ncol = 2, byrow = T)
 events$initiator_numbers_numeric <- events$initiator_numbers %>% recoderFunc(., recodings[, 1], recodings[, 2]) %>% as.numeric()
 events$target_numbers_numeric <- events$target_numbers %>% recoderFunc(., recodings[, 1], recodings[, 2]) %>% as.numeric()
 events$affected_count_numeric <- events$affected_count %>% recoderFunc(., recodings[, 1], recodings[, 2]) %>% as.numeric()
+
 ```
 
 # Casualties
@@ -958,17 +965,318 @@ events <- events %>%
 
 ```{r Collapse Event Types,cache=T}
 
-events %>% crosstab(initiator_clean_1_agghigh, type_clean_agghigh) %>% adorn_crosstab(digits = 1)
-events %>% crosstab(target_clean_1_agghigh, type_clean_agghigh) %>% adorn_crosstab(digits = 1)
-events %>% crosstab(target_clean_1_agghigh, initiator_clean_1_agghigh) %>% adorn_crosstab(digits = 1)
+events %>% janitor::crosstab(initiator_clean_1_agghigh, type_clean_agghigh) %>% janitor::adorn_crosstab(digits = 1)
+events %>% janitor::crosstab(target_clean_1_agghigh, type_clean_agghigh) %>% janitor::adorn_crosstab(digits = 1)
+events %>% janitor::crosstab(target_clean_1_agghigh, initiator_clean_1_agghigh) %>% janitor::adorn_crosstab(digits = 1)
 ```
 
 
-# Output Cleaned File
+
+# Clean Map Coordinates (East Africa Grid System)
+
+```{r }
+
+cat("\014")
+
+#Cases to handle
+#"928141"
+#"311449  328445    338443"
+#"EASTING 30 and 27"
+#"EastLeigh Sect.7"
+#"FARM 535/4"
+#"HAC  0202"
+#"HAC.577236"
+#"HZN 974641 & HZN 974651"
+#"HZJ. 8595"
+#"HZJ. 465765, HZJ. 459771, HZJ. 451756"
+#"HZJ 42765, HZJ 42375and HZJ 429761"
+#"HZH 960610, HZH 960630, HZH 977538"
+#"H.Z.R. 4786"
+#"HAD 1708, HAD 1709"
+#"HAD 3326/3327"
+#"HZJ 42765, HZJ 42375and HZJ 429761"
+#"HZJ 9518  9617"
+#"HZP 7430, HZP 9029, HZP 6448, HZP 7252, HZP 9448"
+
+events$map_coordinate %>% janitor::tabyl() 
+
+events$map_coordinate_clean <- events$map_coordinate %>% stringr::str_replace_all("[[:punct:]]| ", "") 
+(events$map_coordinate_clean_length <- events$map_coordinate_clean %>% nchar() ) %>% janitor::tabyl() %>% round(3)
+
+(events$map_coordinate_clean_text <- events$map_coordinate_clean %>% gsub("[0-9]", "\\1",.)) %>% janitor::tabyl()  %>% mutate_if(is.numeric, round,2) #Split into a text component and numeric component
+(events$map_coordinate_clean_number <- events$map_coordinate_clean %>% gsub("[A-Za-z]", "\\1", .) ) %>% janitor::tabyl()  %>% mutate_if(is.numeric, round,2)
+
+(events$map_coordinate_clean_text_band <- events$map_coordinate_clean_text %>% substring(1,1) ) %>% janitor::tabyl()  %>% mutate_if(is.numeric, round,2)
+(events$map_coordinate_clean_text_block <- events$map_coordinate_clean_text %>% substring(2,2) ) %>% janitor::tabyl()  %>% mutate_if(is.numeric, round,2)
+(events$map_coordinate_clean_text_subblock <-  events$map_coordinate_clean_text %>%  substring(3,3) ) %>% janitor::tabyl()  %>% mutate_if(is.numeric, round,2)
+
+(events$map_coordinate_clean_number_length <- events$map_coordinate_clean_number %>% nchar() ) %>% janitor::tabyl()  %>% mutate_if(is.numeric, round,2)
+(events$map_coordinate_clean_number_easting <- events$map_coordinate_clean_number %>%
+                                              substring(1, events$map_coordinate_clean_number_length/2) %>% as.numeric() ) %>%
+                                              janitor::tabyl()  %>% mutate_if(is.numeric, round,2)
+
+(events$map_coordinate_clean_number_northing <- events$map_coordinate_clean_number %>%
+                                              substring(events$map_coordinate_clean_number_length/2+1, events$map_coordinate_clean_number_length) %>%
+                                              as.numeric() )  %>%
+                                              janitor::tabyl()  %>% mutate_if(is.numeric, round,2)
+
+```
+
+## Convert Coordinates to lat long
+
+```{r ,results=FALSE, warning=FALSE, comment=FALSE}
+
+#This takes
+
+cat("\014")
+print("Starting Converting Coordinates, may take some time")
+for(i in 1:nrow(events)){
+  # print(i)
+  #The “exposition” pipe operator, %$% exposes the names within the left-hand side object to the right-hand side expression. Essentially, it is a short-hand for using the with functions 
+  suppressMessages({
+    temp <- with(events[i,] ,
+                 EAGS2LatLong(band=map_coordinate_clean_text_band,
+                                        block=map_coordinate_clean_text_block,
+                                        subblock=map_coordinate_clean_text_subblock,
+                                        easting=map_coordinate_clean_number_easting , 
+                                        northing=map_coordinate_clean_number_northing)
+    )
+    events$map_coordinate_clean_latitude[i] <- temp$latitude
+    events$map_coordinate_clean_longitude[i] <- temp$longitude
+  })
+  #print(is.na(events$map_coordinate_clean_latitude[i]))
+}
+print("Finished Converting Coordinates")
+
+```
 
 ```{r}
-print(glue(getwd(), "/inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata"))
-saveRDS(events, glue(getwd(), "/../inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata"))
+
+#(temp <- events %>% mutate(map_coordinate_clean_row=1:n()) %>% filter(is.na(map_coordinate_clean_latitude) & !is.na(map_coordinate_clean)) %>% select(starts_with("map_coordinate_clean")) ) %>% distinct() %>% print(n=40) #visualize errors
+#dim(temp) #195 coordinates don't convert.
+
+testing=F
+if(testing){
+  i=3684
+  events[i,] %>%  select(starts_with("map_coordinate_clean")) %$% EAGS2LatLong(band=map_coordinate_clean_text_band,
+                                                                              block=map_coordinate_clean_text_block,
+                                                                              subblock=map_coordinate_clean_text_subblock,
+                                                                              easting=map_coordinate_clean_number_easting , 
+                                                                              northing=map_coordinate_clean_number_northing)
+  
+  with(events[i,], map_coordinate_clean)
+  with(events[i,], map_coordinate)
+  band <- with(events[i,], map_coordinate_clean_text_band)
+  block <- with(events[i,],map_coordinate_clean_text_block)
+  subblock <- with(events[i,],map_coordinate_clean_text_subblock) #
+  easting <- with(events[i,],map_coordinate_clean_number_easting)
+  northing <- with(events[i,],map_coordinate_clean_number_northing)
+}
+
+stats::quantile(events$map_coordinate_clean_latitude, probs =c(.005,.01,.1,.5,.9,.99,.995), na.rm=T, type=9) 
+stats::quantile(events$map_coordinate_clean_longitude, probs =c(.005,.01,.1,.5,.9,.99,.995), na.rm=T, type=9)
+plot(events$map_coordinate_clean_longitude,events$map_coordinate_clean_latitude)
+
+#This is just to remove absolutely clear outliers. Not to set the region of interest.
+#Outlier Bounding Box:
+#NE 4.62933, 41.899059
+#SW -4.71712, 33.90884
+events$map_coordinate_clean_latitude[events$map_coordinate_clean_latitude < -4.71712 |
+                                      events$map_coordinate_clean_latitude>4.62933] <- NA
+events$map_coordinate_clean_longitude[events$map_coordinate_clean_longitude < 33.90884 |
+                                      events$map_coordinate_clean_longitude>41.899059] <- NA
+plot(events$map_coordinate_clean_longitude,events$map_coordinate_clean_latitude)
+
+```
+
+    
+
+# District of Document
+
+-Likewise, the plots suggest some district cleaning still necessary. Jock Scott was an operation in Nairobi and all of those can be changed to Nairobi. Central Province and Rift Valley Province are not districts. Not sure if that matters at this stage... but we probably want to reassign the points we can geolocate from them to an actual district.
+
+Districts: 
+-Jock Scott, rift valley, and central province aren't districts. I think Jock Scott is a small town within a district, not sure which one. Central province and rift valley are provinces, one administrative unit higher than the district.
+-the districts should be: Baringo, Elgeyo/Marakwet, Embu, Fort Hall, Kajiado, Kiambu, Kitui, Laikipia, Machakos, Meru, Naivasha, Nakuru, Nanyuki, Narok, Nyeri, Thika, and then Nairobi City
+-we retrieved events from both district level and provincial level files and we should make sure that that didn't create duplicate events
+-Here is my list of our coverage from the files we looked at (the star means we have complete files for the emergency): 
+
+*Baringo
+    Mar 51-Aug 61
+*Elgeyo/Marakwet
+    Mar 53-Aug 61
+*Embu
+    Nov 51-Aug 61    
+Fort Hall
+    Nov 51-Aug 54 (possibly missing end)
+*Kajiado
+    Aug 53-Aug 61
+*Kiambu
+    Nov 51-Aug 61
+Kitui
+    Dec 51-Feb 53 (possibly missing end)
+*Laikipia
+    Nov 51-Dec 57 (Jan 58-Aug 60 in provincial files)
+Machakos
+    Mar 53-Dec 55
+*Meru
+    Dec 51-Aug 61
+*Naivasha
+    May 53-Dec 57; Jan 58-Aug 60 in provincial files
+*Nakuru
+    Mar 53-Dec 53; Oct 54-Dec 57; Jan 58-Aug 60 in provincial files
+*Nanyuki
+    Dec 51-Sep 53; Jan 54-Dec 54; Dec 55-Aug 61
+*Narok
+    May 51-Feb 53; Aug 53-Aug 61
+*Nyeri
+    Nov 51-Aug 61
+*Thika
+    Dec 51-Aug 61
+
+Nairobi City
+    Mar 53-Dec 56
+
+Central Province
+    Mar 53-Jan 57
+
+Rift Valley Province
+    Feb 51- Dec 53; Jan 58-Aug 60
+
+```{r , results="asis"}
+
+cat("\014")
+
+#clean document district
+#p_load(car,stringi,xtable)
+
+events$document_district_clean <- stringr::str_trim(stringi::stri_trans_totitle(events$document_district))
+
+events$document_district_clean <- events$document_district_clean %>% car::recode(" 
+                                   'Embu-Fort Hall Border'='Embu';
+                                  'BARINGO'='Baringo';
+                                   'FORT HALL'='Fort Hall'; 
+                                   'Naviasha'='Naivasha';
+                                   'Nyeri Settled Area'='Nyeri';
+                                  'South Nyeri Reserve'='Nyeri' ;
+                                   'Reference Serial'=NA ;
+                                  'H/M'=NA; 'Matathia'=NA;  
+                                   'Kitui'=NA; 
+                                  'Jock Scott'='Nairobi';
+                                   ''=NA; 
+                                   ' '=NA ;
+                                   'Document District' = NA")
+
+
+events$document_unit_type <- NA
+condition <- events$document_district_clean %in% c("Rift Valley","Central Province"); table(condition)
+events$document_unit_type[condition] <- "Province"
+
+#Jock Scott Nairobi City
+condition <- events$document_district_clean %in% c("Nairobi"); table(condition)
+events$document_unit_type[condition] <- "City"
+
+condition <- events$document_district %in% c("JOCK SCOTT"); table(condition)
+events$document_unit_type[condition] <- "Operation Jock Scott"
+
+
+#Missing? Elgeyo/Marakwet
+#Baringo, , Embu, Fort Hall, Kajiado, Kiambu, Kitui, Laikipia, Machakos, Meru, Naivasha, Nakuru, Nanyuki, Narok, Nyeri, Thika
+condition <- events$document_district_clean %in% c("Baringo","Embu","Fort Hall","Kajiado","Kiambu",
+                                                 "Laikipia","Machakos","Meru","Naivasha","Nakuru",
+                                                  "Nanyuki","Narok","Nyeri","Thika"); table(condition)
+events$document_unit_type[condition] <- "District"
+
+events$document_unit_type %>%
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
+
+events$document_district_clean  %>%
+  janitor::tabyl(sort = TRUE) %>%
+  janitor::adorn_crosstab(digits = 1)
+
+```
+
+# Handle suffixes and directions
+
+```{r, cache=T }
+
+#Now we need to handle suffixes and combined locations
+#"farm" now is followed by things because they crunched in additional location info at the end
+#"coles estate farm
+# agriculture experimental farm
+#demonstration farm
+#"farm near churo"
+#reubens farm near churo
+################################################
+#
+events$location_text_ruleclean <- events$location_text %>% stringr::str_trim() %>% tolower()
+events <- events %>% 
+         dplyr::select(-one_of("location_text_ruleclean_connector_prefix","location_text_ruleclean_connector_suffix")) %>%  
+          tidyr ::separate(col=location_text_ruleclean,
+                    into=c("location_text_ruleclean_connector_prefix","location_text_ruleclean_connector_suffix"),
+                    sep = " of | near ", remove=F, extra="drop", fill="right")
+
+```
+
+
+
+```{r}
+
+events <- events %>% mutate(name_clean=stringr::str_trim(tolower(location_text))) %>%
+           mutate(name_clean_posessive=grepl("'s|`s",name_clean)) %>%
+           mutate(name_cleaner=trimws(name_clean)  ) %>%
+           mutate(name_cleaner=gsub("'s|`s","",name_cleaner, fixed=T)  ) %>%
+           mutate(name_cleaner= stringr::str_replace_all(name_cleaner, "[[:punct:]]|`", "")  ) %>% 
+           mutate(name_cleaner= stringr::str_replace_all(name_cleaner, "[^[:alnum:] ]", "")  ) %>%  #removes all the weird unicode and ascii
+           mutate(name_cleaner=trimws(name_cleaner)  ) %>%
+           mutate(name_cleaner_nospace= stringr::str_replace_all(name_cleaner, " ", "") )
+
+table(unlist(strsplit(events$name_cleaner,"")))
+
+```
+
+# Create a Simple Features Version GIS Version
+
+It is based on an events dataset built and cleaned in another file.
+
+```{r}
+
+events_sf <- events %>% # filter(!is.na(longitude) & !is.na(latitude))  %>%
+  distinct() %>%
+  # filter( between(longitude, 30.0,45.0)  )  %>%  #Flag ROI but don't subset on it yet
+  # filter( between(latitude, -5.0,5.0) ) %>%
+  mutate(name_clean = stringr::str_trim(tolower(location_text))) %>%
+  mutate(name_clean_posessive = grepl("'s|`s", name_clean)) %>%
+  mutate(name_cleaner = trimws(name_clean)) %>%
+  mutate(name_cleaner = gsub("'s|`s", "", name_cleaner, fixed = T)) %>%
+  mutate(name_cleaner = stringr::str_replace_all(name_cleaner, "[[:punct:]]|`", "")) %>%
+  mutate(name_cleaner = trimws(name_cleaner)) %>%
+  mutate(name_cleaner_nospace = stringr::str_replace_all(name_cleaner, " ", ""))
+
+# Avoid creating geometries where one of the two is NA
+events_sf$map_coordinate_clean_longitude[is.na(events_sf$map_coordinate_clean_latitude)] <- NA
+events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_longitude)] <- NA
+#events_sf$event_hash <- NULL #Make sure we're not hashing on the previous hash which might be a random walk
+
+events_sf <- events_sf %>%
+            st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"),
+                     crs = 4326, agr = "constant", remove = F, na.fail = F) # %>% 
+             #mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #Do this once and only once
+valid <- st_is_valid(events_sf$geometry); table(valid)
+
+eventsnames_sf <- events_sf %>% 
+  select("name_cleaner", "geometry") %>% 
+  setNames(c("name", "geometry")) %>% 
+  mutate(source_dataset = "events")
+
+```
+
+# Output Cleaned Files
+
+```{r}
+
+saveRDS(events_sf, glue::glue(getwd(), "/../inst/extdata/events_sf.Rdata"))
 
 ```
 

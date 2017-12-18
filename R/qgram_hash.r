@@ -33,71 +33,71 @@ qgram_hash <- function(strings, n=2, k=0) {
 # data <- data.frame(string=strings, stringsAsFactors=F )
 # data$string_character <- sapply( strsplit(data$string, split=''),  paste, collapse=" ")
 #
-# grams2 <- data %>% unnest_tokens(bigram, string_character, token = "ngrams", n = 2) %>% mutate(ones=1) %>% as.data.table()
+# grams2 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "ngrams", n = 2) %>% mutate(ones=1) %>% as.data.table()
 # grams2$bigram <- paste(substring(grams2$bigram, 1, 1), "0", substring(grams2$bigram, 3), sep = "")  #number of skips
 # grams2 <- dcast(grams2, string ~ bigram, fun=sum, value.var="ones")
 #
-# grams_21 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 1) %>% mutate(ones=1) %>% as.data.table()
+# grams_21 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 1) %>% mutate(ones=1) %>% as.data.table()
 # grams_21$bigram <- paste(substring(grams_21$bigram, 1, 1), "1", substring(grams_21$bigram, 3), sep = "")  #number of skips
 # grams_21 <- dcast(grams_21, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams2, grams_21, by=c("string"), all=T)
 #
-# grams_22 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 2) %>% mutate(ones=1) %>% as.data.table()
+# grams_22 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 2) %>% mutate(ones=1) %>% as.data.table()
 # grams_22$bigram <- paste(substring(grams_22$bigram, 1, 1), "2", substring(grams_22$bigram, 3), sep = "")  #number of skips
 # grams_22 <- dcast(grams_22, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams_22, by=c("string"), all=T)
 #
-# grams_23 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 3) %>% mutate(ones=1) %>% as.data.table()
+# grams_23 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 3) %>% mutate(ones=1) %>% as.data.table()
 # grams_23$bigram <- paste(substring(grams_23$bigram, 1, 1), "3", substring(grams_23$bigram, 3), sep = "")  #number of skips
 # grams_23 <- dcast(grams_23, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams_23, by=c("string"), all=T)
 #
-# grams_24 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 4) %>% mutate(ones=1) %>% as.data.table()
+# grams_24 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 2, k = 4) %>% mutate(ones=1) %>% as.data.table()
 # grams_24$bigram <- paste(substring(grams_24$bigram, 1, 1), "4", substring(grams_24$bigram, 3), sep = "")  #number of skips
 # grams_24 <- dcast(grams_24, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams_24, by=c("string"), all=T)
 #
-# grams3 <- data %>% unnest_tokens(bigram, string_character, token = "ngrams", n = 3) %>% mutate(ones=1) %>% as.data.table()
+# grams3 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "ngrams", n = 3) %>% mutate(ones=1) %>% as.data.table()
 # grams3$bigram <- paste(substring(grams3$bigram, 1, 1), "0", substring(grams3$bigram, 3), sep = "")  #number of skips
 # grams3 <- dcast(grams3, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams3, by=c("string"), all=T)
 #
-# grams31 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 1) %>% mutate(ones=1) %>% as.data.table()
+# grams31 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 1) %>% mutate(ones=1) %>% as.data.table()
 # grams31$bigram <- paste(substring(grams31$bigram, 1, 1), "1", substring(grams31$bigram, 3), sep = "")  #number of skips
 # grams31 <- dcast(grams31, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams31, by=c("string"), all=T)
 #
-# grams32 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 2) %>% mutate(ones=1) %>% as.data.table()
+# grams32 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 2) %>% mutate(ones=1) %>% as.data.table()
 # grams32$bigram <- paste(substring(grams32$bigram, 1, 1), "2", substring(grams32$bigram, 3), sep = "")  #number of skips
 # grams32 <- dcast(grams32, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams32, by=c("string"), all=T)
 #
-# grams33 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 3) %>% mutate(ones=1) %>% as.data.table()
+# grams33 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 3) %>% mutate(ones=1) %>% as.data.table()
 # grams33$bigram <- paste(substring(grams33$bigram, 1, 1), "3", substring(grams32$bigram, 3), sep = "")  #number of skips
 # grams33 <- dcast(grams33, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams33, by=c("string"), all=T)
 #
-# grams34 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 4) %>% mutate(ones=1) %>% as.data.table()
+# grams34 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 4) %>% mutate(ones=1) %>% as.data.table()
 # grams34$bigram <- paste(substring(grams34$bigram, 1, 1), "4", substring(grams32$bigram, 3), sep = "")  #number of skips
 # grams34 <- dcast(grams34, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams34, by=c("string"), all=T)
 #
-# grams4 <- data %>% unnest_tokens(bigram, string_character, token = "ngrams", n = 4) %>% mutate(ones=1) %>% as.data.table()
+# grams4 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "ngrams", n = 4) %>% mutate(ones=1) %>% as.data.table()
 # grams4$bigram <- paste(substring(grams4$bigram, 1, 1), "0", substring(grams4$bigram, 3), sep = "")  #number of skips
 # grams4 <- dcast(grams4, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams4, by=c("string"), all=T)
 #
-# grams41 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 1) %>% mutate(ones=1) %>% as.data.table()
+# grams41 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 1) %>% mutate(ones=1) %>% as.data.table()
 # grams41$bigram <- paste(substring(grams41$bigram, 1, 1), "1", substring(grams32$bigram, 3), sep = "")  #number of skips
 # grams41 <- dcast(grams41, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams41, by=c("string"), all=T)
 #
-# grams42 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 2) %>% mutate(ones=1) %>% as.data.table()
+# grams42 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 2) %>% mutate(ones=1) %>% as.data.table()
 # grams42$bigram <- paste(substring(grams42$bigram, 1, 1), "2", substring(grams32$bigram, 3), sep = "")  #number of skips
 # grams42 <- dcast(grams42, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams42, by=c("string"), all=T)
 #
-# grams43 <- data %>% unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 3) %>% mutate(ones=1) %>% as.data.table()
+# grams43 <- data %>%tidyr::unnest_tokens(bigram, string_character, token = "skip_ngrams", n = 3, k = 3) %>% mutate(ones=1) %>% as.data.table()
 # grams43$bigram <- paste(substring(grams43$bigram, 1, 1), "3", substring(grams32$bigram, 3), sep = "")  #number of skips
 # grams43 <- dcast(grams43, string ~ bigram, fun=sum, value.var="ones")
 # grams_wide <- merge(grams_wide, grams43, by=c("string"), all=T)

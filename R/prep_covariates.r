@@ -17,23 +17,23 @@ prep_covariates <- function(roi, fromscratch=F) {
 
   # Not in the paper
   # District
-  # kenya_cadastral_district_sf <- st_read(system.file("extdata", "kenya_cadastral_district.gpkg", package = "MeasuringLandscapeCivilWar"))
+  # kenya_cadastral_district_sf <- st_read(system.file("extdata", "kenya_cadastral_district.gpkg", package = "MeasuringLandscape"))
 
   # Not in the paper
   # Cadastral Map
-  # kenya_cadastral_sf <- st_read(system.file("extdata", "kenya_cadastral.gpkg", package = "MeasuringLandscapeCivilWar"), crs = 4326)
+  # kenya_cadastral_sf <- st_read(system.file("extdata", "kenya_cadastral.gpkg", package = "MeasuringLandscape"), crs = 4326)
 
   # Not in the paper
   # Language
-  # LanguagePolygons <- st_read(system.file("extdata", "LanguagePolygons.shp", package = "MeasuringLandscapeCivilWar"), crs = 4326)
+  # LanguagePolygons <- st_read(system.file("extdata", "LanguagePolygons.shp", package = "MeasuringLandscape"), crs = 4326)
 
   # Not in the paper
   ## Land Use
-  # kenya_landuse <- st_read(system.file("extdata", "kenya_landuse.shp", package = "MeasuringLandscapeCivilWar"), crs = 4326)
+  # kenya_landuse <- st_read(system.file("extdata", "kenya_landuse.shp", package = "MeasuringLandscape"), crs = 4326)
 
   # Not in the paper
   # Ethnic Group
-  # kenya_tribes <- st_read(system.file("extdata", "kenya_tribes.shp", package = "MeasuringLandscapeCivilWar"), crs = 4326)
+  # kenya_tribes <- st_read(system.file("extdata", "kenya_tribes.shp", package = "MeasuringLandscape"), crs = 4326)
 
   # Rain
   fromscratch2 <- F # Unreachable unless you have the full precipition files and want to create the extract from scratch
@@ -59,7 +59,7 @@ prep_covariates <- function(roi, fromscratch=F) {
     raster_rain <- raster_rain %>% crop(., as(roi, "Spatial"))
     saveRDS(raster_rain, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/raster_rain.Rds")
   }
-  raster_rain <- readRDS(system.file("extdata", "raster_rain.Rds", package = "MeasuringLandscapeCivilWar"))
+  raster_rain <- readRDS(system.file("extdata", "raster_rain.Rds", package = "MeasuringLandscape"))
 
   # Population
   fromscratch2 <- F # Unreachable unless you have the full  files and want to create the extract from scratch
@@ -69,7 +69,7 @@ prep_covariates <- function(roi, fromscratch=F) {
       crop(., as(roi, "Spatial"))
     saveRDS(pop_raster_roi, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/pop_raster_roi.Rdata")
   }
-  pop_raster_roi <- readRDS(system.file("extdata", "pop_raster_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  pop_raster_roi <- readRDS(system.file("extdata", "pop_raster_roi.Rdata", package = "MeasuringLandscape"))
 
   # Forest
   fromscratch2 <- F # Unreachable unless you have the full  files and want to create the extract from scratch
@@ -79,7 +79,7 @@ prep_covariates <- function(roi, fromscratch=F) {
       crop(., as(roi, "Spatial"))
     saveRDS(forest_raster_roi, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/forest_raster_roi.Rdata")
   }
-  forest_raster_roi <- readRDS(system.file("extdata", "forest_raster_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  forest_raster_roi <- readRDS(system.file("extdata", "forest_raster_roi.Rdata", package = "MeasuringLandscape"))
 
   # Ruggedness
   fromscratch2 <- F # Unreachable unless you have the full  files and want to create the extract from scratch
@@ -89,7 +89,7 @@ prep_covariates <- function(roi, fromscratch=F) {
       crop(., as(roi, "Spatial"))
     saveRDS(ruggedness_raster_roi, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/ruggedness_raster_roi.Rdata")
   }
-  ruggedness_raster_roi <- readRDS(system.file("extdata", "ruggedness_raster_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  ruggedness_raster_roi <- readRDS(system.file("extdata", "ruggedness_raster_roi.Rdata", package = "MeasuringLandscape"))
 
 
   # Roads
@@ -126,7 +126,7 @@ prep_covariates <- function(roi, fromscratch=F) {
 
     saveRDS(roads_distance_to, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/roads_distance_to.Rdata")
   }
-  roads_distance_to <- readRDS(system.file("extdata", "roads_distance_to.Rdata", package = "MeasuringLandscapeCivilWar"))
+  roads_distance_to <- readRDS(system.file("extdata", "roads_distance_to.Rdata", package = "MeasuringLandscape"))
 
 
   covariate_list <- list()

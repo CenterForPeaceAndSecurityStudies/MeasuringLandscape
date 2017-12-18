@@ -3,15 +3,10 @@
 # The design philosphy is create extracts from each source needed for the paper and that are small enough to include with the package
 # But to leave as much of the transformations and processing of those extracts to the package side so they can be altered
 
-library(pacman)
-p_load(glue)
-p_load(fst)
-p_load(data.table)
 
 # install.packages("remotes")
 # remotes::install_github("krlmlr/styler")
 
-dir_package_files <- glue(getwd(), "/inst/extdata/")
 
 
 # This is trickier now because really what we mean is st_intersect with a box
@@ -100,7 +95,7 @@ load_wikidata <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
     fwrite(wikidata_roi, glue(dir_package_files, "wikidata_roi.csv"))
   }
 
-  wikidata_roi <- fread(system.file("extdata/", "wikidata_roi.csv", package = "MeasuringLandscapeCivilWar"))
+  wikidata_roi <- fread(system.file("extdata/", "wikidata_roi.csv", package = "MeasuringLandscape"))
 
   wikinames <- strsplit(x = paste(wikidata_roi$wikidata_name_first, wikidata_roi$wikidata_name, wikidata_roi$wikidata_name2_first, wikidata_roi$wikidata_name2, sep = ";"), split = ";")
   wikinames_en <- sapply(wikinames, FUN = function(x) unique(x[grepl("en_", x)]))
@@ -112,7 +107,7 @@ load_wikidata <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
     setNames(c("name", "latitude", "longitude", "name_alternates")) %>%
     mutate(source_dataset = "wikidata") %>%
     mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
-    unnest(name) %>%
+   tidyr::unnest(name) %>%
     as.data.frame() %>%
     st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
     mutate(timeperiod = "2017-01-01")
@@ -187,7 +182,7 @@ load_tgn <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
     )
   }
 
-  tgn_sf <- fread(system.file("extdata", "tgn_kenya.csv", package = "MeasuringLandscapeCivilWar")) %>%
+  tgn_sf <- fread(system.file("extdata", "tgn_kenya.csv", package = "MeasuringLandscape")) %>%
     mutate(name_alternates = paste(prefLabel, altLabel, sep = ";")) %>%
     mutate(location_text = paste(prefLabel, altLabel, sep = ";")) %>%
     select("location_text", "latitude", "longitude", "name_alternates") %>%
@@ -197,7 +192,7 @@ load_tgn <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
     filter(!is.na(longitude) & !is.na(latitude)) %>%
     mutate_at(c("latitude", "longitude"), as.numeric) %>%
     mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
-    unnest(name) %>%
+   tidyr::unnest(name) %>%
     st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
     mutate(timeperiod = "2017-01-01")
 
@@ -216,7 +211,7 @@ load_historical <- function(roi, fromscratch=F) {
       mutate(timeperiod = "1964-01-01") %>%
       mutate(name_alternates = sapply(strsplit(name, ";| see | SEE | check if same as "), FUN = function(x) paste(x, collapse = ";"))) %>%
       mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
-      unnest(name) %>%
+     tidyr::unnest(name) %>%
       st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
 
     saveRDS(
@@ -225,7 +220,7 @@ load_historical <- function(roi, fromscratch=F) {
     )
   }
 
-  historical_sf_roi <- readRDS(system.file("extdata", "historical_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  historical_sf_roi <- readRDS(system.file("extdata", "historical_sf_roi.Rdata", package = "MeasuringLandscape"))
 
   return(historical_sf_roi)
 }
@@ -262,7 +257,7 @@ load_geonames <- function(roi, fromscratch=F) {
       mutate(source_dataset = "geonames") %>%
       mutate(name = gsub(";NA", "", name, fixed = T)) %>%
       mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
-      unnest(name) %>%
+     tidyr::unnest(name) %>%
       st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
 
     saveRDS(
@@ -271,7 +266,7 @@ load_geonames <- function(roi, fromscratch=F) {
     )
   }
 
-  geonames_sf_roi <- readRDS(system.file("extdata", "geonames_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  geonames_sf_roi <- readRDS(system.file("extdata", "geonames_sf_roi.Rdata", package = "MeasuringLandscape"))
 
   return(geonames_sf_roi)
 }
@@ -284,7 +279,7 @@ load_nga <- function(roi, fromscratch=F) {
       setNames(c("feature_code", "name", "latitude", "longitude", "timeperiod")) %>%
       mutate(source_dataset = "nga") %>%
       mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
-      unnest(name) %>%
+     tidyr::unnest(name) %>%
       st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
 
     saveRDS(
@@ -293,7 +288,7 @@ load_nga <- function(roi, fromscratch=F) {
     )
   }
 
-  nga_sf_roi <- readRDS(system.file("extdata", "nga_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  nga_sf_roi <- readRDS(system.file("extdata", "nga_sf_roi.Rdata", package = "MeasuringLandscape"))
 
   return(nga_sf_roi)
 }
@@ -317,7 +312,7 @@ load_googlemaps <- function(roi, fromscratch=F) {
     )
   }
 
-  googlemaps_sf_roi <- readRDS(system.file("extdata", "googlemaps_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  googlemaps_sf_roi <- readRDS(system.file("extdata", "googlemaps_sf_roi.Rdata", package = "MeasuringLandscape"))
 
   return(googlemaps_sf_roi)
 }
@@ -341,7 +336,7 @@ load_bingmaps <- function(roi, fromscratch=F) {
     )
   }
 
-  bingmaps_sf_roi <- readRDS(system.file("extdata", "bingmaps_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  bingmaps_sf_roi <- readRDS(system.file("extdata", "bingmaps_sf_roi.Rdata", package = "MeasuringLandscape"))
 
   return(bingmaps_sf_roi)
 }
@@ -424,7 +419,7 @@ load_ken_adm <- function(roi, fromscratch=F) {
     )
   }
 
-  KEN_adm_sf_roi <- readRDS(system.file("extdata", "KEN_adm_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  KEN_adm_sf_roi <- readRDS(system.file("extdata", "KEN_adm_sf_roi.Rdata", package = "MeasuringLandscape"))
 
   return(KEN_adm_sf_roi)
 }
@@ -454,7 +449,7 @@ load_openstreetmap <- function(roi, fromscratch=F) {
     )
   }
 
-  openstreetmap_sf_roi <- readRDS(system.file("extdata", "openstreetmap_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar")) %>%
+  openstreetmap_sf_roi <- readRDS(system.file("extdata", "openstreetmap_sf_roi.Rdata", package = "MeasuringLandscape")) %>%
     common_cleaning() %>%
     select(c("fclass", "name", "geometry")) %>%
     setNames(c("feature_code", "name", "geometry")) %>%
@@ -491,7 +486,7 @@ load_kenya_cadastral <- function(roi, fromscratch=F) {
         )
   }
 
-  kenya_cadastral_roi <- readRDS(system.file("extdata", "kenya_cadastral_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  kenya_cadastral_roi <- readRDS(system.file("extdata", "kenya_cadastral_roi.Rdata", package = "MeasuringLandscape"))
 
   return(kenya_cadastral_roi)
 }
@@ -519,7 +514,7 @@ load_kenya_cadastral_district <- function(roi, fromscratch=F) {
         )  
 
   }
-  kenya_cadastral_district_roi <- readRDS(system.file("extdata", "kenya_cadastral_district_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  kenya_cadastral_district_roi <- readRDS(system.file("extdata", "kenya_cadastral_district_roi.Rdata", package = "MeasuringLandscape"))
   
   # kenya_cadastral_district_centroids_sf <- kenya_cadastral_district_sf  %>% st_centroid
 
@@ -541,7 +536,7 @@ load_kenya_districts1962 <- function(roi, fromscratch=F) {
         )
   }
 
-  kenya_districts1962_roi <- readRDS(system.file("extdata", "kenya_districts1962_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  kenya_districts1962_roi <- readRDS(system.file("extdata", "kenya_districts1962_roi.Rdata", package = "MeasuringLandscape"))
 
   return(kenya_districts1962_roi)
 }
@@ -588,7 +583,7 @@ load_livestock <- function(roi, fromscratch=F) {
     )
   }
 
-  livestock_sf_roi <- readRDS(system.file("extdata", "livestock_sf_roi.Rdata", package = "MeasuringLandscapeCivilWar"))
+  livestock_sf_roi <- readRDS(system.file("extdata", "livestock_sf_roi.Rdata", package = "MeasuringLandscape"))
 
   return(livestock_sf_roi)
 }

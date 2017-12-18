@@ -1,14 +1,14 @@
-Package: MeasuringLandscapeCivilWar
+Package: MeasuringLandscape
 Title: Replication file for the paper Measuring the Landscape of CivilWar
 Version: 0.0.0.9000
 Authors@R: person("Rex", "Douglass", email = "rexdouglass@gmail.com", role = c("aut", "cre"))
-Description: This is a replication package to recreate the figures and analysis found in the paper.
+Description: DiagrammerR
 Depends: R (>= 3.4.1)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rexdouglass/MeasuringLandscapeCivilWar
 BugReports: https://github.com/rexdouglass/MeasuringLandscapeCivilWar/issues
-Imports: backports, bookdown,  lettercase, dummies, DT, kableExtra, foreach, parallel, quanteda, proxy, MLmetrics, Metrics, precrec, PRROC, data.table, devtools, textreuse, LSHR, rasterVis, ggplot2, rgdal, raster, rgdal, maptools, plyr, raster, glue, devtools, mosaic, stringr,stringi, lubridate,stringr, janitor, digest, tidyverse, dplyr,knitr,DT,magrittr, rgeos, rgdal, digest, ggmap, bookdown, stringdist, sf, tidyverse, viridis, rvest, re2r, knitr, xgboost
-Suggests: testthat
+Imports: packrat, devtools, knitr, tidyverse, ggplot2 (>= 2.2.1.9), data.table, caTools, xgboost , pacman, units, dissUtils,date, car, stringi, xtable, SnowballC, xtable, cowplot, ggjoy, party, Metrics, MLmetrics, precrec, dummies, tools,janitor, lubridate, digest, DT, rgdal, ggmap, tools, stringr, lubridate, mosaic, ggformula, magrittr, glue, RANN, re2r,doParallel,foreach, quanteda, ggrepel
+Suggests: fst, ggridges, proxy
 RoxygenNote: 6.0.1
