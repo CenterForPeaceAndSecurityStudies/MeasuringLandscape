@@ -16,7 +16,7 @@ region_of_interest_sf_utm <- create_roi(
   top_right_x = 38.19,
   top_right_y = 0.54543
 )
-region_of_interest_sf_utm <- st_sf(a = 1, geom = region_of_interest_sf_utm)
+region_of_interest_sf_utm <- sf::st_sf(a = 1, geom = region_of_interest_sf_utm)
 region_of_interest_sf_utm$a <- NULL
 # plot(region_of_interest_sf_utm)
 

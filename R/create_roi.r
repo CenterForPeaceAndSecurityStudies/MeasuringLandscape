@@ -5,7 +5,7 @@ create_roi <- function(bottom_left_x,
                        top_right_y,
                        crs_in=4326,
                        crs_out="+proj=utm +zone=37 +datum=WGS84") {
-  region_of_interest_sf <- sf::st_sfc(st_polygon(list(
+  region_of_interest_sf <- sf::st_sfc(sf::st_polygon(list(
     rbind(
       c(bottom_left_x, bottom_left_y),
       c(top_right_x, bottom_left_y),
@@ -25,8 +25,8 @@ create_roi <- function(bottom_left_x,
   # )
   # )
   # )
-  region_of_interest_sf <- st_set_crs(region_of_interest_sf, crs_in)
-  region_of_interest_sf_utm <- st_transform(region_of_interest_sf, crs = crs_out)
+  region_of_interest_sf <- sf::st_set_crs(region_of_interest_sf, crs_in)
+  region_of_interest_sf_utm <- sf::st_transform(region_of_interest_sf, crs = crs_out)
   return(region_of_interest_sf_utm)
 }
 
