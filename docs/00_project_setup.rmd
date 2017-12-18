@@ -13,6 +13,7 @@ editor_options:
 This file specifies some dependencies that might be specifc.
 
 ```{r}
+install.packages('packrat', dependencies=T)
 
 install.packages('knitr', dependencies=T)
 install.packages('devtools', dependencies=T)
@@ -22,11 +23,8 @@ install.packages('data.table', dependencies=T)
 install.packages('sf', dependencies=T)
 install.packages('caTools', dependencies=T)
 install.packages('xgboost', dependencies=T)
-
 install.packages('pacman', dependencies=T)
 install.packages('units', dependencies=T)
-
-
 install.packages('date', dependencies=T)
 install.packages('car', dependencies=T)
 install.packages('strigr', dependencies=T)
@@ -41,29 +39,27 @@ install.packages('dummies', dependencies=T)
 install.packages('janitor', dependencies=T)
 install.packages('DT', dependencies=T)
 install.packages('ggmap', dependencies=T)
-
 install.packages('mosaic', dependencies=T)
 install.packages('ggformula', dependencies=T)
 install.packages('magrittr', dependencies=T)
 install.packages('glue', dependencies=T)
-
 install.packages('RANN', dependencies=T)
-
 install.packages('re2r', dependencies=T)
 install.packages('dummy', dependencies=T)
-
-
-
-
 install.packages('doParallel', dependencies=T)
-
 install.packages('quanteda', dependencies=T)
 install.packages('ggrepel', dependencies=T)
-
-
-
-
-
+install.packages('dissUtils', dependencies=T)
+install.packages('stringi', dependencies=T)
+install.packages('xtable', dependencies=T)
+install.packages('SnowballC', dependencies=T)
+install.packages('xtable', dependencies=T)
+install.packages('tools', dependencies=T)
+install.packages('lubridate', dependencies=T)
+install.packages('digest', dependencies=T)
+install.packages('rgdal', dependencies=T)
+install.packages('stringr', dependencies=T)
+install.packages('foreach', dependencies=T)
 
 
 devtools::document()
