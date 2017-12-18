@@ -1,6 +1,4 @@
 
-library(sf)
-
 create_roi <- function(bottom_left_x,
                        bottom_left_y,
                        top_right_x,
