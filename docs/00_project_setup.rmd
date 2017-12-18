@@ -34,7 +34,6 @@ install.packages('party', dependencies=T)
 install.packages('Metrics', dependencies=T)
 install.packages('MLmetrics', dependencies=T)
 install.packages('precrec', dependencies=T)
-install.packages('DiagrammerR', dependencies=T)
 install.packages('dummies', dependencies=T)
 install.packages('janitor', dependencies=T)
 install.packages('DT', dependencies=T)
@@ -61,13 +60,11 @@ install.packages('rgdal', dependencies=T)
 install.packages('stringr', dependencies=T)
 install.packages('foreach', dependencies=T)
 
-
 devtools::document()
 
 #library("miniCRAN")
 #tags <- "MeasuringLandscape"
 #pkgDep(tags, availPkgs = cranJuly2014)
-
 
 require(devtools)
 #install_version("backports", version = "1.1.0")
