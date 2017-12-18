@@ -316,24 +316,11 @@ events_sf_text_coord_unique &lt;- plyr::ddply(events_sf[,c('location_text',
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucHJlZF9jb3JkcyA8LSBwcmVkaWN0X21pc3NpbmduZXNzX2R2KGlzLm5hKGV2ZW50c19zZiRtYXBfY29vcmRpbmF0ZV9jbGVhbl9sYXRpdHVkZSkpXG5gYGAifQ== -->
 <pre class="r"><code>pred_cords &lt;- predict_missingness_dv(is.na(events_sf$map_coordinate_clean_latitude))</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdXHR0cmFpbi1hdWM6MC44MDY5MTErMC4wMDQxNDlcdHRlc3QtYXVjOjAuNzk3NjY2KzAuMDA2NTU2IFxuTXVsdGlwbGUgZXZhbCBtZXRyaWNzIGFyZSBwcmVzZW50LiBXaWxsIHVzZSB0ZXN0X2F1YyBmb3IgZWFybHkgc3RvcHBpbmcuXG5XaWxsIHRyYWluIHVudGlsIHRlc3RfYXVjIGhhc24ndCBpbXByb3ZlZCBpbiAxMCByb3VuZHMuXG5cblsyMV1cdHRyYWluLWF1YzowLjg5MDA0NSswLjAwMDk0OFx0dGVzdC1hdWM6MC44NzI0MDcrMC4wMDQxNDIgXG5bNDFdXHR0cmFpbi1hdWM6MC44OTc3ODMrMC4wMDA3NzdcdHRlc3QtYXVjOjAuODc1MzM3KzAuMDA0NzA2IFxuWzUwXVx0dHJhaW4tYXVjOjAuOTAxODU2KzAuMDAxMTY0XHR0ZXN0LWF1YzowLjg3NzEyNCswLjAwNDU4MCBcbiJ9 -->
-<pre><code>[1] train-auc:0.806911+0.004149 test-auc:0.797666+0.006556 
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdXHR0cmFpbi1hdWM6MC44MDM5NDcrMC4wMDMzNzJcdHRlc3QtYXVjOjAuNzk5OTMxKzAuMDA2NDI0IFxuTXVsdGlwbGUgZXZhbCBtZXRyaWNzIGFyZSBwcmVzZW50LiBXaWxsIHVzZSB0ZXN0X2F1YyBmb3IgZWFybHkgc3RvcHBpbmcuXG5XaWxsIHRyYWluIHVudGlsIHRlc3RfYXVjIGhhc24ndCBpbXByb3ZlZCBpbiAxMCByb3VuZHMuXG4ifQ== -->
+<pre><code>[1] train-auc:0.803947+0.003372 test-auc:0.799931+0.006424 
 Multiple eval metrics are present. Will use test_auc for early stopping.
-Will train until test_auc hasn't improved in 10 rounds.
-
-[21]    train-auc:0.890045+0.000948 test-auc:0.872407+0.004142 
-[41]    train-auc:0.897783+0.000777 test-auc:0.875337+0.004706 
-[50]    train-auc:0.901856+0.001164 test-auc:0.877124+0.004580 </code></pre>
+Will train until test_auc hasn't improved in 10 rounds.</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucmYgPC0gcHJlZF9jb3JkcyR4Yl9tb2RlbFxudHJhaW4gPC0gcHJlZF9jb3JkcyR4X2FsbF9wcmVfZHVtbXlcbmR0cmFpbiA8LSB4Z2IuRE1hdHJpeChkYXRhPWFzLm1hdHJpeCggeF9hbGwgKSwgXG4gICAgICAgICAgICAgICAgICAgICAgbGFiZWwgPSBsYWJlbCwgbWlzc2luZyA9IE5BIClcbnRlc3RkYXRhX2R1bW15IDwtIGR1bW15LmRhdGEuZnJhbWUocHJlZF9jb3JkcyR4X2FsbF9wcmVfZHVtbXksIGRyb3A9RilcbmR0ZXN0IDwtIHhnYi5ETWF0cml4KGRhdGE9YXMubWF0cml4KCB0ZXN0ZGF0YV9kdW1teSApLCAgbWlzc2luZyA9IE5BICkgXG5kdGVzdCA8LSB4Z2IuRE1hdHJpeChkYXRhPWFzLm1hdHJpeCggcHJlZF9jb3JkcyRwb3N0ZHVtbXkgKSwgIG1pc3NpbmcgPSBOQSApXG5gYGAifQ== -->
-<pre class="r"><code>rf &lt;- pred_cords$xb_model
-train &lt;- pred_cords$x_all_pre_dummy
-dtrain &lt;- xgb.DMatrix(data=as.matrix( x_all ), 
-                      label = label, missing = NA )
-testdata_dummy &lt;- dummy.data.frame(pred_cords$x_all_pre_dummy, drop=F)
-dtest &lt;- xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA ) 
-dtest &lt;- xgb.DMatrix(data=as.matrix( pred_cords$postdummy ),  missing = NA )</code></pre>
-<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Importance scores for each variable, predicting the missingness of exact map coordinates as a function of each event’s details.</p>
@@ -385,14 +372,15 @@ a &lt;- plot_partial_effects(rf=pred_cords$xb_model,
                   outcome=&quot;mapcoordinate_clean_missing&quot;,var=&quot;initiator_clean_1_aggmed&quot;,minsize=100,
                   scale=scale,histogram=T)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiR292ZXJubWVudFwiXG5bMV0gXCJob21lIGd1YXJkXCJcblsxXSBcIktHXCJcblsxXSBcIktpbmdzIEFmcmljYW4gUmlmbGVzXCJcblsxXSBcInBvbGljZSAoZ2VuZXJpYylcIlxuWzFdIFwiUmViZWxzXCJcblsxXSBcIlNlY3VyaXR5IEZvcmNlc1wiXG4ifQ== -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiR292ZXJubWVudFwiXG5bMV0gXCJob21lIGd1YXJkXCJcblsxXSBcIktHXCJcblsxXSBcIktpbmdzIEFmcmljYW4gUmlmbGVzXCJcblsxXSBcInBvbGljZSAoZ2VuZXJpYylcIlxuWzFdIFwiUmViZWxzXCJcblsxXSBcIlNlY3VyaXR5IEZvcmNlc1wiXG5bMV0gXCJzdXNwZWN0ZWQgaW5zdXJnZW50c1wiXG4ifQ== -->
 <pre><code>[1] &quot;Government&quot;
 [1] &quot;home guard&quot;
 [1] &quot;KG&quot;
 [1] &quot;Kings African Rifles&quot;
 [1] &quot;police (generic)&quot;
 [1] &quot;Rebels&quot;
-[1] &quot;Security Forces&quot;</code></pre>
+[1] &quot;Security Forces&quot;
+[1] &quot;suspected insurgents&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZCA8LSBwbG90X3BhcnRpYWxfZWZmZWN0cyhyZj1wcmVkX2NvcmRzJHhiX21vZGVsLFxuICAgICAgICAgICAgICAgICAgb3V0Y29tZT1cIm1hcGNvb3JkaW5hdGVfY2xlYW5fbWlzc2luZ1wiLHZhcj1cInRhcmdldF9jbGVhbl8xX2FnZ21lZFwiLG1pbnNpemU9MTAwLFxuICAgICAgICAgICAgICAgICAgc2NhbGU9c2NhbGUsaGlzdG9ncmFtPVQpXG5gYGAifQ== -->
 <pre class="r"><code>d &lt;- plot_partial_effects(rf=pred_cords$xb_model,
@@ -424,10 +412,9 @@ a &lt;- plot_partial_effects(rf=pred_cords$xb_model,
                   outcome=&quot;mapcoordinate_clean_missing&quot;,var=&quot;document_unit_type&quot;,minsize=100,
                   scale=scale,histogram=T)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiQ2l0eVwiXG5bMV0gXCJEaXN0cmljdFwiXG5bMV0gXCJPcGVyYXRpb24gSm9jayBTY290dFwiXG5bMV0gXCJQcm92aW5jZVwiXG4ifQ== -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiQ2l0eVwiXG5bMV0gXCJEaXN0cmljdFwiXG5bMV0gXCJQcm92aW5jZVwiXG4ifQ== -->
 <pre><code>[1] &quot;City&quot;
 [1] &quot;District&quot;
-[1] &quot;Operation Jock Scott&quot;
 [1] &quot;Province&quot;</code></pre>
 <!-- rnb-output-end -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZyA8LSBwbG90X3BhcnRpYWxfZWZmZWN0cyhyZj1wcmVkX2NvcmRzJHhiX21vZGVsLFxuICAgICAgICAgICAgICAgICAgb3V0Y29tZT1cIm1hcGNvb3JkaW5hdGVfY2xlYW5fbWlzc2luZ1wiLCB2YXI9XCJkb2N1bWVudF9kaXN0cmljdF9jbGVhblwiLFxuICAgICAgICAgICAgICAgICAgbWluc2l6ZT0xMDAsIHRyYWluPXByZWRfY29yZHMkeF9hbGxfcHJlX2R1bW15ICxcbiAgICAgICAgICAgICAgICAgIHNjYWxlPXNjYWxlLGhpc3RvZ3JhbT1UKVxuYGBgIn0= -->

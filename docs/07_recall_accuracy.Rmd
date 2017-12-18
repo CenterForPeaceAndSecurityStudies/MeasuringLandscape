@@ -56,7 +56,7 @@ Load the suggestions file
 ```{r}
 
 #Reload from scratch each time in case we subset sometehing weirdly
-georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt.Rds", package = "MeasuringLandscape")) 
+georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt_recomendations.Rds", package = "MeasuringLandscape")) 
 glue::glue("Size of the Suggestions dataset ", nrow(georef_all_dt))
 
 table(!is.na(events_sf$name_cleaner)) #8,638 events have at least some text

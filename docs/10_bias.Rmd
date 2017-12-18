@@ -45,9 +45,12 @@ events_sf_text_coord_unique <- plyr::ddply(events_sf[,c('location_text','name_cl
       map_coordinate_has =sum(!is.na(map_coordinate_clean_latitude))
       )
 
+```
 
+
+```{r}
 #Reload from scratch each time in case we subset sometehing weirdly
-georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt.Rds", package = "MeasuringLandscape")) 
+georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt_recomendations.Rds", package = "MeasuringLandscape")) 
 
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion

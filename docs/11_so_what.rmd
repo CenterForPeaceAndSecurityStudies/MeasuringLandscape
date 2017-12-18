@@ -74,7 +74,7 @@ hex$roads_distance <-log(  new_over(st_centroid(hex) , covariate_list[['roads_di
 
 ```{r}
 #Reload from scratch each time in case we subset sometehing weirdly
-georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt.Rds", package = "MeasuringLandscape")) 
+georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt_recomendations.Rds", package = "MeasuringLandscape")) 
 georef_all_dt[!is.finite(distance_km),distance_km:=NA] 
 georef_all_dt <- subset(georef_all_dt,  distance_km=!0) #This excludes all self references , we need that here but not necessarily elsewhere
 georef_all_dt_events_sf <- georef_all_dt  %>% 

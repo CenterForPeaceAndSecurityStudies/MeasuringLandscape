@@ -18,6 +18,9 @@ editor_options:
 
 Takes in locations of events described as text, and returns all possible matches across different gazeteers.
 
+Dependencies: events_sf.Rdata, flatfiles_sf_roi.Rdata
+Products: georef_all_dt.Rds
+
 ```{r, results='hide', message=FALSE, warning=FALSE}
 rm(list=ls()); gc()
 # Hiding output and warnings

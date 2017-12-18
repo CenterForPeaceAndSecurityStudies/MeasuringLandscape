@@ -247,7 +247,7 @@ setkey(georef_all_dt, handrule )
 temp <- subset(georef_all_dt,event_hash=="be37b40f")
 
 saveRDS(georef_all_dt,
-        file=glue::glue(getwd(), "/../inst/extdata/georef_all_dt.Rds")
+        file=glue::glue(getwd(), "/../inst/extdata/georef_all_dt_recomendations.Rds")
 )
 
 ```
