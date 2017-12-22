@@ -18,6 +18,7 @@ editor_options:
 </style>
 
 
+
 This is the entry point for the paper "Measuring the Landscape of Civil War." 
 
 In this file, a raw csv file of the events dataset created for the Mau Mau rebellion is loaded and processed.
