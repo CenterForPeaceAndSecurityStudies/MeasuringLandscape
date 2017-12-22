@@ -51,16 +51,18 @@ Basic cleaning. Generaly format is DD.MM.YYYY Sometimes multiple days are includ
 
 #p_load(date)
 events <- events %>%
-          mutate(event_date=stringr::str_replace_all(event_date,"[[:digit:]]+/", "")) %>% #strip off extra day at the front 01/02.12.1950
-          mutate(event_date=stringr::str_replace_all(event_date,"\\.", "/")) %>% #Convert periods to slashes
-          mutate(event_date=trimws(event_date)) %>% #trim whitespace
-          mutate(event_date=stringr::str_replace_all(event_date,"/52", "/1952")) %>% #convert 2 digit years to 4 digit years
-          mutate(event_date=stringr::str_replace_all(event_date,"/53", "/1953")) %>%
-          mutate(event_date=stringr::str_replace_all(event_date,"/54", "/1954")) %>%
-          mutate(event_date=stringr::str_replace_all(event_date,"/55", "/1955")) %>%
-          mutate(event_date=stringr::str_replace_all(event_date,"/56", "/1956")) %>%
-          mutate(event_date=stringr::str_replace_all(event_date,"/19524", "/1954")) %>% #clean typo
-           mutate(event_date= lubridate::dmy(event_date) ) #Feed to lubridate
+          dplyr::mutate(event_date_clean=event_date) %>%
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"[[:digit:]]+/", "")) %>%
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"[[:digit:]]+/", "")) %>% #strip off extra day at the front 01/02.12.1950
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"\\.", "/")) %>% #Convert periods to slashes
+          dplyr::mutate(event_date_clean=trimws(event_date_clean)) %>% #trim whitespace
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"/52", "/1952")) %>% #convert 2 digit years to 4 digit years
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"/53", "/1953")) %>%
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"/54", "/1954")) %>%
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"/55", "/1955")) %>%
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"/56", "/1956")) %>%
+          dplyr::mutate(event_date_clean=stringr::str_replace_all(event_date_clean,"/19524", "/1954")) %>% #clean typo
+          dplyr::mutate(event_date_clean= lubridate::dmy(event_date_clean) ) #Feed to lubridate
   
 events %>% filter(is.na(event_date_clean)) %>% dplyr::select(starts_with("event_date")) %>% distinct() %>% print(n=40) #visualize errors
 
@@ -1260,10 +1262,10 @@ events_sf$map_coordinate_clean_latitude[is.na(events_sf$map_coordinate_clean_lon
 #events_sf$event_hash <- NULL #Make sure we're not hashing on the previous hash which might be a random walk
 
 events_sf <- events_sf %>%
-            st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"),
+            sf::st_as_sf(coords = c("map_coordinate_clean_longitude", "map_coordinate_clean_latitude"),
                      crs = 4326, agr = "constant", remove = F, na.fail = F) # %>% 
              #mutate(event_hash = apply(., 1, digest, algo="xxhash64") ) #Do this once and only once
-valid <- st_is_valid(events_sf$geometry); table(valid)
+valid <- sf::st_is_valid(events_sf$geometry); table(valid)
 
 eventsnames_sf <- events_sf %>% 
   select("name_cleaner", "geometry") %>% 

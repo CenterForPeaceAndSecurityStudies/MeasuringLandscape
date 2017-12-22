@@ -6,7 +6,7 @@ prep_events <- function(fromscratch=F) {
     #This csv file does not exist on the github
     #We're holding it back so that the hash applied to each observation never changes
     #The rdata MeasuringLandscapeCivilWar_events_cleaned.Rdata contains all the same information
-    events <- read_csv(glue("C:/Users/skynetmini/Dropbox (rex)/MSSL/projects/MeasuringLandscape/MeasuringLandscapeCivilWar_TooBig/",
+    events <- readr::read_csv(glue::glue("C:/Users/skynetmini/Dropbox (rex)/MSSL/projects/MeasuringLandscape/MeasuringLandscapeCivilWar_TooBig/",
                             "Kenya_Events_SollyStreamPerfect_Original_RexMerged_2015_donebyhand.csv")) %>%
       janitor::clean_names() %>%
       janitor::remove_empty_rows() %>%
@@ -14,12 +14,12 @@ prep_events <- function(fromscratch=F) {
       mutate_all(funs(stringi::stri_enc_toascii)) %>% # converts everything to character and proper UTF8
       mutate_all(funs(trimws)) %>% # remove whitespace
       distinct()
-    events$event_hash <- apply(events, 1, digest, "crc32") # create a unique id
+    events$event_hash <- apply(events, 1, digest::digest, "crc32") # create a unique id
 
-    saveRDS(events, "/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/MeasuringLandscapeCivilWar_events_cleaned.Rdata")
+    saveRDS(events, "C:/rex_github_private/MeasuringLandscape/inst/extdata/MeasuringLandscapeCivilWar_events.Rds")
   }
 
-  events <- readRDS(system.file("extdata", "MeasuringLandscapeCivilWar_events_cleaned.Rdata", package = "MeasuringLandscape"))
+  events <- readRDS(system.file("extdata", "MeasuringLandscapeCivilWar_events.Rds", package = "MeasuringLandscape"))
   dim(events)
 
   return(events)
