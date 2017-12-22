@@ -2,11 +2,13 @@
 title: "01 Prep Events Counts"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "12/9/2017"
-output: 
+output:
   html_notebook:
-    toc: true
-    toc_float: true
-editor_options: 
+    toc: yes
+    toc_float: yes
+  html_document:
+    toc: yes
+editor_options:
   chunk_output_type: inline
 ---
 <style>
@@ -14,6 +16,7 @@ editor_options:
         max-width: 100%;
     }
 </style>
+
 
 This is the entry point for the paper "Measuring the Landscape of Civil War." 
 

@@ -28,6 +28,14 @@ All of the files necessary for reproducing our analysis are including in a self 
 # install.packages("devtools")
 devtools::install_github("rexdouglass/MeasuringLandscape")
 ```
+#### Troubleshooting
+We found that curl, yaml, and digest may need to be installed seperately beforehand, as well as the development version of ggplot from github.
+```{r}
+install.packages('curl', dependencies=T)
+install.packages('digest', dependencies=T)
+install.packages('yaml', dependencies=T)
+devtools::install_github("tidyverse/ggplot2")
+```
 
 ### R-Notebooks
 
