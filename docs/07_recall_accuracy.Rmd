@@ -266,18 +266,19 @@ fonts <- c('Times New Roman',
 
 fontfaces <- factor(c("plain","bold","italic","bold.italic","plain","plain"))
 
-colours = c("Self Reference" = "#F8766D",
-            "Geometry Type" = "#A3A500",
-            "Match Type" = "#00BF7D",
+colours = c("Self reference" = "#F8766D",
+            "Geometry type" = "#A3A500",
+            "Match type" = "#00BF7D",
             "Rule" = "#00B0F6",
-            "Source Dataset"="#E76BF3",
-            "Original Geo Info"="#53B400") 
+            "Source dataset"="#E76BF3",
+            "Original geo info"="#53B400") 
 
 #p_load(ggrepel, tools)
 p_RecallBias <- recall_accuracy %>% 
                filter(!label %in% "tgn") %>% #exclude TGN for being an outlier
                mutate(
-                      label=sentence_case(label)
+                      label=sentence_case(label),
+                      Type=sentence_case(Type)
                       ) %>%
        ggplot(
        aes(x=distance_rmse,
