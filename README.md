@@ -3,7 +3,7 @@
 Measuring the Landscape of Civil War
 ====================================
 
-This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War" (provisionally accepted for publication) 2017
+This is a package, documentation, and replication repository for the paper "Measuring the Landscape of Civil War", Journal of Peace Research, 2018
 
 The Paper
 
