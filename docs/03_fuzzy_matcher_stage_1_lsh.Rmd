@@ -1,7 +1,7 @@
 ---
 title: "03 Fuzzy Matcher Stage 1 (Locality Sensitive Hashing) "
 author: "Rex W. Douglass and Kristen Harkness"
-date: "12/9/2017"
+date: "March 9, 2018"
 output: 
   html_notebook:
     toc: true
@@ -28,7 +28,7 @@ library(MeasuringLandscape)
 
 devtools::load_all()
 
-dir_figures <- glue::glue(getwd(), "/../paper/figures/")
+dir_figures <- glue::glue(here(), "/../paper/figures/")
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
 knitr::opts_chunk$set(fig.width='100%',  warning=FALSE, message=FALSE, cache=TRUE)
@@ -65,7 +65,7 @@ handlabeled_unique$stemmed_ab <- sapply(lapply(strsplit(paste(handlabeled_unique
                                         paste,
                                         collapse="_")
 
-#handlabeled <- readRDS(file="/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/temp_everything.Rds")[[1]]
+
 dim(handlabeled)
 handlabeled$a <- handlabeled$name_cleaner_a
 handlabeled$b <- handlabeled$name_cleaner_b
@@ -73,19 +73,6 @@ handlabeled[,ab:=paste(a,b,sep="_")]
 handlabeled[,ba:=paste(b,a,sep="_")]
 
 stemmed_ab <- unique(c(handlabeled$stemmed_a, handlabeled$stemmed_b)) ; length(stemmed_ab) #where ab is the unique toponym strings found in the data
-
-#Generate qgrams using parameters we picked below
-#ab_grams <- qgram_hash(strings=ab, n=1,k=0) ; dim(ab_grams)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=100, rows_per_band=4)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=100, rows_per_band=2)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=80, rows_per_band=2)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=40, rows_per_band=2)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=32, rows_per_band=16)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=64, rows_per_band=16)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=128, rows_per_band=16)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=256, rows_per_band=16)
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=512, rows_per_band=16) #1080 and 39 at 6.8 million , 3% error rate
-# eval_lshr(strings=ab, grams=ab_grams, data=handlabeled_unique, bands_number=250, rows_per_band=8) #1087 and 3 at 16.8 million , 3% error rate
 
 ```
 
@@ -95,10 +82,6 @@ Settling on 20 bands, 5 rows, and qgram of 1 letter
 
 ```{r}
 
-#lhs_textreuse(minhash_count=100,  bands=50) #good trade off
-#lhs_textreuse(minhash_count=100,  bands=50) #good trade off
-#lhs_textreuse(minhash_count=100,  bands=25) #good trade off
-#lhs_textreuse(minhash_count=100,  bands=20) #good trade off
 fromsrcatch=F
 if(fromsrcatch){
   grid_search_lhs <- list()

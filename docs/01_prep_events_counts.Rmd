@@ -1,7 +1,7 @@
 ---
 title: "01 Prep Events Counts"
 author: "Rex W. Douglass and Kristen Harkness"
-date: "12/9/2017"
+date: "March 9, 2018"
 output:
   html_notebook:
     toc: yes
@@ -18,11 +18,9 @@ editor_options:
 </style>
 
 
-
 This is the entry point for the paper "Measuring the Landscape of Civil War." 
 
 In this file, a raw csv file of the events dataset created for the Mau Mau rebellion is loaded and processed.
-
 
 # Load Library
 
@@ -38,7 +36,6 @@ options(width = 160)
 
 ```
 
-
 # Load Events Data
 
 ```{r}
@@ -48,8 +45,7 @@ events <- prep_events(fromscratch = F)
 ```
 
 # Dates
-Basic cleaning. Generaly format is DD.MM.YYYY Sometimes multiple days are included by DD1/DD2/MM/YY. Somtimes year is YY or YYYY. 
--Your plots seem to suggest that there are a number of typos in the dates. All dates should range between 1951-1961.
+Basic cleaning. Generally format is DD.MM.YYYY Sometimes multiple days are included by DD1/DD2/MM/YY. Sometimes year is YY or YYYY. 
 
 ```{r }
 
@@ -136,11 +132,8 @@ events$document_date_best_date[condition] <- events$document_date_clean_1[condit
 
 ```
 
-Only 666 missing from the document date
 
 # Type of Event
-
-Heads up, some of these event types in the codebook don't exist in the data. If a category has zero results, it's not a bug, just codebook needs to be updated.
 
 ```{r , results="asis"}
 
@@ -211,7 +204,7 @@ events$type_clean_agghigh %>%
 
 # Initiator of Event
 
-Collapsed Initators to just Rebels, Government, and Civilians
+Collapsed Initiators to just Rebels, Government, and Civilians
 
 ```{r , results="asis"}
 
@@ -583,339 +576,327 @@ events$target_clean_1_agghigh %>%
 
 
 
-## Count of Initiators
-
-Helper function for recoding
-
-```{r Recode Helper FUnction, results="asis"}
-
-recoderFunc <- function(data, oldvalue, newvalue) {
-  # convert any factors to characters
-  if (is.factor(data)) data <- as.character(data)
-  if (is.factor(oldvalue)) oldvalue <- as.character(oldvalue)
-  if (is.factor(newvalue)) newvalue <- as.character(newvalue)
-
-  # create the return vector
-  newvec <- data
-  # put recoded values into the correct position in the return vector
-  for (i in unique(oldvalue)) newvec[data %in% i] <- newvalue[oldvalue %in% i]
-  newvec
-}
-```
+## Count of Initiators and Targets
 
 ```{r Count of Initiators}
 
 # These numbers are improvised and can be changed
-acouple <- 2
-afew <- 3
-agang <- 6
-agang_large <- 12
+# These columns are dirty and when an incoherent value is given, it is set to missing.
 
-recodings <- c(
-  "100+", "100",
-  "??", "",
-  "1 bag", "1",
-  "1 blanket", "1",
-  "1 burnt down", "1",
-  "1 civilian", "1",
-  "1 cow, 6 sheep", "7",
-  "1 cow", "1",
-  "1 goat, clothing", "1",
-  "1 goat", "1",
-  "1 looted", "1",
-  "1 looted", "1",
-  "1 ox", "1",
-  "1 sheep and chickens", "1",
-  "1 sheep, some chickens", "1",
-  "1 sheep", "1",
-  "1 shotgun ,30 rounds", "31",
-  "1 shotgun + 10rds", "11",
-  "1 steer", "1",
-  "1 village, 1 market", "1",
-  "1 wounded", "1",
-  "1 wrecked", "1",
-  "1+", "1",
-  "1+3", "4",
-  "1+some", "1",
-  "10 acres", "10",
-  "10 bags", "10",
-  "10 cattle", "10",
-  "10 sacks", "10",
-  "10 to 12", "11",
-  "10 to 15", "13",
-  "10/14/2013", "",
-  "10/15/2013", "",
-  "10/20/2013", "",
-  "100 lb", "100",
-  "100-130", "115",
-  "100-150", "125",
-  "100+", 100,
-  "10000", "",
-  "109 cattle", "109",
-  "10bags potatoes", "10",
-  "11 cattle", "11",
-  "11 sheep", "11",
-  "112 bore & 20.1.45 &7 rds", "112",
-  "12 bags", "12",
-  "12 cattle", "12",
-  "12 goats", "12",
-  "12 to 15", "13",
-  "12 to 20", "17",
-  "12/14/2013", "",
-  "120 cattle", "120",
-  "120+1", "121",
-  "13 sheep", "13",
-  "13-15", "14",
-  "1300 worth", "1300",
-  "14 cattle", "14",
-  "14 goats", "14",
-  "14 head", "14",
-  "14+", "14",
-  "15 - 20", "18",
-  "15 cattle", "15",
-  "15 to 20", "17",
-  "15 to 20", "17",
-  "15 to 25", "20",
-  "15-20", "17",
-  "15+", "15",
-  "150-200", "175",
-  "150+", "150",
-  "151 cattle", "151",
-  "17 cattle", "17",
-  "172 bags burnt", "172",
-  "18 cattle", "18",
-  "19 bags", "19",
-  "196 rounds", "196",
-  "2 bags maize", "2",
-  "2 bags", "2",
-  "2 bags", "2",
-  "2 buckets", "2",
-  "2 cattle hamstrung", "2",
-  "2 cattle, corn", "3",
-  "2 cattle", "2",
-  "2 cows", "2",
-  "2 debbies", "2",
-  "2 goats", "2",
-  "2 groups", "2",
-  "2 huts burnt", "2",
-  "2 sheep", "2",
-  "2 watches, cash", "2",
-  "2/3/2013", "",
-  "2+", "2",
-  "20 bags maize, 9 goats, 32 chickens and ducks, cash", "60",
-  "20 bags", "20",
-  "20 cattle", "20",
-  "20 goats", "20",
-  "20 sheep", "20",
-  "20 to 25", "23",
-  "20 to 30", "25",
-  "20 to 40", "30",
-  "20-25", "23",
-  "20-30", "25",
-  "20-35", "30",
-  "20-50", "35",
-  "20/30", "25",
-  "20/30", "25",
-  "20+", "20",
-  "200 yds", "200",
-  "200-300", "250",
-  "200+", "200",
-  "2000 acres", "2000",
-  "21 goats", "21",
-  "21 head", "21",
-  "22 cattle", "22",
-  "25 to 30", "28",
-  "25-30", "27",
-  "25-30", "27",
-  "28 killed", "28",
-  "28 sheep", "28",
-  "3 bags", "3",
-  "3 bags", "3",
-  "3 bikes", "3",
-  "3 cattle", "3",
-  "3 cattle", "3",
-  "3 goats", "3",
-  "3 or 4", "3",
-  "3 or 4", "3",
-  "3 pangas", "3",
-  "3 sheep, 2 calves", "5",
-  "3 sheep", "3",
-  "3 to 4", "3",
-  "3 to 4", "3",
-  "3/10/2013", "",
-  "3/4/2013", "",
-  "3/5/2013", "",
-  "3/6/2013", "",
-  "3+", "3",
-  "3+3+1+2", "9",
-  "3+some", "3",
-  "30 acres", "30",
-  "30 cattle", "30",
-  "30 to 40", "35",
-  "30-35", "33",
-  "30-40", "35",
-  "30-50", "40",
-  "30+", "30",
-  "300-400", "350",
-  "300+", "300",
-  "35 bags", "35",
-  "35 to 40", "37",
-  "38 cattle", "38",
-  "3or 4", "3",
-  "4 bags potatoes", "4",
-  "4 bags", "4",
-  "4 goats", "4",
-  "4 groups", "",
-  "4 or 5", "4",
-  "4 oxen", "4",
-  "4 sheep", "4",
-  "4 to 8", "6",
-  "4/6/2013", "",
-  "40 bag", "40",
-  "40 cattle", "40",
-  "40 sacks", "40",
-  "40 sheep", "40",
-  "40 to 50", "45",
-  "40/50", "45",
-  "400 cattle", "400",
-  "4000", "",
-  "44 cattle", "44",
-  "5 bags", "5",
-  "5 calves", "5",
-  "5 cattle", "5",
-  "5 destroyed", "5",
-  "5 goats", "5",
-  "5 killed", "5",
-  "5 or 6", "5",
-  "5 sheep, 1 ox", "6",
-  "5 sheep", "5",
-  "5 to 6", "5",
-  "5/10/2013", "",
-  "5/6/2013", "",
-  "50 cattle", "50",
-  "50 to 60", "55",
-  "50-100", "75",
-  "50-60", "55",
-  "50-75", "62",
-  "50+", "50",
-  "50+", "50",
-  "5000 acres", "5000",
-  "519 +", "519",
-  "53 detained", "53",
-  "54 sheep and goats", "54",
-  "56 committee members", "56",
-  "6 bag", "6",
-  "6 bags", "6",
-  "6 cattle", "6",
-  "6 cattle", "6",
-  "6 goats", "6",
-  "6 or 7", "6",
-  "6 sheep and goats", "6",
-  "6 sheep", "6",
-  "6 to 7", "6",
-  "6 to 8", "7",
-  "6 to 9", "8",
-  "6-8 man", "7",
-  "6/10/2013", "",
-  "6/8/2013", "",
-  "60-100", "80",
-  "60-70", "65",
-  "64 cattle", "64",
-  "7 bags", "7",
-  "7 cattle", "7",
-  "7 sheep", "7",
-  "7/10/2013", "",
-  "70 bags", "70",
-  "70 cattle, sheep", "70",
-  "70-100", "85",
-  "70000", "",
-  "75 rounds", "75",
-  "8 bags potatoes", "8",
-  "8 cattle", "8",
-  "8 cows slashed", "8",
-  "8 cows", "8",
-  "8 sheep", "8",
-  "8 to 10", "9",
-  "8/10/2013", "",
-  "80 cattle", "80",
-  "80-100", "90",
-  "84 sheep, 1 cow, 5 chickens", "90",
-  "9 cattle", "9",
-  "9 sheep", "9",
-  "9 to 10", "9",
-  "9+9", "18",
-  "900(not clear)", "900",
-  "all locals", "",
-  "all", "",
-  "app 5", "5",
-  "app. 100", "100",
-  "app. 120", "120",
-  "armed gang", agang,
-  "band", agang,
-  "bands", "",
-  "cattle slashing", "",
-  "clothing", "",
-  "considerable quantity", "",
-  "fairly large gang", agang_large,
-  "few bags", "",
-  "few", "",
-  "food", "",
-  "gang", agang,
-  "gangs", agang_large,
-  "guards", afew,
-  "half village", "",
-  "labour", "",
-  "large crowd", "",
-  "large force", agang_large,
-  "large gang", agang_large,
-  "large meeting", "",
-  "large number", "",
-  "large numbers", "",
-  "large quantities", "",
-  "large quantity", "",
-  "large re-oathing ceremony", "",
-  "large scale", "",
-  "large", agang_large,
-  "largish gang", agang_large,
-  "local populace", "",
-  "many thousand", "2000",
-  "mob", "",
-  "not given", "",
-  "number", "",
-  "occupants", "",
-  "over 200", "200",
-  "party", "",
-  "party", agang,
-  "patrol", agang,
-  "posho", "",
-  "potatoes", "",
-  "quantity of clothing", "",
-  "section", "",
-  "several gangs", "agang_large",
-  "several", "3",
-  "sheep and goats", "",
-  "shs 2,300/-", "2300",
-  "shs 60/-", "60",
-  "shs. 1,000", "1000",
-  "shs. 18", "18",
-  "shs. 30", "30",
-  "small gang", agang,
-  "small gangs", "agang",
-  "small group", agang,
-  "small party", afew,
-  "small", agang,
-  "some", afew,
-  "sufficient food", "",
-  "unknown", "",
-  "very large gang", "agang_large",
-  "villages in ndia, gichugu, embu divisions", "",
-  "wives", ""
-)
-recodings <- matrix(recodings, ncol = 2, byrow = T)
+recode_counts <- function(indata){
+  acouple <- "2"
+  afew <- "3"
+  agang <- "6"
+  agang_large <- "12"
+  
+  indata %>% tolower() %>% dplyr::recode(
+    "100+"= "100",
+    "??"= "",
+    "1 bag"= "1",
+    "1 blanket"= "1",
+    "1 burnt down"= "1",
+    "1 civilian"= "1",
+    "1 cow, 6 sheep"= "7",
+    "1 cow"= "1",
+    "1 goat, clothing"= "1",
+    "1 goat"= "1",
+    "1 looted"= "1",
+    "1 looted"= "1",
+    "1 ox"= "1",
+    "1 sheep and chickens"= "1",
+    "1 sheep, some chickens"= "1",
+    "1 sheep"= "1",
+    "1 shotgun ,30 rounds"= "31",
+    "1 shotgun + 10rds"= "11",
+    "1 steer"= "1",
+    "1 village, 1 market"= "1",
+    "1 wounded"= "1",
+    "1 wrecked"= "1",
+    "1+"= "1",
+    "1+3"= "4",
+    "1+some"= "1",
+    "10 acres"= "10",
+    "10 bags"= "10",
+    "10 cattle"= "10",
+    "10 sacks"= "10",
+    "10 to 12"= "11",
+    "10 to 15"= "13",
+    "10/14/2013"= "",
+    "10/15/2013"= "",
+    "10/20/2013"= "",
+    "100 lb"= "100",
+    "100-130"= "115",
+    "100-150"= "125",
+    "100+"= 100,
+    "10000"= "",
+    "109 cattle"= "109",
+    "10bags potatoes"= "10",
+    "11 cattle"= "11",
+    "11 sheep"= "11",
+    "112 bore & 20.1.45 &7 rds"= "112",
+    "12 bags"= "12",
+    "12 cattle"= "12",
+    "12 goats"= "12",
+    "12 to 15"= "13",
+    "12 to 20"= "17",
+    "12/14/2013"= "",
+    "120 cattle"= "120",
+    "120+1"= "121",
+    "13 sheep"= "13",
+    "13-15"= "14",
+    "1300 worth"= "1300",
+    "14 cattle"= "14",
+    "14 goats"= "14",
+    "14 head"= "14",
+    "14+"= "14",
+    "15 - 20"= "18",
+    "15 cattle"= "15",
+    "15 to 20"= "17",
+    "15 to 20"= "17",
+    "15 to 25"= "20",
+    "15-20"= "17",
+    "15+"= "15",
+    "150-200"= "175",
+    "150+"= "150",
+    "151 cattle"= "151",
+    "17 cattle"= "17",
+    "172 bags burnt"= "172",
+    "18 cattle"= "18",
+    "19 bags"= "19",
+    "196 rounds"= "196",
+    "2 bags maize"= "2",
+    "2 bags"= "2",
+    "2 bags"= "2",
+    "2 buckets"= "2",
+    "2 cattle hamstrung"= "2",
+    "2 cattle, corn"= "3",
+    "2 cattle"= "2",
+    "2 cows"= "2",
+    "2 debbies"= "2",
+    "2 goats"= "2",
+    "2 groups"= "2",
+    "2 huts burnt"= "2",
+    "2 sheep"= "2",
+    "2 watches, cash"= "2",
+    "2/3/2013"= "",
+    "2+"= "2",
+    "20 bags maize, 9 goats, 32 chickens and ducks, cash"= "60",
+    "20 bags"= "20",
+    "20 cattle"= "20",
+    "20 goats"= "20",
+    "20 sheep"= "20",
+    "20 to 25"= "23",
+    "20 to 30"= "25",
+    "20 to 40"= "30",
+    "20-25"= "23",
+    "20-30"= "25",
+    "20-35"= "30",
+    "20-50"= "35",
+    "20/30"= "25",
+    "20/30"= "25",
+    "20+"= "20",
+    "200 yds"= "200",
+    "200-300"= "250",
+    "200+"= "200",
+    "2000 acres"= "2000",
+    "21 goats"= "21",
+    "21 head"= "21",
+    "22 cattle"= "22",
+    "25 to 30"= "28",
+    "25-30"= "27",
+    "25-30"= "27",
+    "28 killed"= "28",
+    "28 sheep"= "28",
+    "3 bags"= "3",
+    "3 bags"= "3",
+    "3 bikes"= "3",
+    "3 cattle"= "3",
+    "3 cattle"= "3",
+    "3 goats"= "3",
+    "3 or 4"= "3",
+    "3 or 4"= "3",
+    "3 pangas"= "3",
+    "3 sheep, 2 calves"= "5",
+    "3 sheep"= "3",
+    "3 to 4"= "3",
+    "3 to 4"= "3",
+    "3/10/2013"= "",
+    "3/4/2013"= "",
+    "3/5/2013"= "",
+    "3/6/2013"= "",
+    "3+"= "3",
+    "3+3+1+2"= "9",
+    "3+some"= "3",
+    "30 acres"= "30",
+    "30 cattle"= "30",
+    "30 to 40"= "35",
+    "30-35"= "33",
+    "30-40"= "35",
+    "30-50"= "40",
+    "30+"= "30",
+    "300-400"= "350",
+    "300+"= "300",
+    "35 bags"= "35",
+    "35 to 40"= "37",
+    "38 cattle"= "38",
+    "3or 4"= "3",
+    "4 bags potatoes"= "4",
+    "4 bags"= "4",
+    "4 goats"= "4",
+    "4 groups"= "",
+    "4 or 5"= "4",
+    "4 oxen"= "4",
+    "4 sheep"= "4",
+    "4 to 8"= "6",
+    "4/6/2013"= "",
+    "40 bag"= "40",
+    "40 cattle"= "40",
+    "40 sacks"= "40",
+    "40 sheep"= "40",
+    "40 to 50"= "45",
+    "40/50"= "45",
+    "400 cattle"= "400",
+    "4000"= "",
+    "40161"="",
+    "44 cattle"= "44",
+    "5 bags"= "5",
+    "5 calves"= "5",
+    "5 cattle"= "5",
+    "5 destroyed"= "5",
+    "5 goats"= "5",
+    "5 killed"= "5",
+    "5 or 6"= "5",
+    "5 sheep, 1 ox"= "6",
+    "5 sheep"= "5",
+    "5 to 6"= "5",
+    "5/10/2013"= "",
+    "5/6/2013"= "",
+    "50 cattle"= "50",
+    "50 to 60"= "55",
+    "50-100"= "75",
+    "50-60"= "55",
+    "50-75"= "62",
+    "50+"= "50",
+    "50+"= "50",
+    "5000 acres"= "5000",
+    "519 +"= "519",
+    "53 detained"= "53",
+    "54 sheep and goats"= "54",
+    "56 committee members"= "56",
+    "6 bag"= "6",
+    "6 bags"= "6",
+    "6 cattle"= "6",
+    "6 cattle"= "6",
+    "6 goats"= "6",
+    "6 or 7"= "6",
+    "6 sheep and goats"= "6",
+    "6 sheep"= "6",
+    "6 to 7"= "6",
+    "6 to 8"= "7",
+    "6 to 9"= "8",
+    "6-8 man"= "7",
+    "6/10/2013"= "",
+    "6/8/2013"= "",
+    "60-100"= "80",
+    "60-70"= "65",
+    "64 cattle"= "64",
+    "7 bags"= "7",
+    "7 cattle"= "7",
+    "7 sheep"= "7",
+    "7/10/2013"= "",
+    "70 bags"= "70",
+    "70 cattle, sheep"= "70",
+    "70-100"= "85",
+    "70000"= "",
+    "75 rounds"= "75",
+    "8 bags potatoes"= "8",
+    "8 cattle"= "8",
+    "8 cows slashed"= "8",
+    "8 cows"= "8",
+    "8 sheep"= "8",
+    "8 to 10"= "9",
+    "8/10/2013"= "",
+    "80 cattle"= "80",
+    "80-100"= "90",
+    "84 sheep, 1 cow, 5 chickens"= "90",
+    "9 cattle"= "9",
+    "9 sheep"= "9",
+    "9 to 10"= "9",
+    "9+9"= "18",
+    "900(not clear)"= "900",
+    "all locals"= "",
+    "all"= "",
+    "app 5"= "5",
+    "app. 100"= "100",
+    "app. 120"= "120",
+    "armed gang"= agang,
+    "band"= agang,
+    "bands"= "",
+    "cattle slashing"= "",
+    "clothing"= "",
+    "considerable quantity"= "",
+    "fairly large gang"= agang_large,
+    "few bags"= "",
+    "few"= "",
+    "food"= "",
+    "gang"= agang,
+    "gangs"= agang_large,
+    "guards"= afew,
+    "half village"= "",
+    "labour"= "",
+    "large crowd"= "",
+    "large force"= agang_large,
+    "large gang"= agang_large,
+    "large meeting"= "",
+    "large number"= "",
+    "large numbers"= "",
+    "large quantities"= "",
+    "large quantity"= "",
+    "large re-oathing ceremony"= "",
+    "large scale"= "",
+    "large"= agang_large,
+    "largish gang"= agang_large,
+    "local populace"= "",
+    "many thousand"= "2000",
+    "mob"= "",
+    "not given"= "",
+    "number"= "",
+    "occupants"= "",
+    "over 200"= "200",
+    "party"= "",
+    "party"= agang,
+    "patrol"= agang,
+    "posho"= "",
+    "potatoes"= "",
+    "quantity of clothing"= "",
+    "section"= "",
+    "several gangs"= agang_large,
+    "several"= "3",
+    "sheep and goats"= "",
+    "shs 2,300/-"= "2300",
+    "shs 60/-"= "60",
+    "shs. 1,000"= "1000",
+    "shs. 18"= "18",
+    "shs. 30"= "30",
+    "small gang"= agang,
+    "small gangs"= agang,
+    "small group"= agang,
+    "small party"= afew,
+    "small"= agang,
+    "some"= afew,
+    "sufficient food"= "",
+    "unknown"= "",
+    "very large gang"= agang_large,
+    "villages in ndia, gichugu, embu divisions"= "",
+    "wives"= ""
+  ) %>% as.numeric() %>% return()
+  
+}
 
-events$initiator_numbers_numeric <- events$initiator_numbers %>% recoderFunc(., recodings[, 1], recodings[, 2]) %>% as.numeric()
-events$target_numbers_numeric <- events$target_numbers %>% recoderFunc(., recodings[, 1], recodings[, 2]) %>% as.numeric()
-events$affected_count_numeric <- events$affected_count %>% recoderFunc(., recodings[, 1], recodings[, 2]) %>% as.numeric()
+events$initiator_numbers_numeric <- events$initiator_numbers %>% recode_counts()
+events$target_numbers_numeric <- events$target_numbers %>% recode_counts()
+events$affected_count_numeric <- events$affected_count %>% recode_counts()
+
 
 ```
 
@@ -1032,7 +1013,7 @@ events$map_coordinate_clean <- events$map_coordinate %>% stringr::str_replace_al
 
 ```{r ,results=FALSE, warning=FALSE, comment=FALSE}
 
-#This takes
+#
 
 cat("\014")
 print("Starting Converting Coordinates, may take some time")
@@ -1081,7 +1062,7 @@ if(testing){
 
 stats::quantile(events$map_coordinate_clean_latitude, probs =c(.005,.01,.1,.5,.9,.99,.995), na.rm=T, type=9) 
 stats::quantile(events$map_coordinate_clean_longitude, probs =c(.005,.01,.1,.5,.9,.99,.995), na.rm=T, type=9)
-plot(events$map_coordinate_clean_longitude,events$map_coordinate_clean_latitude)
+#plot(events$map_coordinate_clean_longitude,events$map_coordinate_clean_latitude) #plot with the outliers
 
 #This is just to remove absolutely clear outliers. Not to set the region of interest.
 #Outlier Bounding Box:
@@ -1099,55 +1080,6 @@ plot(events$map_coordinate_clean_longitude,events$map_coordinate_clean_latitude)
 
 # District of Document
 
--Likewise, the plots suggest some district cleaning still necessary. Jock Scott was an operation in Nairobi and all of those can be changed to Nairobi. Central Province and Rift Valley Province are not districts. Not sure if that matters at this stage... but we probably want to reassign the points we can geolocate from them to an actual district.
-
-Districts: 
--Jock Scott, rift valley, and central province aren't districts. I think Jock Scott is a small town within a district, not sure which one. Central province and rift valley are provinces, one administrative unit higher than the district.
--the districts should be: Baringo, Elgeyo/Marakwet, Embu, Fort Hall, Kajiado, Kiambu, Kitui, Laikipia, Machakos, Meru, Naivasha, Nakuru, Nanyuki, Narok, Nyeri, Thika, and then Nairobi City
--we retrieved events from both district level and provincial level files and we should make sure that that didn't create duplicate events
--Here is my list of our coverage from the files we looked at (the star means we have complete files for the emergency): 
-
-*Baringo
-    Mar 51-Aug 61
-*Elgeyo/Marakwet
-    Mar 53-Aug 61
-*Embu
-    Nov 51-Aug 61    
-Fort Hall
-    Nov 51-Aug 54 (possibly missing end)
-*Kajiado
-    Aug 53-Aug 61
-*Kiambu
-    Nov 51-Aug 61
-Kitui
-    Dec 51-Feb 53 (possibly missing end)
-*Laikipia
-    Nov 51-Dec 57 (Jan 58-Aug 60 in provincial files)
-Machakos
-    Mar 53-Dec 55
-*Meru
-    Dec 51-Aug 61
-*Naivasha
-    May 53-Dec 57; Jan 58-Aug 60 in provincial files
-*Nakuru
-    Mar 53-Dec 53; Oct 54-Dec 57; Jan 58-Aug 60 in provincial files
-*Nanyuki
-    Dec 51-Sep 53; Jan 54-Dec 54; Dec 55-Aug 61
-*Narok
-    May 51-Feb 53; Aug 53-Aug 61
-*Nyeri
-    Nov 51-Aug 61
-*Thika
-    Dec 51-Aug 61
-
-Nairobi City
-    Mar 53-Dec 56
-
-Central Province
-    Mar 53-Jan 57
-
-Rift Valley Province
-    Feb 51- Dec 53; Jan 58-Aug 60
 
 ```{r , results="asis"}
 
@@ -1238,13 +1170,11 @@ events <- events %>% mutate(name_clean=stringr::str_trim(tolower(location_text))
            mutate(name_cleaner=trimws(name_cleaner)  ) %>%
            mutate(name_cleaner_nospace= stringr::str_replace_all(name_cleaner, " ", "") )
 
-table(unlist(strsplit(events$name_cleaner,"")))
 
 ```
 
 # Create a Simple Features Version GIS Version
 
-It is based on an events dataset built and cleaned in another file.
 
 ```{r}
 

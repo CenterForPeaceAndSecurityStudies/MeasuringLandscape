@@ -1,7 +1,7 @@
 ---
 title: "05 Fuzzy Matcher Stage 2 (XGBoost)"
 author: "Rex W. Douglass and Kristen Harkness"
-date: "12/9/2017"
+date: "March 9, 2018"
 output: 
   html_notebook:
     toc: true
@@ -19,7 +19,7 @@ editor_options:
 
 The fuzzy matcher predicts the likelihood that two toponyms are the same place even though their spellings might be different. It has two stages.
 
-This file develops Stage 2 of the fuzzy toponym matcher. It's job is to refine the prediction for the subset of plausible matches, and provide an actual probability of a match.
+This file develops Stage 2 of the fuzzy toponym matcher. Its job is to refine the prediction for the subset of plausible matches, and provide an actual probability of a match.
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE }

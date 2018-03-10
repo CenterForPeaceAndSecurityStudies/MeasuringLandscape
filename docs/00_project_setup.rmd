@@ -14,6 +14,10 @@ This file specifies some dependencies that might be specifc.
 
 ```{r}
 install.packages('packrat', dependencies=T)
+library(packrat)
+
+
+packrat::init("~/projects/babynames")
 
 install.packages('knitr', dependencies=T)
 install.packages('devtools', dependencies=T)
@@ -69,7 +73,5 @@ devtools::document()
 require(devtools)
 #install_version("backports", version = "1.1.0")
 #library(backports)
-
-
 
 ```

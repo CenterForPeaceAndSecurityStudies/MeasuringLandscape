@@ -1,7 +1,7 @@
 ---
 title: "02 Prep Gazeteers"
 author: "Rex W. Douglass and Kristen Harkness"
-date: "12/9/2017"
+date: "March 9, 2018"
 output: 
   html_notebook:
     toc: true
@@ -38,16 +38,19 @@ options(width = 160)
 
 # Load Gazetter Files
 
-We compile multiple gazeteers
-1) Other location-latlong pairs from the events data
-2) A historical gazeteer from the time period
-3) geonames
-4) nga
-5) gadm
-6) openstreetmap_list
-7) googlemaps
-8) bingmaps
-
+1) NGA - National Geospational Agency
+2) Geonames 
+3) Historical gazeteer from the time period
+4) GoogleMaps
+5) BingMaps
+6) KEN_adm
+7) Livestock - International Livestock Research Institute map
+8) Kenya Districts 1962 - Polygons derived from 1962 district map
+9) Kenya Cadastral District - district polygons derived from the cadastral map
+10) Kenya Cadastral - A contemporary cadastral map
+11) Wikidata
+12) TGN -  Getty Thesaurus of Geographic Names
+13) OpenStreetMap
 
 
 ```{r}
@@ -85,9 +88,11 @@ nga_sf_roi <- load_nga(roi = region_of_interest_sf_utm, fromscratch = fromscratc
 geonames_sf_roi <- load_geonames(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 historical_sf_roi <- load_historical(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
+
 # Small API Sources
 googlemaps_sf_roi <- load_googlemaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 bingmaps_sf_roi <- load_bingmaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+
 
 # Moderate Size mixed or polygon sources
 KEN_adm_sf_roi <- load_ken_adm(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
@@ -95,6 +100,7 @@ livestock_sf_roi <- load_livestock(roi = region_of_interest_sf_utm, fromscratch 
 kenya_districts1962_sf_roi <- load_kenya_districts1962(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 kenya_cadastral_district_sf_roi <- load_kenya_cadastral_district(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 kenya_cadastral_sf_roi <- load_kenya_cadastral(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+
 
 # Very Large Sources
 wikidata_sf_roi <- load_wikidata(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
@@ -353,7 +359,7 @@ p_notpoints
 
 # Events and historical have the smoothest distributions, but that's misleading because conversion from degrees to decimal
 # Wikidata has lots of truncated precision entries, at 0 degrees
-# TGN has so few its hard to tell
+# TGN has so few it's hard to tell
 # Open streetmap has a dispraportionate number of business in the capital which leads to a weird distribution
 # NGA, geonames and historical look like a comb
 # livestock looks like comb with teeth missing

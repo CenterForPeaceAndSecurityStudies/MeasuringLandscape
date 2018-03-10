@@ -1,7 +1,7 @@
 ---
 title: "06 Georeferencer"
 author: "Rex W. Douglass and Kristen Harkness"
-date: "12/9/2017"
+date: "March 9, 2018"
 output: 
   html_notebook:
     toc: true
