@@ -10,14 +10,19 @@ editor_options:
     }
 </style>
 
-This file specifies some dependencies that might be specifc.
+This file specifies dependencies in with packrat.
 
 ```{r}
-install.packages('packrat', dependencies=T)
-library(packrat)
+# install.packages('packrat', dependencies=T)
+# library(packrat)
+# 
+# packrat::init(project = paste0(here::here(), "/packrat"))
+
+```
 
 
-packrat::init("~/projects/babynames")
+
+```{r}
 
 install.packages('knitr', dependencies=T)
 install.packages('devtools', dependencies=T)
@@ -63,6 +68,7 @@ install.packages('digest', dependencies=T)
 install.packages('rgdal', dependencies=T)
 install.packages('stringr', dependencies=T)
 install.packages('foreach', dependencies=T)
+install.packages('pinp', dependencies=T)
 
 devtools::document()
 

@@ -1,5 +1,5 @@
 ---
-title: "02 Prep Gazeteers"
+title: "02 Prep Gazetteers"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "March 9, 2018"
 output: 
@@ -15,7 +15,7 @@ editor_options:
     }
 </style>
 
-Cleans and combines a large number of gazeteers of place names for looking up locations by name and retrieving their coordinates.
+Cleans and combines a large number of gazetteers of place names for looking up locations by name and retrieving their coordinates.
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 rm(list=ls()); gc()
@@ -36,11 +36,11 @@ options(width = 160)
 
 ```
 
-# Load Gazetter Files
+# Load Gazetteer Files
 
-1) NGA - National Geospational Agency
+1) NGA - National Geospatial Agency
 2) Geonames 
-3) Historical gazeteer from the time period
+3) Historical gazetteer from the time period
 4) GoogleMaps
 5) BingMaps
 6) KEN_adm
@@ -296,7 +296,7 @@ flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi.Rdata", pac
 
 ```
 
-# Table comparing the gazeteers
+# Table comparing the gazetteers
 
 ```{r}
 
@@ -306,7 +306,7 @@ flatfiles_sf_roi %>% janitor::tabyl(source_dataset) %>% janitor::adorn_crosstab(
 
 # Handle types
 
-Different gazeteers record what type of location a name belongs to slightly differently. We've partially merged some categories to provide greater overlap.
+Different gazetteers record what type of location a name belongs to slightly differently. We've partially merged some categories to provide greater overlap.
 
 ```{r}
 
@@ -316,7 +316,7 @@ flatfiles_sf_roi$feature_code_txt %>% janitor::tabyl(sort = TRUE) %>% janitor::a
 
 # Visually Comparing Spatial Coverage of each Sources
 
-Visual inspection reveals differences between the spatial coverage of each source.
+Visual inspection reveals differences between the spatial coverage of each source. (Appendix Figure 1 and Appendix Figure 3)
 
 ```{R}
 
@@ -355,15 +355,17 @@ p_notpoints
 
 # Visually Comparing Spatial Precision of each Sources
 
+(Appendix Figure 2 on Longitude)
+
 ```{R}
 
 # Events and historical have the smoothest distributions, but that's misleading because conversion from degrees to decimal
 # Wikidata has lots of truncated precision entries, at 0 degrees
 # TGN has so few it's hard to tell
-# Open streetmap has a dispraportionate number of business in the capital which leads to a weird distribution
+# Open streetmap has a disproportionate number of business in the capital which leads to a weird distribution
 # NGA, geonames and historical look like a comb
 # livestock looks like comb with teeth missing
-# Events look fairly continous with some spikeness
+# Events look fairly continuous with some spikes
 
 # It looks like a lot of these that don't match have truncated precision
 p_combs_lat <- flatfiles_sf_roi %>%

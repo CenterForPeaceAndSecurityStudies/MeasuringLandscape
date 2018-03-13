@@ -45,7 +45,7 @@ events <- prep_events(fromscratch = F)
 ```
 
 # Dates
-Basic cleaning. Generally format is DD.MM.YYYY Sometimes multiple days are included by DD1/DD2/MM/YY. Sometimes year is YY or YYYY. 
+Basic cleaning. Format is usually DD.MM.YYYY but sometimes multiple days are included by DD1/DD2/MM/YY. Sometimes year is YY or YYYY. 
 
 ```{r }
 
