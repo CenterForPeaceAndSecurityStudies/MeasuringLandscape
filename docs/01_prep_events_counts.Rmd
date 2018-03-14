@@ -484,7 +484,7 @@ regex <- "\\.|patrol|[1-9]\\s*rd|[1-9]\\s*th" # with regex start trying to get m
 events$target_clean <- events$initiator %>% stringr::str_trim() %>% tolower() %>% gsub(regex, "", .)
 
 events <- events %>%
-  dplyr::select(-one_of("target_clean_1", "target_clean_2", "target_clean_3")) %>% # separate will continue to add columns every time its run
+  dplyr::select(-one_of("target_clean_1", "target_clean_2", "target_clean_3")) %>% # separate will continue to add columns every time its run so drop old versions. First time this is run will throw a warning.
   tidyr ::separate(
     col = initiator_clean,
     into = c("target_clean_1", "target_clean_2", "target_clean_3"),
@@ -580,7 +580,7 @@ events$target_clean_1_agghigh %>%
 
 ```{r Count of Initiators}
 
-# These numbers are improvised and can be changed
+# These numbers are estimates and can be changed
 # These columns are dirty and when an incoherent value is given, it is set to missing.
 
 recode_counts <- function(indata){
@@ -627,7 +627,7 @@ recode_counts <- function(indata){
     "100 lb"= "100",
     "100-130"= "115",
     "100-150"= "125",
-    "100+"= 100,
+    "100+"= "100",
     "10000"= "",
     "109 cattle"= "109",
     "10bags potatoes"= "10",
@@ -755,6 +755,7 @@ recode_counts <- function(indata){
     "40 sheep"= "40",
     "40 to 50"= "45",
     "40/50"= "45",
+    "40-50"= "45",
     "400 cattle"= "400",
     "4000"= "",
     "40161"="",
@@ -863,7 +864,7 @@ recode_counts <- function(indata){
     "number"= "",
     "occupants"= "",
     "over 200"= "200",
-    "party"= "",
+    "Party"= agang,
     "party"= agang,
     "patrol"= agang,
     "posho"= "",
@@ -1139,15 +1140,15 @@ events$document_district_clean  %>%
 
 ```{r, cache=T }
 
-#Now we need to handle suffixes and combined locations
-#"farm" now is followed by things because they crunched in additional location info at the end
-#"coles estate farm
-# agriculture experimental farm
-#demonstration farm
-#"farm near churo"
-#reubens farm near churo
+# Now we need to handle suffixes and combined locations
+# "farm" now is followed by things because they crunched in additional location info at the end
+## "coles estate farm
+## agriculture experimental farm
+## demonstration farm
+## "farm near churo"
+## reubens farm near churo
 ################################################
-#
+
 events$location_text_ruleclean <- events$location_text %>% stringr::str_trim() %>% tolower()
 events <- events %>% 
          dplyr::select(-one_of("location_text_ruleclean_connector_prefix","location_text_ruleclean_connector_suffix")) %>%  

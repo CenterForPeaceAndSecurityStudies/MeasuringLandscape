@@ -167,7 +167,7 @@ if (fromscratch) {
   flatfiles_sf_roi <- flatfiles %>%
     # mutate_all(funs(stri_enc_toascii)) %>% #rbindlist tries to convert to factors
     # mutate(name = strsplit(names, ";| see | SEE | check if same as ")) %>%
-    #tidyr::unnest(name) %>% #This trick doesn't work when there's multiple list columns, which geometry is
+    # tidyr::unnest(name) %>% # This trick doesn't work when there's multiple list columns, which geometry is
     mutate(name = str_trim((name))) %>%
     mutate(name = gsub(",$", "", name)) %>% # remove trailing comma
     mutate(name = gsub("\032", "", name)) %>% # remove end of line character
@@ -182,9 +182,8 @@ if (fromscratch) {
   table(flatfiles_sf_roi$timeperiod)
 
   # Fix geospatial stuff
-  #p_load(feather)
-  # Wd do this earlier now
-  # condition <- st_is_valid(flatfiles_sf_roi$geometry) ; table(condition) #takes a long while
+  # p_load(feather)
+  # condition <- st_is_valid(flatfiles_sf_roi$geometry) ; table(condition) # takes a long while
   # flatfiles_sf_roi$geometry[!condition] <- st_make_valid(flatfiles_sf_roi$geometry[!condition])
   flatfiles_sf_roi$geometry_dimensions <- sapply(flatfiles_sf_roi$geometry, FUN = function(x) st_dimension(x)) # takes a while
   table(flatfiles_sf_roi$geometry_dimensions, useNA = "always")
@@ -240,15 +239,8 @@ if (fromscratch) {
   flatfiles_sf_roi$longitude[condition1] <- cords[condition2, 1]
   flatfiles_sf_roi$latitude[condition1] <- cords[condition2, 2]
 
-  # We're going to do the cleaning outside of the file now. It doesn't take long and we're going to want to tinker with it often
-  #flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi.Rdata",
-  #                                        package = "MeasuringLandscape")) %>% # need to rebuild to load it from this location
-   flatfiles_sf_roi <- flatfiles_sf_roi %>% 
-           distinct(feature_code, latitude, longitude, name, source_dataset, geometry_type,
-             region_of_interest_intersects, name_alternates, .keep_all = T) # This distinct is very important, it's the one the correctly kills dupes not caught
-
   flatfiles_sf_roi <- flatfiles_sf_roi %>%
-    # This distinct is very important, it's the one the
+    # This distinct is very important, it correctly removes duplicates
     distinct(feature_code, latitude, longitude, name, source_dataset,
              geometry_type, region_of_interest_intersects, name_alternates, .keep_all = T) %>%
     mutate(name_clean = str_trim(tolower(name))) %>%
@@ -261,7 +253,7 @@ if (fromscratch) {
 
   sort(unique(unlist(strsplit(flatfiles_sf_roi$name_clean, ""))))
   flatfiles_sf_roi$name_cleaner <- clean_noascii(flatfiles_sf_roi$name_cleaner)
-  sort(unique(unlist(strsplit(flatfiles_sf_roi$name_cleaner, "")))) # ok only number and lowercase letters from now on
+  sort(unique(unlist(strsplit(flatfiles_sf_roi$name_cleaner, "")))) # only number and lowercase letters from now on
 
   # Geonames Code Descriptions
   # flatfiles_sf_roi$feature_code %>% janitor::tabyl( sort = TRUE)  #512 unique codes
@@ -279,8 +271,8 @@ if (fromscratch) {
   flatfiles_sf_roi$feature_code_txt <- gsub("(es)", " ", flatfiles_sf_roi$feature_code_txt, fixed = T)
   flatfiles_sf_roi$feature_code_txt <- trimws(flatfiles_sf_roi$feature_code_txt)
 
-  flatfiles_sf_roi$place_hash <- apply(flatfiles_sf_roi, 1, digest, algo = "xxhash64") # create a hash id to referec
-  rownames(flatfiles_sf_roi) <- flatfiles_sf_roi$id_hash # wow actually getting collisions
+  flatfiles_sf_roi$place_hash <- apply(flatfiles_sf_roi, 1, digest, algo = "xxhash64") # create a hash id to reference
+  rownames(flatfiles_sf_roi) <- flatfiles_sf_roi$id_hash # actually getting collisions
 
   saveRDS(
     flatfiles_sf_roi,

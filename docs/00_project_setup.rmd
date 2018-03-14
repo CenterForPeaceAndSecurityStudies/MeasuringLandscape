@@ -20,6 +20,10 @@ This file specifies dependencies in with packrat.
 
 ```
 
+To use Cairo, must also install from https://www.cairographics.org/download/
+```{r}
+install.packages('Cairo', dependencies=T)
+```
 
 
 ```{r}
@@ -69,6 +73,11 @@ install.packages('rgdal', dependencies=T)
 install.packages('stringr', dependencies=T)
 install.packages('foreach', dependencies=T)
 install.packages('pinp', dependencies=T)
+install.packages('partykit', dependencies=T)
+devtools::install_github("dselivanov/LSHR") 
+
+
+# must download 
 
 devtools::document()
 

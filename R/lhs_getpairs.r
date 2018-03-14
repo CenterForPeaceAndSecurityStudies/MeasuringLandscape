@@ -7,7 +7,7 @@
 # library(LSHR)
 lhs_getpairs <- function(strings, grams, bands_number=400, rows_per_band=5, mc.cores = parallel::detectCores()) {
   
-  pairs <- get_similar_pairs_cosine(
+  pairs <- LSHR:::get_similar_pairs_cosine(
     grams,
     bands_number = bands_number, # increase this number, and you'll get more false positives but fewer misses
     rows_per_band = rows_per_band, # basically shrink this number
