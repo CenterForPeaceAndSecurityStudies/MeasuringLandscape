@@ -1,5 +1,5 @@
 ---
-title: "06 Georeferencer"
+title: "05 Georeferencer"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "March 9, 2018"
 output: 
@@ -16,7 +16,7 @@ editor_options:
 </style>
 
 
-Takes in locations of events described as text, and returns all possible matches across different gazeteers.
+Takes in locations of events described as text, and returns all possible matches across different gazetteers.
 
 Dependencies: events_sf.Rdata, flatfiles_sf_roi.Rdata
 Products: georef_all_dt.Rds
@@ -28,8 +28,7 @@ rm(list=ls()); gc()
 library(MeasuringLandscape)
 
 devtools::load_all()
-dir_figures <- glue::glue(getwd(), "/../paper/figures/")
-
+dir_figures <- paste0(here::here(), "/paper/figures/")
 
 gc()
 
@@ -56,10 +55,10 @@ events_sf_text_coord_unique <- plyr::ddply(events_sf[,c('location_text','name_cl
 
 ```
 
-We load the cobined gazeteer files.
+We load the combined gazetteer files.
 
 ```{r}
-#Load Gazeteers
+#Load Gazetteers
 flatfiles_sf_roi <- readRDS(system.file("extdata", "flatfiles_sf_roi.Rdata", package = "MeasuringLandscape")) 
 dim(flatfiles_sf_roi)
 flatfiles_dt <- as.data.table(flatfiles_sf_roi)
@@ -86,14 +85,14 @@ When we start, we have `r length(unique(events_sf$name_cleaner))` unique locatio
 #events_sf$name_cleaner %>% tabyl(sort=T)
 ```
 
-When we start, we have `r length(unique(flatfiles_sf_roi$name_cleaner))` unique location strings in the gazeteer data.
+When we start, we have `r length(unique(flatfiles_sf_roi$name_cleaner))` unique location strings in the gazetteer data.
 
 ```{r}
 #flatfiles_sf_roi$name_cleaner %>% tabyl(sort=T)
 
 ```
 
-If we considered every single pair of possible matches it would require about 62 million comparisons (`r length(unique(events_sf$name_cleaner)) * length(unique(flatfiles_sf_roi$name_cleaner))`). And that is just for our relatively small number of events location strings and restricting our gazeteers to relatively small region of interest. Obviously, and approach we impliment is going to have to scale sub-quadratic in the number of locations or it won't be applicable for any problem of interesting size.
+If we considered every single pair of possible matches it would require about 62 million comparisons (`r length(unique(events_sf$name_cleaner)) * length(unique(flatfiles_sf_roi$name_cleaner))`). And that is just for our relatively small number of event location strings and restricting our gazetteers to a relatively small region of interest. Obviously, any approach we implement is going to have to scale sub-quadratic in the number of locations or it won't be applicable to any problem of interesting size.
 
 # Stem
 
@@ -103,7 +102,7 @@ Our first move is to stem each location string of prefixes and common suffixes s
 
 #Step 1  Get Suggestions for Stems
 
-#Stem the gazeteer names
+#Stem the gazetteer names
 temp <- strip_postfixes(flatfiles_sf_roi$name_cleaner)
 flatfiles_sf_roi$name_cleaner_stem <- temp[[1]]
 flatfiles_sf_roi$name_cleaner_postfix <- temp[[2]]
@@ -142,14 +141,14 @@ names_and_stems <- rbind(
 
 # LSH 
 
-Our next move is hash each stemmed location in a way that locations that are somewhat similar to one another are returned as possible matches and the vast majority of pairs that are too dissimilar to ever possily be matches are excluded. This requires only a single pass through the data, and so scales linearly in the number of locations. We select parameters which perform well on our hand labeled training dataset of toponym matches and mismatches. Where performing well at this stage means a low false negative rate (missing few genuine matches) and a moderate false positive rate (returning many irrelevant matches, but not an overwhelming number). Here we are only trying to reject as many obvious nonmatches as possible.
+Our next move is hash each stemmed location in a way that locations that are somewhat similar to one another are returned as possible matches and the vast majority of pairs that are too dissimilar to ever possibly match are excluded. This requires only a single pass through the data, and so scales linearly in the number of locations. We select parameters which perform well on our hand-labeled training dataset of toponym matches and mismatches. Where performing well at this stage means a low false negative rate (missing few genuine matches) and a moderate false positive rate (returning many irrelevant matches, but not an overwhelming number). Here we are only trying to reject as many obvious nonmatches as possible.
 
 ```{r}
 
 minhash_count=100
 bands=25
 
-fromscratch=F # For some reason these parallized functions hang in rmarkdown. Copy and paste them into console to run.
+fromscratch=F # For some reason these parallel functions hang in rmarkdown. Copy and paste them into console to run.
 if(fromscratch){
   #Optimal settings derived in 04_fuzzy_matcher_stage_1
   
@@ -193,7 +192,8 @@ if(fromscratch){
   candidates$stemmed_ab <- paste(candidates$stemmed_a,candidates$stemmed_b, sep="_")
   candidates$stemmed_ba <- paste(candidates$stemmed_b,candidates$stemmed_a, sep="_")
   
-  saveRDS(candidates, glue::glue(getwd(), "/inst/extdata/candidates.Rdata")) #Leaving off the .. because you should only be running this by hand
+  saveRDS(candidates, paste0(here::here(), "inst/extdata/candidates.Rdata")) #Leaving off the .. because you should only be running this by hand
+  
 }
 
 ```
@@ -211,12 +211,12 @@ candidates <- readRDS(system.file("extdata",
 
 ```
 
-There are `r nrow(candidates)` candidate stem matches return by locality sensitve hashing with these parameters. This is a tiny `r round(nrow(candidates)/length(stemmed_ab)^2,4)` fraction of all the possible stem to stem matches we could have considered.
+There are `r nrow(candidates)` candidate stem matches return by locality sensitive hashing with these parameters. This is a tiny `r round(nrow(candidates)/length(stemmed_ab)^2,4)` fraction of all the possible stem to stem matches we could have considered.
 
 
 ## Expand Stem matches into full matches
 
-We consider any two strings to be a possible match if we consider their stems to be a possible match. This bit of code expands and merges to get the suggestions in terms of event string- gazzeteer string possible matches. Throughout we use the example of the stem "gura" to show possible matches and how they're reduced over various steps.
+We consider any two strings to be a possible match if we consider their stems to be a possible match. This bit of code expands and merges to get the suggestions in terms of event string- gazetteer string possible matches. Throughout we use the example of the stem "gura" to show possible matches and how they're reduced over various steps.
 
 ```{r}
 
@@ -266,9 +266,7 @@ glue::glue(stemmed_ab_suggestions_events %>% nrow() , " string matches")
 ```
 
 
-# Screen pairs that are too disimilar
-
-
+# Screen pairs that are too dissimilar
 
 ```{r}
 ab_suggestions_events[,temp_q_cos:= stringsim(name_cleaner_a,name_cleaner_b,"cos", nthread=parallel::detectCores(),q=2),] #both fast and very good at sorting
@@ -285,7 +283,7 @@ glue::glue(ab_suggestions_events %>% nrow() , " string matches after removing th
 
 # XGBoost Toponym Matching
 
-Next we refine the remaining matches using additional string distance features and an XGBoost model trained earlier on the labeled match/no match toponym training examples.
+Next, we refine the remaining matches using additional string distance features and an XGBoost model trained earlier on the labeled match/no match toponym training examples.
 
 ```{r}
 ab_suggestions_events$a <- ab_suggestions_events$stemmed_a
@@ -330,6 +328,7 @@ dpredict<-xgb.DMatrix(data= as.matrix(ab_suggestions_events_features[,vars_x_str
 ab_suggestions_events_features$toponym_xb_model_prediction <- predict( toponym_xb_model, dpredict )
 ab_suggestions_events_features$toponym_xb_model_prediction  <- 1/(1 + exp(-ab_suggestions_events_features$toponym_xb_model_prediction ))
 
+# why does this work now but not in 06
 hist(ab_suggestions_events_features$toponym_xb_model_prediction)
 
 
@@ -373,7 +372,7 @@ ab_suggestions_directed_max_event_coord <- subset(ab_suggestions_directed,
                                                   )
 
 #A non missing coordinate
-condition <- !is.na(st_coordinates(events_sf)[,1])
+condition <- !is.na(sf::st_coordinates(events_sf)[,1])
 table(condition)
 
 #An exact match to the gaz
@@ -424,7 +423,7 @@ place description or district/province
 
 #For when this inevitably crashes
 ab_suggestions_directed <-  readRDS(system.file("extdata", "ab_suggestions_directed.Rds", package = "MeasuringLandscape")) 
-flatfiles_sf_roi_centroids <- flatfiles_sf_roi %>% filter(!is.na(latitude) | geometry_type != "POINT") %>% st_centroid()
+flatfiles_sf_roi_centroids <- flatfiles_sf_roi %>% filter(!is.na(latitude) | geometry_type != "POINT") %>% sf::st_centroid()
 
 #Do some quick accounting
 
@@ -438,10 +437,10 @@ georef$georef_b <- trimws(georef$georef_b)
 georef <- unique(georef)
 #georef$georef_ab_identical <- georef$georef_a==georef$georef_b 
 
-table(events_sf$name_cleaner %in% georef$georef_a) #7,742 events with at least one gazeteer suggestion
+table(events_sf$name_cleaner %in% georef$georef_a) #7,742 events with at least one gazetteer suggestion
 
 #This is mapping of events to identical and fuzzy
-#georef2 is a combination of events, and all the gazeteer names they might match to
+#georef2 is a combination of events, and all the gazetteer names they might match to
 georef2 <- as.data.frame(events_sf)[,c('event_hash', 'name_cleaner','document_district_clean','document_unit_type','document_date_best_year')] %>% 
   left_join(georef, by = c("name_cleaner" = "georef_a")) %>% unique()  
 dim(georef2)
@@ -451,12 +450,12 @@ table(events_sf$name_cleaner %in% georef2$name_cleaner[!is.na(georef2$georef_b)]
 table(events_sf$event_hash %in% georef2$event_hash) #All event hashes show up in here
 
 #This is mapping of gaz places to identical and fuzzy possible
-#georef3 is a combination of gazeteers and all gazeteer names they might match to
+#georef3 is a combination of gazetteers and all gazetteer names they might match to
 #georef3 <- as.data.frame(flatfiles_sf_roi_centroids)[,c('place_hash','source_dataset','name_cleaner','geometry_type')] %>% left_join(georef, by = c("name_cleaner" = "georef_b")) %>% unique() 
 #dim(georef3)
 
 #This is a mapping of events to gaz where either their exact or fuzzy counterparts matched each other
-#georef all is a mapping of events, to gazeteer names, to 
+#georef all is a mapping of events, to gazetteer names, to 
 georef_all <- georef2 %>% 
              left_join(as.data.frame(flatfiles_sf_roi_centroids)[,c('place_hash','source_dataset','name_cleaner','geometry_type','feature_code')],
                        by = c("georef_b" = "name_cleaner")) %>% unique()
@@ -497,22 +496,10 @@ rownames(events_sf) <- events_sf$event_hash
 #Try some smaller experiments and verify if and how long it takes to calculate distance since we've got a million of them
 #This takes a long time to calculate because there's a million of them
 
-#Instead, add a column for whether dimensions are zero and then que that column with the hash, much much better
+#Instead, add a column for whether dimensions are zero and then queue that column with the hash, much much better
 events_sf$isvalid <- !is.na(st_dimension(events_sf) )
 flatfiles_sf_roi_centroids$isvalid <- !is.na(st_dimension(flatfiles_sf_roi_centroids) )
 
-#What do we do, convert to data.table for the lookups?
-#condition1 <- events_sf[georef_all$event_hash,]$isvalid #still takes a while, because it's a million lookups.
-#condition2 <- flatfiles_sf_roi_centroids[georef_all$place_hash,]$isvalid #still takes a while, because it's a million lookups.
-#both_valid <- condition1 & condition2
-
-
-#a <-events_sf[georef_all$event_hash[both_valid][1:100],]
-#b <- flatfiles_sf_centroids[georef_all$place_hash[both_valid][1:100],]
-#st_crs(a)
-#st_crs(b)
-
-#Ok this isn't working and it would be slow anyway and we're using centroids anyway so just pull the coordinates and do my own damn calculation
 cords_events <- as.data.frame( st_coordinates(events_sf) )
 rownames(cords_events) <- rownames(events_sf)
 cords_flatfiles <- as.data.frame( st_coordinates(flatfiles_sf_roi_centroids) )
@@ -531,11 +518,11 @@ georef_all_dt <- unique(georef_all_dt); dim(georef_all_dt)
 #georef_all_dt <- subset(georef_all_dt, !is.na(name_cleaner) & !is.na(georef_b)) #maybe don't drop unmatched ones? If we want events as a source?
 
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazetteer suggestion
 table(events_sf$event_hash %in% georef_all_dt$event_hash) #All event hashes show up in here
 
 saveRDS(georef_all_dt,
-        file=glue::glue(getwd(), "/../inst/extdata/georef_all_dt.Rds")
+        file=paste0(here::here(), "/inst/extdata/georef_all_dt.Rds")
 )
 
 ```

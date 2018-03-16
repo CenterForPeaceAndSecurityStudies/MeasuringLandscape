@@ -83,7 +83,7 @@ predict_missingness_dv <- function(label, print_every_n=20) {
               xb = xb$pred,   #Cross validated hold out predicted probaiblity
               xb_model = xb2, #Single model
               x_all_pre_dummy = x_all_pre_dummy, #Original data
-              postdummy = x_all, #Data in one hot encoding
+              postdummy = x_all, #Data in one-hot encoding
               dtrain = dtrain #data in xgb.DMatrix format
               )
          )

@@ -1,5 +1,5 @@
 ---
-title: "11 Bias on covariates"
+title: "10 Bias on covariates"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "March 9, 2018"
 output: 
@@ -16,7 +16,7 @@ editor_options:
 </style>
 
 
-This file demonstrates that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggeness, etc.
+This file demonstrates that the kinds of locations that are imputed are different from the true locations, in terms of things like population, distance from roads, ruggedness, etc.
 
 ```{r , results='hide', message=FALSE, warning=FALSE}
 rm(list=ls()); gc()

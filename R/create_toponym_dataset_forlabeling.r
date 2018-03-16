@@ -40,7 +40,7 @@ create_toponym_dataset_forlabeling <- function(){
     #treetype = c("kd", "bd"),
     searchtype = "standard" #,
     #radius = 4000 #meters
-  ) #damn that's fast
+  ) #wow that's fast
   
   #table(nearest$nn.dists>100) #These are missing, no match within the radius
   #summary(nearest_gaz$nn.dists[nearest_gaz$nn.dists<100])

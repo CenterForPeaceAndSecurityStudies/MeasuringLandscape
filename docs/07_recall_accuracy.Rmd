@@ -1,5 +1,5 @@
 ---
-title: "08 Recall and Accuracy"
+title: "07 Recall and Accuracy"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "March 9, 2018"
 output: 
@@ -56,12 +56,13 @@ Load the suggestions file
 ```{r}
 
 #Reload from scratch each time in case we subset sometehing weirdly
+# georef_all_dt_recommendations <- readRDS(system.file("extdata", "georef_all_dt_recomendations.Rds", package = "MeasuringLandscape")) 
 georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt_recomendations.Rds", package = "MeasuringLandscape")) 
 glue::glue("Size of the Suggestions dataset ", nrow(georef_all_dt))
 
 table(!is.na(events_sf$name_cleaner)) #8,638 events have at least some text
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #8,242 events have a name in our suggestions list
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,532 events with at least one gazeteer suggestion
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,532 events with at least one gazetteer suggestion
 
 ```
 
@@ -84,7 +85,7 @@ table(georef_all_dt$distance_km==0) #These are identical matches, same event on 
 
 # Calculate Recall Rate and Distance for Ensembles
 
-This section calculates the recall rate and geographic accuracy of gazeteer suggestions. Recall is the number of events that receive at least one suggestion under a given set of rules. Accuracy is the distance between an observed location with a military coordinate and an imputed location for the same event. 
+This section calculates the recall rate and geographic accuracy of gazetteer suggestions. Recall is the number of events that receive at least one suggestion under a given set of rules. Accuracy is the distance between an observed location with a military coordinate and an imputed location for the same event. 
 
 Accuracy is measured differently for hand rule/ensemble and every other specific decision. Hand rule/ensemble accuracy is the distance observed for the best match selected by that process.
 
@@ -147,10 +148,6 @@ georef_all_dt_ensemble_summary
 rbind(georef_all_dt_handrule %>% mutate(label="hand"),
       georef_all_dt_ensemble %>% mutate(label="ensemble")) %>% 
       ggplot(aes(x=distance_km, fill=label)) + geom_histogram()
-
-
-#Need to compare on just the intersection of the points they provide answers to?
-
 
 
 ```
@@ -236,7 +233,7 @@ DT::datatable(recall_accuracy)
 
 Combine and plot the results for every specific decision and the ensembles.
 
-
+(Figure 2, Comparison of recall and accuracy by georeferencing method)
 
 ```{r}
 
@@ -318,4 +315,4 @@ Point > Multipolygon > Polygon > Linestring
 Match to Other Events > No Match to Other Events
 events > nga > livestock_points" > historical > geonames > bing> kenya_cadastral_district > livestock_boundaries > gadm > kenya_district1962 > wikidata > google > kenya_cadastral > openstreetmap > tgn 
 
-The hand rules and supervised ensemble represent a compromsie between high recovery rate and best case accuracy of each individual decision.
+The hand rules and supervised ensemble represent a compromise between high recovery rate and best case accuracy of each individual decision.

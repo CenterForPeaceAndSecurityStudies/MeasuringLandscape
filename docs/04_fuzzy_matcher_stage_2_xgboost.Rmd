@@ -1,5 +1,5 @@
 ---
-title: "05 Fuzzy Matcher Stage 2 (XGBoost)"
+title: "04 Fuzzy Matcher Stage 2 (XGBoost)"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "March 9, 2018"
 output: 
@@ -19,7 +19,7 @@ editor_options:
 
 The fuzzy matcher predicts the likelihood that two toponyms are the same place even though their spellings might be different. It has two stages.
 
-This file develops Stage 2 of the fuzzy toponym matcher. Its job is to refine the prediction for the subset of plausible matches, and provide an actual probability of a match.
+This file develops Stage 2 of the fuzzy toponym matcher. Its job is to refine the prediction for the subset of plausible matches and provide an actual probability of a match.
 
 
 ```{r, results='hide', message=FALSE, warning=FALSE }
@@ -36,7 +36,7 @@ options(width = 160)
 
 ```
 
-It is based on an events dataset built and cleaned in another file.
+It is based on an events dataset built and cleaned in the file "01 Prep Events Counts".
 
 ```{r}
 
@@ -68,7 +68,7 @@ Summary statistics
 
 ```{r}
 
-table( !is.na( st_coordinates(events_sf)[,1] ) ,
+table( !is.na(sf::st_coordinates(events_sf)[,1] ) ,
        !is.na(events_sf$name_cleaner) )
 
 ```
@@ -76,7 +76,7 @@ table( !is.na( st_coordinates(events_sf)[,1] ) ,
 
 # Produce a dataset for hand labeling
 
-This takes every event with a coordinate, and looks up the 10 nearest points in the gazeteers. It saves this as a csv file that a human can label as a toponym match or mismatch.
+This takes every event with a coordinate and looks up the 10 nearest points in the gazetteers. It saves this as a csv file that a human can label as a toponym match or mismatch.
 
 ```{r}
 
@@ -161,7 +161,7 @@ vars_x_string_corpus <- c(
 #"postfix_has_a"
 #"postfix_has_b" 
 
-#"ngram_a", #Don't do , it's just a word count and it's missing if it's never found
+#"ngram_a", #Don't run, it's just a word count and it's missing if it's never found
 #"ngram_b"
 )
 
@@ -262,7 +262,7 @@ toponym_xb_everything2 <- train_an_xb(toponym_training_dataset[['xy_train']],
                                      extract_features=F )
 xgb.save(toponym_xb_everything2,
        glue::glue(getwd(), "/../inst/extdata/toponym_xb_everything2.bin")
-         ) #Have to save seperately for some reason
+         ) #Have to save separately for some reason
 
 toponym_xb_onlystring <- train_an_xb(toponym_training_dataset[['xy_train']],
                                      toponym_training_dataset[['xy_test']] ,
@@ -273,7 +273,7 @@ toponym_xb_onlystring <- train_an_xb(toponym_training_dataset[['xy_train']],
                                      missing=NA)
 xgb.save(toponym_xb_onlystring,
        glue::glue(getwd(), "/../inst/extdata/toponym_xb_onlystring.bin")
-         ) #Have to save seperately for some reason
+         ) #Have to save separately for some reason
 
 
 
@@ -287,13 +287,13 @@ toponym_xb_string_and_stem <- train_an_xb(toponym_training_dataset[['xy_train']]
 
 xgb.save(toponym_xb_string_and_stem,
        glue::glue(getwd(), "/../inst/extdata/toponym_xb_string_and_stem.bin")
-         ) #Have to save seperately for some reason
+         ) #Have to save separately for some reason
 
 
 
 ```
 
-
+(Appendix Figure 5, AUC and Precision Recall curves for toponym fuzzy matcher stage 2, predicting likelihood of a match.)
 
 ```{r}
 
@@ -388,6 +388,8 @@ autoplot(uauc1)
 
 
 Evaluate the model
+(Appendix Figure 6, AUC and Precision Recall curves for toponym fuzzy matcher stage 2, predicting likelihood of a match.)
+
 
 ```{r}
 #p_load(DiagrammeR)

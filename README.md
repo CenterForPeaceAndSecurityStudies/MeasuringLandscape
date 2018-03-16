@@ -31,7 +31,9 @@ devtools::install_github("rexdouglass/MeasuringLandscape")
 
 ### R-Notebooks
 
-The analysis and figures in the paper and statistical appendix are produced in a number of R Notebooks
+The analysis and figures in the paper and statistical appendix are produced in a number of R Notebooks.
+
+NOTE: Several parts of this analysis are stochastic, specific coefficient estimates and p-values will vary with each execution. Substantive results will be consistent across runs. We encourage the reader to run the replication multiple times and observe the variation.
 
 -   [00 Project Setup](https://rexdouglass.github.io/MeasuringLandscape/00_project_setup.nb.html): Useful commands for installing necessary packages and setting up the project.
 

@@ -209,6 +209,8 @@ for(q in unique(georef_all_dt_events_sf$SelfReference)){
 
 # Plot the coefficients for each model
 
+(Figure 5)
+
 ```{r, fig.width=15, fig.height=10}
 
 

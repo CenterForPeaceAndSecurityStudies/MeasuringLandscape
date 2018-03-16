@@ -20,7 +20,7 @@ qgram_hash <- function(strings, n=2, k=0) {
     }
   }
 
-  dfm_all <- reduce(gram_list, cbind)
+  dfm_all <- purrr::reduce(gram_list, cbind)
   dtm <- as(dfm_all, "dgCMatrix")
   gram_list <- NULL
   gc()

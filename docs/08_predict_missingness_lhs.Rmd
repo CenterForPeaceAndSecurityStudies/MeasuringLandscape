@@ -1,5 +1,5 @@
 ---
-title: "09 Predict Missingness"
+title: "08 Predict Missingness"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "March 9, 2018"
 output: 
@@ -51,7 +51,7 @@ events_sf_text_coord_unique <- plyr::ddply(events_sf[,c('location_text','name_cl
 georef_all_dt <- readRDS(system.file("extdata", "georef_all_dt_recomendations.Rds", package = "MeasuringLandscape")) 
 
 table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner) #All events are in here
-table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazeteer suggestion
+table(events_sf$name_cleaner %in% georef_all_dt$name_cleaner[!is.na(georef_all_dt$georef_b)]) #7,742 events with at least one gazetteer suggestion
 
 #Exclude all distance = 0 obs, those are self matches
 georef_all_dt <- subset(georef_all_dt, 
@@ -62,7 +62,7 @@ georef_all_dt <- subset(georef_all_dt,
 
 # Predict missing coordinates
 
-Proof of concept, show works on original missingness
+Proof of concept, show it works on original missingness
 
 
 ```{r}
@@ -228,6 +228,8 @@ saveRDS(bias_dv_df,
 
 Plot
 
+(Appendix Figure 9)
+
 ```{r}
 
 
@@ -304,7 +306,5 @@ ggsave(
 )
 
 ```
-
-
 
 

@@ -1,5 +1,5 @@
 ---
-title: "10 Predicted Effects"
+title: "09 Predicted Effects"
 author: "Rex W. Douglass and Kristen Harkness"
 date: "March 9, 2018"
 output: 
@@ -225,7 +225,7 @@ final <- cowplot::plot_grid(
 final
 
 ggsave(
-  filename = glue(dir_figures, "rf_mapcoordinate_clean_missing_ridgeplot.pdf"),
+  filename = glue::glue(dir_figures, "rf_mapcoordinate_clean_missing_ridgeplot.pdf"),
   plot = final, width = 10, height = 8,
     device = cairo_pdf #have to use cairo to correctly embed the fonts
 

@@ -15,7 +15,7 @@ firstmismatch <- function(a, b, verbose=T) {
 
 
   nchars_max <- max(dt$nchars1)
-  
+
   for (i in 1:nchars_max) {
     if (verbose) {
       cat("Letter ", i, " ", sum(dt$condition), " left to check;  ")
