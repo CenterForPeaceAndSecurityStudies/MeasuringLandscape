@@ -284,14 +284,26 @@ div.tocify {
 <p>Second, with a supervised model that attempts to predict which match will be geographically closest to the true location (fewest kilometers away from the right answer).</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucm0obGlzdD1scygpKTsgZ2MoKVxuYGBgIn0= -->
+<pre class="r"><code>rm(list=ls()); gc()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBIaWRpbmcgb3V0cHV0IGFuZCB3YXJuaW5nc1xuIyAhZGlhZ25vc3RpY3Mgb2ZmXG5saWJyYXJ5KE1lYXN1cmluZ0xhbmRzY2FwZSlcbmRldnRvb2xzOjpsb2FkX2FsbCgpXG5kaXJfZmlndXJlcyA8LSBnbHVlOjpnbHVlKGdldHdkKCksIFwiLy4uL3BhcGVyL2ZpZ3VyZXMvXCIpXG5nYygpXG5rbml0cjo6b3B0c19rbml0JHNldChwcm9ncmVzcyA9IFRSVUUsIHZlcmJvc2UgPSBUUlVFKVxua25pdHI6Om9wdHNfY2h1bmskc2V0KGZpZy53aWR0aD0xMiwgZmlnLmhlaWdodD04LCAgd2FybmluZz1GQUxTRSwgbWVzc2FnZT1GQUxTRSwgY2FjaGU9VFJVRSlcbm9wdGlvbnMod2lkdGggPSAxNjApXG5gYGAifQ== -->
+<pre class="r"><code># Hiding output and warnings
+# !diagnostics off
+library(MeasuringLandscape)
+devtools::load_all()
+dir_figures &lt;- glue::glue(getwd(), &quot;/../paper/figures/&quot;)
+gc()
+knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
+knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE, cache=TRUE)
+options(width = 160)</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5nZW9yZWZfYWxsX2R0IDwtIHJlYWRSRFMocGFzdGUwKGhlcmU6OmhlcmUoKSwgXCIvaW5zdC9leHRkYXRhL2dlb3JlZl9hbGxfZHQuUmRzXCIpKVxuXG5gYGAifQ== -->
-<pre class="r"><code>
-georef_all_dt &lt;- readRDS(paste0(here::here(), &quot;/inst/extdata/georef_all_dt.Rds&quot;))
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvcmVmX2FsbF9kdCA8LSByZWFkUkRTKHBhc3RlMChoZXJlOjpoZXJlKCksIFwiL2luc3QvZXh0ZGF0YS9nZW9yZWZfYWxsX2R0LlJkc1wiKSlcbmBgYCJ9 -->
+<pre class="r"><code>georef_all_dt &lt;- readRDS(paste0(here::here(), &quot;/inst/extdata/georef_all_dt.Rds&quot;))</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -299,23 +311,44 @@ georef_all_dt &lt;- readRDS(paste0(here::here(), &quot;/inst/extdata/georef_all_
 <h1>Hand Rules</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jQ2FsY3VsYXRlIHNvbWUgZmVhdHVyZXNcbmRpbShnZW9yZWZfYWxsX2R0KVxuZ2VvcmVmX2FsbF9kdFshaXMuZmluaXRlKGRpc3RhbmNlX2ttKSxkaXN0YW5jZV9rbTo9TkFdIFxuZ2VvcmVmX2FsbF9kdFssU2VsZlJlZmVyZW5jZTo9c291cmNlX2RhdGFzZXQ9PVwiZXZlbnRzXCJdXG5nZW9yZWZfYWxsX2R0WyxmdXp6eTo9bmFtZV9jbGVhbmVyIT1nZW9yZWZfYl1cbiNnZW9yZWZfYWxsX2R0IDwtIHN1YnNldChnZW9yZWZfYWxsX2R0LCAgZGlzdGFuY2Vfa209ITApICNUaGlzIGV4Y2x1ZGVzIGFsbCBzZWxmIHJlZmVyZW5jZXMgLCB3ZSBuZWVkIHRoYXQgaGVyZSBidXQgbm90IG5lY2Vzc2FyaWx5IGVsc2V3aGVyZVxuXG5cbmdlb3JlZl9hbGxfZHQgPC0gZ2VvcmVmX2FsbF9kdCAlPiUgbXV0YXRlKGhhbmRydWxlMSA9IGRwbHlyOjpyZWNvZGUoYXMuY2hhcmFjdGVyKGZ1enp5KSwgXCJUUlVFXCIgPSAyLCBcIkZBTFNFXCIgPSAxKSkgXG5nZW9yZWZfYWxsX2R0IDwtIGdlb3JlZl9hbGxfZHQgJT4lIG11dGF0ZShoYW5kcnVsZTIgPSBkcGx5cjo6cmVjb2RlKGFzLmNoYXJhY3RlcihTZWxmUmVmZXJlbmNlKSwgXCJUUlVFXCIgPSAxLCBcIkZBTFNFXCIgPSAyKSkgXG50YWJsZShnZW9yZWZfYWxsX2R0JGdlb21ldHJ5X3R5cGUpXG5nZW9yZWZfYWxsX2R0IDwtIGdlb3JlZl9hbGxfZHQgJT4lIG11dGF0ZShoYW5kcnVsZTMgPSBkcGx5cjo6cmVjb2RlKGFzLmNoYXJhY3RlcihnZW9tZXRyeV90eXBlKSwgXCJQT0lOVFwiID0gMSwgXCJNVUxUSVBPTFlHT05cIj0yLCBcIlBPTFlHT05cIiA9IDMsXCJMSU5FU1RSSU5HXCI9NCkpIFxuXG50YWJsZShnZW9yZWZfYWxsX2R0JHNvdXJjZV9kYXRhc2V0LCB1c2VOQT1cImFsd2F5c1wiKSAjd2h5IGFyZSB0aGVpciBtaXNzaW5nIHNvdXJjZXM/IEE6IEJlY2F1c2UgdGhlcmUgYXJlIGV2ZW50cyBsYWJlbHMgd2l0aCBubyBtYXRjaGluZyBjb29yZGluYXRlcyBhdCBhbGxcbmdlb3JlZl9hbGxfZHQgPC0gZ2VvcmVmX2FsbF9kdCAlPiUgXG4gIG11dGF0ZShoYW5kcnVsZTQgPSBkcGx5cjo6cmVjb2RlKGFzLmNoYXJhY3Rlcihzb3VyY2VfZGF0YXNldCksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiZXZlbnRzXCIgPSAxLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImhpc3RvcmljYWxcIj0yLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIm5nYVwiPTMsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiZ2VvbmFtZXNcIiA9IDQsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiZ2FkbVwiPTUsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwibGl2ZXN0b2NrX3BvaW50c1wiPTYsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiYmluZ1wiPTcsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwibGl2ZXN0b2NrX2JvdW5kYXJpZXNcIj04LFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIndpa2lkYXRhXCI9OSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJ0Z25cIj0xMCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJrZW55YV9jYWRhc3RyYWxfZGlzdHJpY3RcIj0xMSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJrZW55YV9kaXN0cmljdDE5NjJcIj0xMiwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiZ29vZ2xlXCI9MTMsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwib3BlbnN0cmVldG1hcFwiPTE0LFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImtlbnlhX2NhZGFzdHJhbFwiPTE1XG4gICkpICU+JVxuICBhcy5kYXRhLnRhYmxlKClcbnRhYmxlKGdlb3JlZl9hbGxfZHQkc291cmNlX2RhdGFzZXQsXG4gICAgICBnZW9yZWZfYWxsX2R0JGhhbmRydWxlNCwgdXNlTkE9XCJhbHdheXNcIilcblxuZ2VvcmVmX2FsbF9kdCRoYW5kcnVsZSA8LSBwYXN0ZShzdHJpbmdyOjpzdHJfcGFkKGdlb3JlZl9hbGxfZHQkaGFuZHJ1bGUxLCAyLCBwYWQgPSBcIjBcIiksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cmluZ3I6OnN0cl9wYWQoZ2VvcmVmX2FsbF9kdCRoYW5kcnVsZTIsMiwgcGFkID0gXCIwXCIpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJpbmdyOjpzdHJfcGFkKGdlb3JlZl9hbGxfZHQkaGFuZHJ1bGUzLDIsIHBhZCA9IFwiMFwiKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RyaW5ncjo6c3RyX3BhZChnZW9yZWZfYWxsX2R0JGhhbmRydWxlNCwgMiwgcGFkID0gXCIwXCIpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzZXA9XCJfXCIpXG5cbnNldGtleShnZW9yZWZfYWxsX2R0LCBoYW5kcnVsZSApXG50ZW1wIDwtIHN1YnNldChnZW9yZWZfYWxsX2R0LGV2ZW50X2hhc2g9PVwiYmUzN2I0MGZcIilcblxuXG5zYXZlUkRTKGdlb3JlZl9hbGxfZHQsXG4gICAgICAgIGZpbGU9Z2x1ZTo6Z2x1ZShnZXR3ZCgpLCBcIi8uLi9pbnN0L2V4dGRhdGEvZ2VvcmVmX2FsbF9kdC5SZHNcIilcbilcblxuXG5gYGAifQ== -->
-<pre class="r"><code>
-#Calculate some features
-dim(georef_all_dt)
-georef_all_dt[!is.finite(distance_km),distance_km:=NA] 
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI0NhbGN1bGF0ZSBzb21lIGZlYXR1cmVzXG5kaW0oZ2VvcmVmX2FsbF9kdClcbmBgYCJ9 -->
+<pre class="r"><code>#Calculate some features
+dim(georef_all_dt)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDUzMjcxMSAgICAgMjNcbiJ9 -->
+<pre><code>[1] 532711     23</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvcmVmX2FsbF9kdFshaXMuZmluaXRlKGRpc3RhbmNlX2ttKSxkaXN0YW5jZV9rbTo9TkFdIFxuZ2VvcmVmX2FsbF9kdFssU2VsZlJlZmVyZW5jZTo9c291cmNlX2RhdGFzZXQ9PVwiZXZlbnRzXCJdXG5nZW9yZWZfYWxsX2R0WyxmdXp6eTo9bmFtZV9jbGVhbmVyIT1nZW9yZWZfYl1cbiNnZW9yZWZfYWxsX2R0IDwtIHN1YnNldChnZW9yZWZfYWxsX2R0LCAgZGlzdGFuY2Vfa209ITApICNUaGlzIGV4Y2x1ZGVzIGFsbCBzZWxmIHJlZmVyZW5jZXMgLCB3ZSBuZWVkIHRoYXQgaGVyZSBidXQgbm90IG5lY2Vzc2FyaWx5IGVsc2V3aGVyZVxuZ2VvcmVmX2FsbF9kdCA8LSBnZW9yZWZfYWxsX2R0ICU+JSBtdXRhdGUoaGFuZHJ1bGUxID0gZHBseXI6OnJlY29kZShhcy5jaGFyYWN0ZXIoZnV6enkpLCBcIlRSVUVcIiA9IDIsIFwiRkFMU0VcIiA9IDEpKSBcbmdlb3JlZl9hbGxfZHQgPC0gZ2VvcmVmX2FsbF9kdCAlPiUgbXV0YXRlKGhhbmRydWxlMiA9IGRwbHlyOjpyZWNvZGUoYXMuY2hhcmFjdGVyKFNlbGZSZWZlcmVuY2UpLCBcIlRSVUVcIiA9IDEsIFwiRkFMU0VcIiA9IDIpKSBcbnRhYmxlKGdlb3JlZl9hbGxfZHQkZ2VvbWV0cnlfdHlwZSlcbmBgYCJ9 -->
+<pre class="r"><code>georef_all_dt[!is.finite(distance_km),distance_km:=NA] 
 georef_all_dt[,SelfReference:=source_dataset==&quot;events&quot;]
 georef_all_dt[,fuzzy:=name_cleaner!=georef_b]
 #georef_all_dt &lt;- subset(georef_all_dt,  distance_km=!0) #This excludes all self references , we need that here but not necessarily elsewhere
-
-
 georef_all_dt &lt;- georef_all_dt %&gt;% mutate(handrule1 = dplyr::recode(as.character(fuzzy), &quot;TRUE&quot; = 2, &quot;FALSE&quot; = 1)) 
 georef_all_dt &lt;- georef_all_dt %&gt;% mutate(handrule2 = dplyr::recode(as.character(SelfReference), &quot;TRUE&quot; = 1, &quot;FALSE&quot; = 2)) 
-table(georef_all_dt$geometry_type)
-georef_all_dt &lt;- georef_all_dt %&gt;% mutate(handrule3 = dplyr::recode(as.character(geometry_type), &quot;POINT&quot; = 1, &quot;MULTIPOLYGON&quot;=2, &quot;POLYGON&quot; = 3,&quot;LINESTRING&quot;=4)) 
-
-table(georef_all_dt$source_dataset, useNA=&quot;always&quot;) #why are their missing sources? A: Because there are events labels with no matching coordinates at all
-georef_all_dt &lt;- georef_all_dt %&gt;% 
+table(georef_all_dt$geometry_type)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIExJTkVTVFJJTkcgTVVMVElQT0xZR09OICAgICAgICBQT0lOVCAgICAgIFBPTFlHT04gXG4gICAgICAgIDMxNjUgICAgICAgIDE0NzAzICAgICAgIDUwMzMzNSAgICAgICAgIDg5ODEgXG4ifQ== -->
+<pre><code>
+  LINESTRING MULTIPOLYGON        POINT      POLYGON 
+        3165        14703       503335         8981 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvcmVmX2FsbF9kdCA8LSBnZW9yZWZfYWxsX2R0ICU+JSBtdXRhdGUoaGFuZHJ1bGUzID0gZHBseXI6OnJlY29kZShhcy5jaGFyYWN0ZXIoZ2VvbWV0cnlfdHlwZSksIFwiUE9JTlRcIiA9IDEsIFwiTVVMVElQT0xZR09OXCI9MiwgXCJQT0xZR09OXCIgPSAzLFwiTElORVNUUklOR1wiPTQpKSBcbnRhYmxlKGdlb3JlZl9hbGxfZHQkc291cmNlX2RhdGFzZXQsIHVzZU5BPVwiYWx3YXlzXCIpICN3aHkgYXJlIHRoZWlyIG1pc3Npbmcgc291cmNlcz8gQTogQmVjYXVzZSB0aGVyZSBhcmUgZXZlbnRzIGxhYmVscyB3aXRoIG5vIG1hdGNoaW5nIGNvb3JkaW5hdGVzIGF0IGFsbFxuYGBgIn0= -->
+<pre class="r"><code>georef_all_dt &lt;- georef_all_dt %&gt;% mutate(handrule3 = dplyr::recode(as.character(geometry_type), &quot;POINT&quot; = 1, &quot;MULTIPOLYGON&quot;=2, &quot;POLYGON&quot; = 3,&quot;LINESTRING&quot;=4)) 
+table(georef_all_dt$source_dataset, useNA=&quot;always&quot;) #why are their missing sources? A: Because there are events labels with no matching coordinates at all</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gICAgICAgICAgICAgICAgICAgIGJpbmcgICAgICAgICAgICAgICAgICAgZXZlbnRzICAgICAgICAgICAgICAgICAgICAgZ2FkbSAgICAgICAgICAgICAgICAgZ2VvbmFtZXMgXG4gICAgICAgICAgICAgICAgICAgIDk0MzYgICAgICAgICAgICAgICAgICAgMjU0MTYyICAgICAgICAgICAgICAgICAgICAxMDcyOSAgICAgICAgICAgICAgICAgICAgNjA5ODggXG4gICAgICAgICAgICAgICAgICBnb29nbGUgICAgICAgICAgICAgICBoaXN0b3JpY2FsICAgICAgICAgIGtlbnlhX2NhZGFzdHJhbCBrZW55YV9jYWRhc3RyYWxfZGlzdHJpY3QgXG4gICAgICAgICAgICAgICAgICAgMTA1OTEgICAgICAgICAgICAgICAgICAgIDQ5OTYyICAgICAgICAgICAgICAgICAgICAgIDQxMiAgICAgICAgICAgICAgICAgICAgIDEwMzMgXG4gICAgICBrZW55YV9kaXN0cmljdDE5NjIgICAgIGxpdmVzdG9ja19ib3VuZGFyaWVzICAgICAgICAgbGl2ZXN0b2NrX3BvaW50cyAgICAgICAgICAgICAgICAgICAgICBuZ2EgXG4gICAgICAgICAgICAgICAgICAgICA2NzYgICAgICAgICAgICAgICAgICAgICA4NzM4ICAgICAgICAgICAgICAgICAgICAzNTk3OCAgICAgICAgICAgICAgICAgICAgNTcxODAgXG4gICAgICAgICAgIG9wZW5zdHJlZXRtYXAgICAgICAgICAgICAgICAgICAgICAgdGduICAgICAgICAgICAgICAgICB3aWtpZGF0YSAgICAgICAgICAgICAgICAgICAgIDxOQT4gXG4gICAgICAgICAgICAgICAgICAgMTYwNDAgICAgICAgICAgICAgICAgICAgICAyODMwICAgICAgICAgICAgICAgICAgICAxMTQyOSAgICAgICAgICAgICAgICAgICAgIDI1MjcgXG4ifQ== -->
+<pre><code>
+                    bing                   events                     gadm                 geonames 
+                    9436                   254162                    10729                    60988 
+                  google               historical          kenya_cadastral kenya_cadastral_district 
+                   10591                    49962                      412                     1033 
+      kenya_district1962     livestock_boundaries         livestock_points                      nga 
+                     676                     8738                    35978                    57180 
+           openstreetmap                      tgn                 wikidata                     &lt;NA&gt; 
+                   16040                     2830                    11429                     2527 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvcmVmX2FsbF9kdCA8LSBnZW9yZWZfYWxsX2R0ICU+JSBcbiAgbXV0YXRlKGhhbmRydWxlNCA9IGRwbHlyOjpyZWNvZGUoYXMuY2hhcmFjdGVyKHNvdXJjZV9kYXRhc2V0KSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJldmVudHNcIiA9IDEsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiaGlzdG9yaWNhbFwiPTIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwibmdhXCI9MyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJnZW9uYW1lc1wiID0gNCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJnYWRtXCI9NSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJsaXZlc3RvY2tfcG9pbnRzXCI9NixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJiaW5nXCI9NyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJsaXZlc3RvY2tfYm91bmRhcmllc1wiPTgsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwid2lraWRhdGFcIj05LFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInRnblwiPTEwLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImtlbnlhX2NhZGFzdHJhbF9kaXN0cmljdFwiPTExLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcImtlbnlhX2Rpc3RyaWN0MTk2MlwiPTEyLCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJnb29nbGVcIj0xMyxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJvcGVuc3RyZWV0bWFwXCI9MTQsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwia2VueWFfY2FkYXN0cmFsXCI9MTVcbiAgKSkgJT4lXG4gIGFzLmRhdGEudGFibGUoKVxudGFibGUoZ2VvcmVmX2FsbF9kdCRzb3VyY2VfZGF0YXNldCxcbiAgICAgIGdlb3JlZl9hbGxfZHQkaGFuZHJ1bGU0LCB1c2VOQT1cImFsd2F5c1wiKVxuYGBgIn0= -->
+<pre class="r"><code>georef_all_dt &lt;- georef_all_dt %&gt;% 
   mutate(handrule4 = dplyr::recode(as.character(source_dataset),
                                    &quot;events&quot; = 1,
                                    &quot;historical&quot;=2,
@@ -335,22 +368,57 @@ georef_all_dt &lt;- georef_all_dt %&gt;%
   )) %&gt;%
   as.data.table()
 table(georef_all_dt$source_dataset,
-      georef_all_dt$handrule4, useNA=&quot;always&quot;)
-
-georef_all_dt$handrule &lt;- paste(stringr::str_pad(georef_all_dt$handrule1, 2, pad = &quot;0&quot;),
+      georef_all_dt$handrule4, useNA=&quot;always&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMSAgICAgIDIgICAgICAzICAgICAgNCAgICAgIDUgICAgICA2ICAgICAgNyAgICAgIDggICAgICA5ICAgICAxMCAgICAgMTFcbiAgYmluZyAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgOTQzNiAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgZXZlbnRzICAgICAgICAgICAgICAgICAgIDI1NDE2MiAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgZ2FkbSAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgMTA3MjkgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgZ2VvbmFtZXMgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICA2MDk4OCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgZ29vZ2xlICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgaGlzdG9yaWNhbCAgICAgICAgICAgICAgICAgICAgMCAgNDk5NjIgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAga2VueWFfY2FkYXN0cmFsICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAga2VueWFfY2FkYXN0cmFsX2Rpc3RyaWN0ICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgIDEwMzNcbiAga2VueWFfZGlzdHJpY3QxOTYyICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgbGl2ZXN0b2NrX2JvdW5kYXJpZXMgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgIDg3MzggICAgICAwICAgICAgMCAgICAgIDBcbiAgbGl2ZXN0b2NrX3BvaW50cyAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgIDM1OTc4ICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgbmdhICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgIDU3MTgwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgb3BlbnN0cmVldG1hcCAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgdGduICAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgMjgzMCAgICAgIDBcbiAgd2lraWRhdGEgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgIDExNDI5ICAgICAgMCAgICAgIDBcbiAgPE5BPiAgICAgICAgICAgICAgICAgICAgICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgMTIgICAgIDEzICAgICAxNCAgICAgMTUgICA8TkE+XG4gIGJpbmcgICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGV2ZW50cyAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGdhZG0gICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGdlb25hbWVzICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGdvb2dsZSAgICAgICAgICAgICAgICAgICAgICAgIDAgIDEwNTkxICAgICAgMCAgICAgIDAgICAgICAwXG4gIGhpc3RvcmljYWwgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGtlbnlhX2NhZGFzdHJhbCAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICA0MTIgICAgICAwXG4gIGtlbnlhX2NhZGFzdHJhbF9kaXN0cmljdCAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGtlbnlhX2Rpc3RyaWN0MTk2MiAgICAgICAgICA2NzYgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGxpdmVzdG9ja19ib3VuZGFyaWVzICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIGxpdmVzdG9ja19wb2ludHMgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIG5nYSAgICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIG9wZW5zdHJlZXRtYXAgICAgICAgICAgICAgICAgIDAgICAgICAwICAxNjA0MCAgICAgIDAgICAgICAwXG4gIHRnbiAgICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIHdpa2lkYXRhICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAgICAwXG4gIDxOQT4gICAgICAgICAgICAgICAgICAgICAgICAgIDAgICAgICAwICAgICAgMCAgICAgIDAgICAyNTI3XG4ifQ== -->
+<pre><code>                          
+                                1      2      3      4      5      6      7      8      9     10     11
+  bing                          0      0      0      0      0      0   9436      0      0      0      0
+  events                   254162      0      0      0      0      0      0      0      0      0      0
+  gadm                          0      0      0      0  10729      0      0      0      0      0      0
+  geonames                      0      0      0  60988      0      0      0      0      0      0      0
+  google                        0      0      0      0      0      0      0      0      0      0      0
+  historical                    0  49962      0      0      0      0      0      0      0      0      0
+  kenya_cadastral               0      0      0      0      0      0      0      0      0      0      0
+  kenya_cadastral_district      0      0      0      0      0      0      0      0      0      0   1033
+  kenya_district1962            0      0      0      0      0      0      0      0      0      0      0
+  livestock_boundaries          0      0      0      0      0      0      0   8738      0      0      0
+  livestock_points              0      0      0      0      0  35978      0      0      0      0      0
+  nga                           0      0  57180      0      0      0      0      0      0      0      0
+  openstreetmap                 0      0      0      0      0      0      0      0      0      0      0
+  tgn                           0      0      0      0      0      0      0      0      0   2830      0
+  wikidata                      0      0      0      0      0      0      0      0  11429      0      0
+  &lt;NA&gt;                          0      0      0      0      0      0      0      0      0      0      0
+                          
+                               12     13     14     15   &lt;NA&gt;
+  bing                          0      0      0      0      0
+  events                        0      0      0      0      0
+  gadm                          0      0      0      0      0
+  geonames                      0      0      0      0      0
+  google                        0  10591      0      0      0
+  historical                    0      0      0      0      0
+  kenya_cadastral               0      0      0    412      0
+  kenya_cadastral_district      0      0      0      0      0
+  kenya_district1962          676      0      0      0      0
+  livestock_boundaries          0      0      0      0      0
+  livestock_points              0      0      0      0      0
+  nga                           0      0      0      0      0
+  openstreetmap                 0      0  16040      0      0
+  tgn                           0      0      0      0      0
+  wikidata                      0      0      0      0      0
+  &lt;NA&gt;                          0      0      0      0   2527</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZ2VvcmVmX2FsbF9kdCRoYW5kcnVsZSA8LSBwYXN0ZShzdHJpbmdyOjpzdHJfcGFkKGdlb3JlZl9hbGxfZHQkaGFuZHJ1bGUxLCAyLCBwYWQgPSBcIjBcIiksXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cmluZ3I6OnN0cl9wYWQoZ2VvcmVmX2FsbF9kdCRoYW5kcnVsZTIsMiwgcGFkID0gXCIwXCIpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzdHJpbmdyOjpzdHJfcGFkKGdlb3JlZl9hbGxfZHQkaGFuZHJ1bGUzLDIsIHBhZCA9IFwiMFwiKSxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RyaW5ncjo6c3RyX3BhZChnZW9yZWZfYWxsX2R0JGhhbmRydWxlNCwgMiwgcGFkID0gXCIwXCIpLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBzZXA9XCJfXCIpXG5zZXRrZXkoZ2VvcmVmX2FsbF9kdCwgaGFuZHJ1bGUgKVxudGVtcCA8LSBzdWJzZXQoZ2VvcmVmX2FsbF9kdCxldmVudF9oYXNoPT1cImJlMzdiNDBmXCIpXG5zYXZlUkRTKGdlb3JlZl9hbGxfZHQsXG4gICAgICAgIGZpbGU9Z2x1ZTo6Z2x1ZShnZXR3ZCgpLCBcIi8uLi9pbnN0L2V4dGRhdGEvZ2VvcmVmX2FsbF9kdC5SZHNcIilcbilcbmBgYCJ9 -->
+<pre class="r"><code>georef_all_dt$handrule &lt;- paste(stringr::str_pad(georef_all_dt$handrule1, 2, pad = &quot;0&quot;),
                                 stringr::str_pad(georef_all_dt$handrule2,2, pad = &quot;0&quot;),
                                 stringr::str_pad(georef_all_dt$handrule3,2, pad = &quot;0&quot;),
                                 stringr::str_pad(georef_all_dt$handrule4, 2, pad = &quot;0&quot;),
                                 sep=&quot;_&quot;)
-
 setkey(georef_all_dt, handrule )
 temp &lt;- subset(georef_all_dt,event_hash==&quot;be37b40f&quot;)
-
-
 saveRDS(georef_all_dt,
         file=glue::glue(getwd(), &quot;/../inst/extdata/georef_all_dt.Rds&quot;)
-)
-</code></pre>
+)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -403,7 +471,7 @@ georef_all_dt$toponym_xb_model_prediction  &lt;- 1/(1 + exp(-georef_all_dt$topon
 <p>Select features</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmFyc195IDwtIFwiZGlzdGFuY2Vfa21cIlxudmFyc194IDwtIGMoXCJzb3VyY2VfZGF0YXNldFwiLFwiZ2VvbWV0cnlfdHlwZVwiLFwiU2VsZlJlZmVyZW5jZVwiLFwiZnV6enlcIixcbiAgICAgICAgICAgIFwiZG9jdW1lbnRfZGlzdHJpY3RfY2xlYW5cIixcbiAgICAgICAgICAgIFwiZG9jdW1lbnRfdW5pdF90eXBlXCIsXG4gICAgICAgICAgICBcImRvY3VtZW50X2RhdGVfYmVzdF95ZWFyXCIsXG4gICAgICAgICAgICBcInRvcG9ueW1feGJfbW9kZWxfcHJlZGljdGlvblwiLFxuICAgICAgICAgICAgXCJmZWF0dXJlX2NvZGVcIilcblxudmFyc19hbGwgPC0gYyh2YXJzX3gsdmFyc195KVxuXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudmFyc195IDwtIFwiZGlzdGFuY2Vfa21cIlxudmFyc194IDwtIGMoXCJzb3VyY2VfZGF0YXNldFwiLFwiZ2VvbWV0cnlfdHlwZVwiLFwiU2VsZlJlZmVyZW5jZVwiLFwiZnV6enlcIixcbiAgICAgICAgICAgIFwiZG9jdW1lbnRfZGlzdHJpY3RfY2xlYW5cIixcbiAgICAgICAgICAgIFwiZG9jdW1lbnRfdW5pdF90eXBlXCIsXG4gICAgICAgICAgICBcImRvY3VtZW50X2RhdGVfYmVzdF95ZWFyXCIsXG4gICAgICAgICAgICBcInRvcG9ueW1feGJfbW9kZWxfcHJlZGljdGlvblwiLFxuICAgICAgICAgICAgXCJmZWF0dXJlX2NvZGVcIilcbnZhcnNfYWxsIDwtIGModmFyc194LHZhcnNfeSlcbmBgYCJ9 -->
 <pre class="r"><code>vars_y &lt;- &quot;distance_km&quot;
 vars_x &lt;- c(&quot;source_dataset&quot;,&quot;geometry_type&quot;,&quot;SelfReference&quot;,&quot;fuzzy&quot;,
             &quot;document_district_clean&quot;,
@@ -411,38 +479,36 @@ vars_x &lt;- c(&quot;source_dataset&quot;,&quot;geometry_type&quot;,&quot;SelfRe
             &quot;document_date_best_year&quot;,
             &quot;toponym_xb_model_prediction&quot;,
             &quot;feature_code&quot;)
-
-vars_all &lt;- c(vars_x,vars_y)
-</code></pre>
+vars_all &lt;- c(vars_x,vars_y)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueHlfYWxsIDwtIGdlb3JlZl9hbGxfZHRbLHZhcnNfYWxsLHdpdGg9Rl1cbnh5X2FsbCA8LSBhcy5kYXRhLmZyYW1lKHh5X2FsbClcbmRpbSh4eV9hbGwpXG5cbiNwX2xvYWQoeGdib29zdCxkdW1taWVzKVxuXG5jb25kaXRpb24gPC0gIWlzLm5hKHh5X2FsbCRkaXN0YW5jZV9rbSkgJiB4eV9hbGwkZGlzdGFuY2Vfa20hPTBcblxueF9hbGwgPC0geHlfYWxsWyx2YXJzX3hdXG54X2FsbCA8LSBkdW1taWVzOjpkdW1teS5kYXRhLmZyYW1lKHhfYWxsLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBhbGw9VCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZHVtbXkuY2xhc3Nlcz1jKCdjaGFyYWN0ZXInLCdmYWN0b3InLCdvcmRlcmVkJykgKSAjSGF2ZSB0byBzcGVjaWZ5IHRoZSBkdW1teSBjb2x1bW5zLCBiZWNhdXNlIGdldE9wdGlvbihcImR1bW15LmNsYXNzZXNcIikgaXMgZmFpbGluZyB0byBiZSBmb3VuZCBpbiB0aGlzIG5hbWVzcGFjZVxueF90cmFpbiA8LSB4X2FsbFtjb25kaXRpb24sXVxuXG5sYWJlbCA8LSBsb2coeHlfYWxsJGRpc3RhbmNlX2ttW2NvbmRpdGlvbl0pXG5cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxueHlfYWxsIDwtIGdlb3JlZl9hbGxfZHRbLHZhcnNfYWxsLHdpdGg9Rl1cbnh5X2FsbCA8LSBhcy5kYXRhLmZyYW1lKHh5X2FsbClcbmRpbSh4eV9hbGwpXG5gYGAifQ== -->
 <pre class="r"><code>xy_all &lt;- georef_all_dt[,vars_all,with=F]
 xy_all &lt;- as.data.frame(xy_all)
-dim(xy_all)
-
-#p_load(xgboost,dummies)
-
+dim(xy_all)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIDUzMjcxMSAgICAgMTBcbiJ9 -->
+<pre><code>[1] 532711     10</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3BfbG9hZCh4Z2Jvb3N0LGR1bW1pZXMpXG5jb25kaXRpb24gPC0gIWlzLm5hKHh5X2FsbCRkaXN0YW5jZV9rbSkgJiB4eV9hbGwkZGlzdGFuY2Vfa20hPTBcbnhfYWxsIDwtIHh5X2FsbFssdmFyc194XVxueF9hbGwgPC0gZHVtbWllczo6ZHVtbXkuZGF0YS5mcmFtZSh4X2FsbCxcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgYWxsPVQsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGR1bW15LmNsYXNzZXM9YygnY2hhcmFjdGVyJywnZmFjdG9yJywnb3JkZXJlZCcpICkgI0hhdmUgdG8gc3BlY2lmeSB0aGUgZHVtbXkgY29sdW1ucywgYmVjYXVzZSBnZXRPcHRpb24oXCJkdW1teS5jbGFzc2VzXCIpIGlzIGZhaWxpbmcgdG8gYmUgZm91bmQgaW4gdGhpcyBuYW1lc3BhY2VcbnhfdHJhaW4gPC0geF9hbGxbY29uZGl0aW9uLF1cbmxhYmVsIDwtIGxvZyh4eV9hbGwkZGlzdGFuY2Vfa21bY29uZGl0aW9uXSlcbmBgYCJ9 -->
+<pre class="r"><code>#p_load(xgboost,dummies)
 condition &lt;- !is.na(xy_all$distance_km) &amp; xy_all$distance_km!=0
-
 x_all &lt;- xy_all[,vars_x]
 x_all &lt;- dummies::dummy.data.frame(x_all,
                                    all=T,
                                    dummy.classes=c('character','factor','ordered') ) #Have to specify the dummy columns, because getOption(&quot;dummy.classes&quot;) is failing to be found in this namespace
 x_train &lt;- x_all[condition,]
-
-label &lt;- log(xy_all$distance_km[condition])
-</code></pre>
+label &lt;- log(xy_all$distance_km[condition])</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Develop training and test splits</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWRzIDwtIGdlb3JlZl9hbGxfZHQkbmFtZV9jbGVhbmVyW2NvbmRpdGlvbl1cbmlkc191bmlxdWUgPC0gc2FtcGxlKHNvcnQodW5pcXVlKGlkcykpKVxuY2h1bmtzIDwtIHNwbGl0KGlkc191bmlxdWUsIGNlaWxpbmcoc2VxX2Fsb25nKGlkc191bmlxdWUpLyAobGVuZ3RoKGlkc191bmlxdWUpLzUpKSlcbmZvbGQxIDwtIHdoaWNoKGlkcyAlaW4lIGNodW5rc1tbMV1dKVxuZm9sZDIgPC0gd2hpY2goaWRzICVpbiUgY2h1bmtzW1syXV0pXG5mb2xkMyA8LSB3aGljaChpZHMgJWluJSBjaHVua3NbWzNdXSlcbmZvbGQ0IDwtIHdoaWNoKGlkcyAlaW4lIGNodW5rc1tbNF1dKVxuZm9sZDUgPC0gd2hpY2goaWRzICVpbiUgY2h1bmtzW1s1XV0pXG5mb2xkcyA8LSBsaXN0KGZvbGQxLGZvbGQyLGZvbGQzLGZvbGQ0LGZvbGQ1KVxuXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaWRzIDwtIGdlb3JlZl9hbGxfZHQkbmFtZV9jbGVhbmVyW2NvbmRpdGlvbl1cbmlkc191bmlxdWUgPC0gc2FtcGxlKHNvcnQodW5pcXVlKGlkcykpKVxuY2h1bmtzIDwtIHNwbGl0KGlkc191bmlxdWUsIGNlaWxpbmcoc2VxX2Fsb25nKGlkc191bmlxdWUpLyAobGVuZ3RoKGlkc191bmlxdWUpLzUpKSlcbmZvbGQxIDwtIHdoaWNoKGlkcyAlaW4lIGNodW5rc1tbMV1dKVxuZm9sZDIgPC0gd2hpY2goaWRzICVpbiUgY2h1bmtzW1syXV0pXG5mb2xkMyA8LSB3aGljaChpZHMgJWluJSBjaHVua3NbWzNdXSlcbmZvbGQ0IDwtIHdoaWNoKGlkcyAlaW4lIGNodW5rc1tbNF1dKVxuZm9sZDUgPC0gd2hpY2goaWRzICVpbiUgY2h1bmtzW1s1XV0pXG5mb2xkcyA8LSBsaXN0KGZvbGQxLGZvbGQyLGZvbGQzLGZvbGQ0LGZvbGQ1KVxuYGBgIn0= -->
 <pre class="r"><code>ids &lt;- georef_all_dt$name_cleaner[condition]
 ids_unique &lt;- sample(sort(unique(ids)))
 chunks &lt;- split(ids_unique, ceiling(seq_along(ids_unique)/ (length(ids_unique)/5)))
@@ -451,20 +517,17 @@ fold2 &lt;- which(ids %in% chunks[[2]])
 fold3 &lt;- which(ids %in% chunks[[3]])
 fold4 &lt;- which(ids %in% chunks[[4]])
 fold5 &lt;- which(ids %in% chunks[[5]])
-folds &lt;- list(fold1,fold2,fold3,fold4,fold5)
-</code></pre>
+folds &lt;- list(fold1,fold2,fold3,fold4,fold5)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jbGFiZWw9IGxhYmVsICNcbmNvbmRpdGlvbiA8LSAhaXMubmEobGFiZWwpXG5kdHJhaW4gPC0geGdiLkRNYXRyaXgoZGF0YT1hcy5tYXRyaXgoIHhfdHJhaW4gKSwgbGFiZWwgPSBsYWJlbCwgbWlzc2luZyA9IE5BIClcbmRwcmVkaWN0IDwtIHhnYi5ETWF0cml4KGRhdGE9YXMubWF0cml4KCB4X2FsbCApLCBtaXNzaW5nID0gTkEgKVxuXG5wYXJhbSA8LSBsaXN0KFwib2JqZWN0aXZlXCIgPVwicmVnOmxpbmVhclwiLCAjXCJvYmplY3RpdmVcIiA9IGxvZ3JlZ29iaixcbiAgICAgICAgICAgICAgI1wic2NhbGVfcG9zX3dlaWdodFwiID0gc3Vtd25lZyAvIHN1bXdwb3MsXG4gICAgICAgICAgICAgIFwiZXRhXCIgPSAwLjMsXG4gICAgICAgICAgICAgIFwibWF4X2RlcHRoXCIgPSA2LFxuICAgICAgICAgICAgICBcImV2YWxfbWV0cmljXCIgPSBcInJtc2VcIixcbiAgICAgICAgICAgICAgXCJzaWxlbnRcIiA9IDEsXG4gICAgICAgICAgICAgIFwibnRocmVhZFwiID0gNDgsXG4gICAgICAgICAgICAgICdtYXhpbWl6ZSc9VClcblxuI2Nob29zZSBmb2xkcyBieSBuYW1lIHNvIHdlJ3JlIG5vdCBjaGVhdGluZ1xuI0ZpcnN0IGNyb3NzIHZhbGlkYXRpb24gdG8gZ2V0IGNyZWRpYmxlIG91dCBvZiBzYW1wbGUgYWNjdXJhY3lcbnhiIDwtIHhnYi5jdihwYXJhbXM9cGFyYW0sXG4gICAgICAgICAgICAgZGF0YT1kdHJhaW4sXG4gICAgICAgICAgICAgbnJvdW5kcyA9IDEwMCxcbiAgICAgICAgICAgICBlYXJseV9zdG9wcGluZ19yb3VuZHM9MTAsIFxuICAgICAgICAgICAgICNuZm9sZD01LFxuICAgICAgICAgICAgIGZvbGRzPWZvbGRzLFxuICAgICAgICAgICAgIHByZWRpY3Rpb249VClcblxueGIyIDwtIHhnYi50cmFpbihwYXJhbXM9cGFyYW0sXG4gICAgICAgICAgICAgICAgIGRhdGE9ZHRyYWluLFxuICAgICAgICAgICAgICAgICBucm91bmRzID0gMTAwLFxuICAgICAgICAgICAgICAgICAjZWFybHlfc3RvcHBpbmdfcm91bmRzPTEwLCBcbiAgICAgICAgICAgICAgICAgI25mb2xkPTUsXG4gICAgICAgICAgICAgICAgIHByZWRpY3Rpb249VClcblxuXG4jcHJlZGljdGlvbnNfdHJhaW4gPC0gcHJlZGljdCh4YjIsIGR0cmFpbilcbnByZWRpY3Rpb25zX2FsbCA8LSBwcmVkaWN0KHhiMiwgZHByZWRpY3QpICNwcmVkaWN0IG92ZXIgZXZlcnl0aGluZyBcbiNSZXBsYWNlIHdpdGggY3Jvc3MgdmFsaWRhdGlvbiBwcmVkaWN0aW9uc1xuY29uZGl0aW9uIDwtICFpcy5uYSh4eV9hbGwkZGlzdGFuY2Vfa20pICYgeHlfYWxsJGRpc3RhbmNlX2ttIT0wICN3aGF0IHdhcyB1c2VkIHRvIHN1YnNldCB0byB0cmFpbiBhYm92ZVxuY3Jvc3NfdmFsaWRfcHJlZGljdGlvbnMgPC0gIHhiJHByZWRcbnByZWRpY3Rpb25zX2FsbFtjb25kaXRpb25dIDwtIGNyb3NzX3ZhbGlkX3ByZWRpY3Rpb25zICNidXQgZm9yIHRoZSBzdWJzZXQgd2UgdHJhaW5lZCBvbiwgb25seSB1c2UgcHJlZGljdGlvbnMgZnJvbSBvdXQgb2Ygc2FtcGxlIGZvbGRzLlxuXG5nZW9yZWZfYWxsX2R0JHJ1bGVfZW5zZW1ibGUgPC0gZXhwKHByZWRpY3Rpb25zX2FsbClcblxuXG5zZXRrZXkoZ2VvcmVmX2FsbF9kdCwgaGFuZHJ1bGUgKVxudGVtcCA8LSBzdWJzZXQoZ2VvcmVmX2FsbF9kdCxldmVudF9oYXNoPT1cImJlMzdiNDBmXCIpXG5cbnNhdmVSRFMoZ2VvcmVmX2FsbF9kdCxcbiAgICAgICAgZmlsZT1nbHVlOjpnbHVlKGdldHdkKCksIFwiLy4uL2luc3QvZXh0ZGF0YS9nZW9yZWZfYWxsX2R0X3JlY29tZW5kYXRpb25zLlJkc1wiKVxuKVxuXG5gYGAifQ== -->
-<pre class="r"><code>
-#label= label #
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2xhYmVsPSBsYWJlbCAjXG5jb25kaXRpb24gPC0gIWlzLm5hKGxhYmVsKVxuZHRyYWluIDwtIHhnYi5ETWF0cml4KGRhdGE9YXMubWF0cml4KCB4X3RyYWluICksIGxhYmVsID0gbGFiZWwsIG1pc3NpbmcgPSBOQSApXG5kcHJlZGljdCA8LSB4Z2IuRE1hdHJpeChkYXRhPWFzLm1hdHJpeCggeF9hbGwgKSwgbWlzc2luZyA9IE5BIClcbnBhcmFtIDwtIGxpc3QoXCJvYmplY3RpdmVcIiA9XCJyZWc6bGluZWFyXCIsICNcIm9iamVjdGl2ZVwiID0gbG9ncmVnb2JqLFxuICAgICAgICAgICAgICAjXCJzY2FsZV9wb3Nfd2VpZ2h0XCIgPSBzdW13bmVnIC8gc3Vtd3BvcyxcbiAgICAgICAgICAgICAgXCJldGFcIiA9IDAuMyxcbiAgICAgICAgICAgICAgXCJtYXhfZGVwdGhcIiA9IDYsXG4gICAgICAgICAgICAgIFwiZXZhbF9tZXRyaWNcIiA9IFwicm1zZVwiLFxuICAgICAgICAgICAgICBcInNpbGVudFwiID0gMSxcbiAgICAgICAgICAgICAgXCJudGhyZWFkXCIgPSA0OCxcbiAgICAgICAgICAgICAgJ21heGltaXplJz1UKVxuI2Nob29zZSBmb2xkcyBieSBuYW1lIHNvIHdlJ3JlIG5vdCBjaGVhdGluZ1xuI0ZpcnN0IGNyb3NzIHZhbGlkYXRpb24gdG8gZ2V0IGNyZWRpYmxlIG91dCBvZiBzYW1wbGUgYWNjdXJhY3lcbnhiIDwtIHhnYi5jdihwYXJhbXM9cGFyYW0sXG4gICAgICAgICAgICAgZGF0YT1kdHJhaW4sXG4gICAgICAgICAgICAgbnJvdW5kcyA9IDEwMCxcbiAgICAgICAgICAgICBlYXJseV9zdG9wcGluZ19yb3VuZHM9MTAsIFxuICAgICAgICAgICAgICNuZm9sZD01LFxuICAgICAgICAgICAgIGZvbGRzPWZvbGRzLFxuICAgICAgICAgICAgIHByZWRpY3Rpb249VClcbmBgYCJ9 -->
+<pre class="r"><code>#label= label #
 condition &lt;- !is.na(label)
 dtrain &lt;- xgb.DMatrix(data=as.matrix( x_train ), label = label, missing = NA )
 dpredict &lt;- xgb.DMatrix(data=as.matrix( x_all ), missing = NA )
-
 param &lt;- list(&quot;objective&quot; =&quot;reg:linear&quot;, #&quot;objective&quot; = logregobj,
               #&quot;scale_pos_weight&quot; = sumwneg / sumwpos,
               &quot;eta&quot; = 0.3,
@@ -473,7 +536,6 @@ param &lt;- list(&quot;objective&quot; =&quot;reg:linear&quot;, #&quot;objective
               &quot;silent&quot; = 1,
               &quot;nthread&quot; = 48,
               'maximize'=T)
-
 #choose folds by name so we're not cheating
 #First cross validation to get credible out of sample accuracy
 xb &lt;- xgb.cv(params=param,
@@ -482,78 +544,18 @@ xb &lt;- xgb.cv(params=param,
              early_stopping_rounds=10, 
              #nfold=5,
              folds=folds,
-             prediction=T)
-
-xb2 &lt;- xgb.train(params=param,
-                 data=dtrain,
-                 nrounds = 100,
-                 #early_stopping_rounds=10, 
-                 #nfold=5,
-                 prediction=T)
-
-
-#predictions_train &lt;- predict(xb2, dtrain)
-predictions_all &lt;- predict(xb2, dpredict) #predict over everything 
-#Replace with cross validation predictions
-condition &lt;- !is.na(xy_all$distance_km) &amp; xy_all$distance_km!=0 #what was used to subset to train above
-cross_valid_predictions &lt;-  xb$pred
-predictions_all[condition] &lt;- cross_valid_predictions #but for the subset we trained on, only use predictions from out of sample folds.
-
-georef_all_dt$rule_ensemble &lt;- exp(predictions_all)
-
-
-setkey(georef_all_dt, handrule )
-temp &lt;- subset(georef_all_dt,event_hash==&quot;be37b40f&quot;)
-
-saveRDS(georef_all_dt,
-        file=glue::glue(getwd(), &quot;/../inst/extdata/georef_all_dt_recomendations.Rds&quot;)
-)
-</code></pre>
+             prediction=T)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Evaluate accuracy (Appendix Figure 7)</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3Bsb3QoZ2VvcmVmX2FsbF9kdCRydWxlX2Vuc2VtYmxlLCBnZW9yZWZfYWxsX2R0JGRpc3RhbmNlX2ttKVxucF9lbnNlbWJsZV9yaXNpZHVhbHMgPC0gZ2VvcmVmX2FsbF9kdCAlPiUgZ2dwbG90KGFlcyh4PWxvZyhkaXN0YW5jZV9rbSksIHk9bG9nKHJ1bGVfZW5zZW1ibGUpICkpICsgXG4gICAgZ2VvbV9wb2ludChhbHBoYT0uMDEpICsgXG4gICAgZ2VvbV9zbW9vdGgoc3Bhbj0uMikgKyBcbiAgICB0aGVtZV9idygpICtcbiAgICBnZ3RpdGxlKFwiT2JzZXJ2ZWQgdmVyc3VzIHByZWRpY3RlZCBEaXN0YW5jZSB0byBNYXRjaCAoRW5zZW1ibGUgUmVzaWR1YWxzKVwiKSArXG4gICAgeGxhYihcIk9ic2VydmVkIGRpc3RhbmNlIGJldHdlZW4gZXZlbnQgYW5kIGdhemV0ZWVyIHN1Z2dlc3Rpb24gKGxvZyBrbSlcIikgK1xuICAgIHlsYWIoXCJQcmVkaWN0ZWQgZGlzdGFuY2UgYmV0d2VlbiBldmVudCBhbmQgZ2F6ZXRlZXIgc3VnZ2VzdGlvbiAobG9nIGttKSAob3V0IG9mIHNhbXBsZSlcIilcbnBfZW5zZW1ibGVfcmlzaWR1YWxzXG5cbmdnc2F2ZShcbiAgZmlsZW5hbWUgPSBnbHVlOjpnbHVlKGRpcl9maWd1cmVzLCBcInBfZW5zZW1ibGVfcmlzaWR1YWxzLnBuZ1wiKSwgI3NhdmUgYXMgYSBwbmcgYmVjYXVzZSB0aGVyZSBhcmUgdG9vIG1hbnkgcG9pbnRzIGFuZCBpdCdzIGNyYXNoaW5nIHRoZSBwZGYgcmVhZGVyXG4gIHBsb3QgPSBwX2Vuc2VtYmxlX3Jpc2lkdWFscyxcbiAgd2lkdGggPSAxMCxcbiAgaGVpZ2h0ID0gOCMsXG4gICNkZXZpY2UgPSBjYWlyb19wZGYgI2hhdmUgdG8gdXNlIGNhaXJvIHRvIGNvcnJlY3RseSBlbWJlZCB0aGUgZm9udHNcbilcblxuYGBgIn0= -->
-<pre class="r"><code>#plot(georef_all_dt$rule_ensemble, georef_all_dt$distance_km)
-p_ensemble_risiduals &lt;- georef_all_dt %&gt;% ggplot(aes(x=log(distance_km), y=log(rule_ensemble) )) + 
-    geom_point(alpha=.01) + 
-    geom_smooth(span=.2) + 
-    theme_bw() +
-    ggtitle(&quot;Observed versus predicted Distance to Match (Ensemble Residuals)&quot;) +
-    xlab(&quot;Observed distance between event and gazeteer suggestion (log km)&quot;) +
-    ylab(&quot;Predicted distance between event and gazeteer suggestion (log km) (out of sample)&quot;)
-p_ensemble_risiduals
-
-ggsave(
-  filename = glue::glue(dir_figures, &quot;p_ensemble_risiduals.png&quot;), #save as a png because there are too many points and it's crashing the pdf reader
-  plot = p_ensemble_risiduals,
-  width = 10,
-  height = 8#,
-  #device = cairo_pdf #have to use cairo to correctly embed the fonts
-)
-</code></pre>
-<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Variable importance (Appendix Figure 8)</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5pbXBvcnRhbmNlX2ltcG9ydGFuY2UgPC0geGdiLmltcG9ydGFuY2UoZmVhdHVyZV9uYW1lcz1jb2xuYW1lcyhkdHJhaW4pLCBtb2RlbCA9IHhiMikgI3dvbid0IGNhbGN1bGF0ZSBvbiBjdlxuXG5wZGYoZmlsZT1nbHVlOjpnbHVlKGRpcl9maWd1cmVzLCBcInBfdmFyaWFibGVfaW1wb3J0YW5jZV9zdXBlcnZpc2VkX2Vuc2VtYmxlLnBkZlwiKSwgd2lkdGg9NS41LCBoZWlnaHQ9NilcbnhnYi5wbG90LmltcG9ydGFuY2UoaW1wb3J0YW5jZV9pbXBvcnRhbmNlICU+JSBcbiAgICAgICAgICAgICAgICAgICAgICBoZWFkKDUwKSAjVG9wIDUwIGZlYXR1cmVzXG4gICAgICAgICAgICAgICAgICAgIClcbiNhdXRvcGxvdCh1YXVjMSlcbmRldi5vZmYoKVxueGdiLnBsb3QuaW1wb3J0YW5jZShpbXBvcnRhbmNlX2ltcG9ydGFuY2UgJT4lIFxuICAgICAgICAgICAgICAgICAgICAgIGhlYWQoNTApICNUb3AgNTAgZmVhdHVyZXNcbiAgICAgICAgICAgICAgICAgICAgKVxuYGBgIn0= -->
-<pre class="r"><code>
-importance_importance &lt;- xgb.importance(feature_names=colnames(dtrain), model = xb2) #won't calculate on cv
-
-pdf(file=glue::glue(dir_figures, &quot;p_variable_importance_supervised_ensemble.pdf&quot;), width=5.5, height=6)
-xgb.plot.importance(importance_importance %&gt;% 
-                      head(50) #Top 50 features
-                    )
-#autoplot(uauc1)
-dev.off()
-xgb.plot.importance(importance_importance %&gt;% 
-                      head(50) #Top 50 features
-                    )</code></pre>
-<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -561,25 +563,6 @@ xgb.plot.importance(importance_importance %&gt;%
 <h1>Compare</h1>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jUmFuayBjb3JyZWxhdGlvbiBvZiBvbmx5IC40MSBiZXR3ZWVuIHRoZSBoYW5kIHJ1bGVzIGFuZCB0aGUgZXN0aW1hdGVkIGVuc2VtYmxlXG5nZW9yZWZfYWxsX2R0JGhhbmRydWxlX251bWVyaWMgPC0gYXMubnVtZXJpYyhhcy5mYWN0b3IoZ2VvcmVmX2FsbF9kdCRoYW5kcnVsZSkpXG5cbmNvcihsb2coZ2VvcmVmX2FsbF9kdCRkaXN0YW5jZV9rbSksXG4gICAgZ2VvcmVmX2FsbF9kdCRydWxlX2Vuc2VtYmxlLFxuICAgIG1ldGhvZD1cInNwZWFybWFuXCIsIHVzZT1cInBhaXJ3aXNlLmNvbXBsZXRlXCIpXG5cblxuY29yKGxvZyhnZW9yZWZfYWxsX2R0JGRpc3RhbmNlX2ttKSxcbiAgICBnZW9yZWZfYWxsX2R0JGhhbmRydWxlX251bWVyaWMsXG4gICAgbWV0aG9kPVwic3BlYXJtYW5cIiwgdXNlPVwicGFpcndpc2UuY29tcGxldGVcIilcblxuXG5jb3IoZ2VvcmVmX2FsbF9kdCRoYW5kcnVsZV9udW1lcmljLFxuICAgIGdlb3JlZl9hbGxfZHQkcnVsZV9lbnNlbWJsZSwgbWV0aG9kPVwic3BlYXJtYW5cIilcblxuYGBgIn0= -->
-<pre class="r"><code>
-#Rank correlation of only .41 between the hand rules and the estimated ensemble
-georef_all_dt$handrule_numeric &lt;- as.numeric(as.factor(georef_all_dt$handrule))
-
-cor(log(georef_all_dt$distance_km),
-    georef_all_dt$rule_ensemble,
-    method=&quot;spearman&quot;, use=&quot;pairwise.complete&quot;)
-
-
-cor(log(georef_all_dt$distance_km),
-    georef_all_dt$handrule_numeric,
-    method=&quot;spearman&quot;, use=&quot;pairwise.complete&quot;)
-
-
-cor(georef_all_dt$handrule_numeric,
-    georef_all_dt$rule_ensemble, method=&quot;spearman&quot;)
-</code></pre>
-<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 </div>
 

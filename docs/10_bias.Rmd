@@ -71,7 +71,7 @@ georef_all_dt_covariates <- subset(georef_all_dt, !is.na(X1) & !is.na(X2)) ; dim
 
 #Create an events dataset for merging on covariates
 georef_all_dt_covariates_events <- georef_all_dt_covariates[!duplicated(event_hash)]
-georef_all_dt_covariates_events_sf <- georef_all_dt_covariates_events  %>% data.frame() %>% st_as_sf(coords = c("X1","Y1"),  crs = 4326, agr = "constant", remove=F, na.fail =T)
+georef_all_dt_covariates_events_sf <- georef_all_dt_covariates_events  %>% data.frame() %>% sf::st_as_sf(coords = c("X1","Y1"),  crs = 4326, agr = "constant", remove=F, na.fail =T)
 georef_all_dt_covariates_events_sf$imputed <- 0
 
 #Create a gaz dataset for mering on covarates
@@ -80,7 +80,7 @@ georef_all_dt_covariates_gaz_sf <- georef_all_dt_covariates[,distance_km_min:=mi
 georef_all_dt_covariates_gaz_sf <- georef_all_dt_covariates_gaz_sf[distance_km==distance_km_min]
 
 georef_all_dt_covariates_gaz_sf <- georef_all_dt_covariates_gaz_sf[,head(.SD, 1), by=list(event_hash, source_dataset)] %>% 
-                                  data.frame() %>% st_as_sf(coords = c("X2","Y2"),  crs = 4326, agr = "constant", remove=F, na.fail =T)
+                                  data.frame() %>% sf::st_as_sf(coords = c("X2","Y2"),  crs = 4326, agr = "constant", remove=F, na.fail =T)
 georef_all_dt_covariates_gaz_sf$imputed <- 1
 
 ```
