@@ -10,23 +10,38 @@ editor_options:
     }
 </style>
 
-This file specifies dependencies in with packrat.
+
+This file described dependencies and potential troubleshooting tips.
+
+This paper was run using v1.0.0 of the MeasuringLandscape package. This release reflects the state of the code as of publication. It is the best chance at obtaining identical results as shown in print. Future releases will improve the presentation of the R-Notebooks and refactor the code to be more readable and reusable and may not generate exactly identical figures or messages. This version is archived so that even as the package improves over time, the analysis can be rerun against that specific version of the code.
 
 ```{r}
+# install.packages("devtools") 
+devtools::install_github("rexdouglass/MeasuringLandscape") #@v1.0.0
+```
+
+You may hit an error "`maximal number of DLLs reached..." This is set by an environmental variable in R. We've specifcied it in the included ".Renviron" file "R_MAX_NUM_DLLS = 614"" which should work unless your system has a hard fixed lower level or you specifcy it elsehwere.
+
+
+This package is highly dependent on specific package versions. Many packages updated their interfaces just over the course of writing this paper. We use a system called Packrat which records specific version numbers we used and installs them when you install this package.
+
+```{r}
+
 # install.packages('packrat', dependencies=T)
 # library(packrat)
-# 
-# packrat::init(project = paste0(here::here(), "/packrat"))
+# # packrat::init(project = paste0(here::here(), "/packrat"))
 
 ```
 
-To use Cairo, must also install from https://www.cairographics.org/download/
+In order to use specific fonts in the pdf, we use a system called Cairo. To use Cairo, must also install from https://www.cairographics.org/download/
 ```{r}
 install.packages('Cairo', dependencies=T)
 ```
 
 
 ```{r}
+
+
 
 install.packages('knitr', dependencies=T)
 install.packages('devtools', dependencies=T)

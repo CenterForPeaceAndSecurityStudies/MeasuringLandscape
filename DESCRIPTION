@@ -54,6 +54,7 @@ Imports:
   doParallel,
   foreach,
   quanteda,
-  ggrepel
+  ggrepel,
+  partykit
 Suggests: fst, ggridges, proxy
 RoxygenNote: 6.0.1
