@@ -103,7 +103,51 @@ saveRDS(georef_all_dt,
 
 ```
 
-(Moved chunk "06 Ensemble and Hand Rules Cut 1" to 12_cut_code)
+
+Note, the immediately following code chunk is no longer used or maintained. It has been set to eval=F so it will not run automatically. A user running code by hand for replication should skip this chunk. 
+
+```{r, eval=F}
+vars_x_string <- c(
+    "Jaro",
+    "Optimal_String_Alignment"    ,
+    "Levenshtein",
+    "Damerau_Levenshtein"    ,
+     "Longest_Common_Substring"     ,
+    "q_gram_1",
+    "q_gram_2",
+    "q_gram_3",
+    "q_gram_4",
+    "q_gram_5",
+    'Cosine_1',
+    'Cosine_2',
+    'Cosine_3',
+    'Cosine_4',
+    'Cosine_5',
+    "Jaccard"              ,
+     "First_Mistmatch"         ,
+    "a_nchar"     ,
+    "b_nchar"   ,
+    "ab_nchar_diff"       ,
+    "dJaro",
+    "dOptimal_String_Alignment"      ,
+    "dLevenshtein"     ,
+    "dDamerau_Levenshtein"  ,
+    "dLongest_Common_Substring",
+    "dq_gram",
+    "dCosine",
+    "dJaccard"
+)
+
+
+georef_all_dt$a <- georef_all_dt$name_cleaner
+georef_all_dt$b <- georef_all_dt$georef_b
+georef_all_dt <- toponym_add_distances_dt(georef_all_dt)
+
+dpredict<-xgb.DMatrix(data= as.matrix(georef_all_dt[,vars_x_string, with=F]), missing = NA)
+georef_all_dt$toponym_xb_model_prediction <- predict( toponym_xb_model, dpredict )
+georef_all_dt$toponym_xb_model_prediction  <- 1/(1 + exp(-georef_all_dt$toponym_xb_model_prediction ))
+
+```
 
 Select features
 
