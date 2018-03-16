@@ -1,4 +1,4 @@
 library(testthat)
-library(MeasuringLandscapeCivilWar)
+library(MeasuringLandscape)
 
-test_check("MeasuringLandscapeCivilWar")
+test_check("MeasuringLandscape")
