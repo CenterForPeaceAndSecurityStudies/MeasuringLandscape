@@ -17,7 +17,7 @@ This paper was run using v1.0.0 of the MeasuringLandscape package. This release 
 
 ```{r}
 # install.packages("devtools") 
-devtools::install_github("rexdouglass/MeasuringLandscape") #@v1.0.0
+#devtools::install_github("rexdouglass/MeasuringLandscape") #@v1.0.0
 ```
 
 You may hit an error "`maximal number of DLLs reached..." This is set by an environmental variable in R. We've specifcied it in the included ".Renviron" file "R_MAX_NUM_DLLS = 614"" which should work unless your system has a hard fixed lower level or you specifcy it elsehwere.
@@ -27,11 +27,14 @@ This package is highly dependent on specific package versions. Many packages upd
 
 ```{r}
 
-# install.packages('packrat', dependencies=T)
-# library(packrat)
-# # packrat::init(project = paste0(here::here(), "/packrat"))
+install.packages('packrat', dependencies=T)
+library(packrat)
+# packrat::init(project = paste0(here::here(), "/packrat"))
 
 ```
+
+You should not have to manually install these packages, Packrat should take care of them. If for any reason that fails, these install commands may help you find the correct version of each package.
+
 
 In order to use specific fonts in the pdf, we use a system called Cairo. To use Cairo, must also install from https://www.cairographics.org/download/
 ```{r}
@@ -41,11 +44,11 @@ install.packages('Cairo', dependencies=T)
 
 ```{r}
 
-
+install.packages('devtools', dependencies=T)
+devtools::install_github("dselivanov/LSHR") 
+devtools::install_github("tidyverse/ggplot2") # geom_sf requires ggplot installed off of the dev server
 
 install.packages('knitr', dependencies=T)
-install.packages('devtools', dependencies=T)
-devtools::install_github("tidyverse/ggplot2") # geom_sf requires ggplot installed off of the dev server
 install.packages('tidyverse', dependencies=T)
 install.packages('data.table', dependencies=T)
 install.packages('sf', dependencies=T)
@@ -77,6 +80,7 @@ install.packages('doParallel', dependencies=T)
 install.packages('quanteda', dependencies=T)
 install.packages('ggrepel', dependencies=T)
 install.packages('dissUtils', dependencies=T)
+install.packages('digest', dependencies=T)
 install.packages('stringi', dependencies=T)
 install.packages('xtable', dependencies=T)
 install.packages('SnowballC', dependencies=T)
@@ -89,7 +93,6 @@ install.packages('stringr', dependencies=T)
 install.packages('foreach', dependencies=T)
 install.packages('pinp', dependencies=T)
 install.packages('partykit', dependencies=T)
-devtools::install_github("dselivanov/LSHR") 
 
 
 # must download 

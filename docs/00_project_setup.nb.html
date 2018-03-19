@@ -186,100 +186,714 @@ $(document).ready(function () {
 <pre class="r"><code># install.packages(&quot;devtools&quot;) 
 devtools::install_github(&quot;rexdouglass/MeasuringLandscape&quot;) #@v1.0.0</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRG93bmxvYWRpbmcgR2l0SHViIHJlcG8gcmV4ZG91Z2xhc3MvTWVhc3VyaW5nTGFuZHNjYXBlQG1hc3RlclxuZnJvbSBVUkwgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9yZXhkb3VnbGFzcy9NZWFzdXJpbmdMYW5kc2NhcGUvemlwYmFsbC9tYXN0ZXJcbkluc3RhbGxpbmcgTWVhc3VyaW5nTGFuZHNjYXBlXG5Eb3dubG9hZGluZyBHaXRIdWIgcmVwbyB0aWR5dmVyc2UvZ2dwbG90MkBtYXN0ZXJcbmZyb20gVVJMIGh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvdGlkeXZlcnNlL2dncGxvdDIvemlwYmFsbC9tYXN0ZXJcbkluc3RhbGxpbmcgZ2dwbG90MlxuRG93bmxvYWRpbmcgR2l0SHViIHJlcG8gaGFkbGV5L3NjYWxlc0BtYXN0ZXJcbmZyb20gVVJMIGh0dHBzOi8vYXBpLmdpdGh1Yi5jb20vcmVwb3MvaGFkbGV5L3NjYWxlcy96aXBiYWxsL21hc3RlclxuSW5zdGFsbGluZyBzY2FsZXNcblwiQzovUFJPR1JBfjEvUi9SLTM0fjEuNC9iaW4veDY0L1JcIiAtLW5vLXNpdGUtZmlsZSAtLW5vLWVudmlyb24gLS1uby1zYXZlIC0tbm8tcmVzdG9yZSAtLXF1aWV0IENNRCBJTlNUQUxMICBcXFxuICBcIkM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjAyMjQwMjY1NS9oYWRsZXktc2NhbGVzLWQ3Njc5MTVcIiAgXFxcbiAgLS1saWJyYXJ5PVwiQzovVXNlcnMvc2t5bmV0bWluaS9Eb2N1bWVudHMvUi93aW4tbGlicmFyeS8zLjRcIiAtLWluc3RhbGwtdGVzdHMgXG4ifQ== -->
+<pre><code>Downloading GitHub repo rexdouglass/MeasuringLandscape@master
+from URL https://api.github.com/repos/rexdouglass/MeasuringLandscape/zipball/master
+Installing MeasuringLandscape
+Downloading GitHub repo tidyverse/ggplot2@master
+from URL https://api.github.com/repos/tidyverse/ggplot2/zipball/master
+Installing ggplot2
+Downloading GitHub repo hadley/scales@master
+from URL https://api.github.com/repos/hadley/scales/zipball/master
+Installing scales
+&quot;C:/PROGRA~1/R/R-34~1.4/bin/x64/R&quot; --no-site-file --no-environ --no-save --no-restore --quiet CMD INSTALL  \
+  &quot;C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools92022402655/hadley-scales-d767915&quot;  \
+  --library=&quot;C:/Users/skynetmini/Documents/R/win-library/3.4&quot; --install-tests </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2UgJ3NjYWxlcycgLi4uXG4qKiBsaWJzXG5cbioqKiBhcmNoIC0gaTM4NlxuYzovUnRvb2xzL21pbmd3XzMyL2Jpbi9nKysgIC1JXCJDOi9QUk9HUkF+MS9SL1ItMzR+MS40L2luY2x1ZGVcIiAtRE5ERUJVRyAgLUlcIkM6L1VzZXJzL3NreW5ldG1pbmkvRG9jdW1lbnRzL1Ivd2luLWxpYnJhcnkvMy40L1JjcHAvaW5jbHVkZVwiICAgICAgICAtTzIgLVdhbGwgIC1tdHVuZT1nZW5lcmljIC1jIFJjcHBFeHBvcnRzLmNwcCAtbyBSY3BwRXhwb3J0cy5vXG5iYXNoLmV4ZTogd2FybmluZzogY291bGQgbm90IGZpbmQgL3RtcCwgcGxlYXNlIGNyZWF0ZSFcbmM6L1J0b29scy9taW5nd18zMi9iaW4vZysrICAtSVwiQzovUFJPR1JBfjEvUi9SLTM0fjEuNC9pbmNsdWRlXCIgLUROREVCVUcgIC1JXCJDOi9Vc2Vycy9za3luZXRtaW5pL0RvY3VtZW50cy9SL3dpbi1saWJyYXJ5LzMuNC9SY3BwL2luY2x1ZGVcIiAgICAgICAgLU8yIC1XYWxsICAtbXR1bmU9Z2VuZXJpYyAtYyBjb2xvcnMuY3BwIC1vIGNvbG9ycy5vXG5iYXNoLmV4ZTogd2FybmluZzogY291bGQgbm90IGZpbmQgL3RtcCwgcGxlYXNlIGNyZWF0ZSFcbmJhc2guZXhlOiB3YXJuaW5nOiBjb3VsZCBub3QgZmluZCAvdG1wLCBwbGVhc2UgY3JlYXRlIVxuYzovUnRvb2xzL21pbmd3XzMyL2Jpbi9nKysgLXNoYXJlZCAtcyAtc3RhdGljLWxpYmdjYyAtbyBzY2FsZXMuZGxsIHRtcC5kZWYgUmNwcEV4cG9ydHMubyBjb2xvcnMubyAtTEM6L1BST0dSQX4xL1IvUi0zNH4xLjQvYmluL2kzODYgLWxSXG5pbnN0YWxsaW5nIHRvIEM6L1VzZXJzL3NreW5ldG1pbmkvRG9jdW1lbnRzL1Ivd2luLWxpYnJhcnkvMy40L3NjYWxlcy9saWJzL2kzODZcblxuKioqIGFyY2ggLSB4NjRcbmM6L1J0b29scy9taW5nd182NC9iaW4vZysrICAtSVwiQzovUFJPR1JBfjEvUi9SLTM0fjEuNC9pbmNsdWRlXCIgLUROREVCVUcgIC1JXCJDOi9Vc2Vycy9za3luZXRtaW5pL0RvY3VtZW50cy9SL3dpbi1saWJyYXJ5LzMuNC9SY3BwL2luY2x1ZGVcIiAgICAgICAgLU8yIC1XYWxsICAtbXR1bmU9Z2VuZXJpYyAtYyBSY3BwRXhwb3J0cy5jcHAgLW8gUmNwcEV4cG9ydHMub1xuYmFzaC5leGU6IHdhcm5pbmc6IGNvdWxkIG5vdCBmaW5kIC90bXAsIHBsZWFzZSBjcmVhdGUhXG5jOi9SdG9vbHMvbWluZ3dfNjQvYmluL2crKyAgLUlcIkM6L1BST0dSQX4xL1IvUi0zNH4xLjQvaW5jbHVkZVwiIC1ETkRFQlVHICAtSVwiQzovVXNlcnMvc2t5bmV0bWluaS9Eb2N1bWVudHMvUi93aW4tbGlicmFyeS8zLjQvUmNwcC9pbmNsdWRlXCIgICAgICAgIC1PMiAtV2FsbCAgLW10dW5lPWdlbmVyaWMgLWMgY29sb3JzLmNwcCAtbyBjb2xvcnMub1xuYmFzaC5leGU6IHdhcm5pbmc6IGNvdWxkIG5vdCBmaW5kIC90bXAsIHBsZWFzZSBjcmVhdGUhXG5iYXNoLmV4ZTogd2FybmluZzogY291bGQgbm90IGZpbmQgL3RtcCwgcGxlYXNlIGNyZWF0ZSFcbi91c3IvYmluL3NlZDogLWUgZXhwcmVzc2lvbiAjMSwgY2hhciAxOiB1bmtub3duIGNvbW1hbmQ6IGBDJ1xuYzovUnRvb2xzL21pbmd3XzY0L2Jpbi9nKysgLXNoYXJlZCAtcyAtc3RhdGljLWxpYmdjYyAtbyBzY2FsZXMuZGxsIHRtcC5kZWYgUmNwcEV4cG9ydHMubyBjb2xvcnMubyAtTEM6L1BST0dSQX4xL1IvUi0zNH4xLjQvYmluL3g2NCAtbFJcbmluc3RhbGxpbmcgdG8gQzovVXNlcnMvc2t5bmV0bWluaS9Eb2N1bWVudHMvUi93aW4tbGlicmFyeS8zLjQvc2NhbGVzL2xpYnMveDY0XG4qKiBSXG4qKiB0ZXN0c1xuKiogcHJlcGFyaW5nIHBhY2thZ2UgZm9yIGxhenkgbG9hZGluZ1xuKiogaGVscFxuTG9hZGluZyByZXF1aXJlZCBwYWNrYWdlOiBzY2FsZXNcbioqKiBpbnN0YWxsaW5nIGhlbHAgaW5kaWNlc1xuICBjb252ZXJ0aW5nIGhlbHAgZm9yIHBhY2thZ2UgJ3NjYWxlcydcbiAgICBmaW5kaW5nIEhUTUwgbGlua3MgLi4uIGRvbmVcbiAgICBSYW5nZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYWJzX2FyZWEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFscGhhICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhcmVhX3BhbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYXMudHJhbnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFzbl90cmFucyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhdGFuaF90cmFucyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYm94Y294X3RyYW5zICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGJyZXdlcl9wYWwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjAyMjQwMjY1NS9oYWRsZXktc2NhbGVzLWQ3Njc5MTUvbWFuL2JyZXdlcl9wYWwuUmQ6MTY6IG1pc3NpbmcgZmlsZSBsaW5rICdicmV3ZXIucGFsJ1xuICAgIGNicmVha3MgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjZW5zb3IgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY29sMmhjbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNvbF9udW1lcmljICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjb2xvdXJfcmFtcCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY29tbWFfZm9ybWF0ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNzY2FsZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBkYXRlX2JyZWFrcyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZGF0ZV9mb3JtYXQgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGRhdGVfdHJhbnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBkaWNocm9tYXRfcGFsICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZGlzY2FyZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGRpdl9ncmFkaWVudF9wYWwgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBkb2xsYXJfZm9ybWF0ICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZHNjYWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGV4cF90cmFucyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBleHBhbmRfcmFuZ2UgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZXh0ZW5kZWRfYnJlYWtzICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGZvcm1hdF9mb3JtYXQgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmdWxsc2VxICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ3JhZGllbnRfbl9wYWwgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdyZXlfcGFsICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBobXNfdHJhbnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaHVlX3BhbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlkZW50aXR5X3BhbCAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpZGVudGl0eV90cmFucyAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbGluZXR5cGVfcGFsICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGxvZzFwX3RyYW5zICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBsb2dfYnJlYWtzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbG9nX3RyYW5zICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG1hbnVhbF9wYWwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBtYXRoX2Zvcm1hdCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbXV0ZWQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG9yZGluYWxfZm9ybWF0ICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBwYWNrYWdlLXNjYWxlcyAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcGFyc2VfZm9ybWF0ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHBlcmNlbnRfZm9ybWF0ICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBwcmV0dHlfYnJlYWtzICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcHJvYmFiaWxpdHlfdHJhbnMgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHJlY2lwcm9jYWxfdHJhbnMgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICByZWd1bGFyX21pbm9yX2JyZWFrcyAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcmVzY2FsZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHJlc2NhbGVfbWF4ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICByZXNjYWxlX21pZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcmVzY2FsZV9ub25lICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHJlc2NhbGVfcGFsICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICByZXZlcnNlX3RyYW5zICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NpZW50aWZpY19mb3JtYXQgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNlcV9ncmFkaWVudF9wYWwgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzaGFwZV9wYWwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2hvd19jb2wgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNxcnRfdHJhbnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzcXVpc2ggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc3F1aXNoX2luZmluaXRlICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHRpbWVfdHJhbnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB0cmFpbl9jb250aW51b3VzICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdHJhaW5fZGlzY3JldGUgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHRyYW5zX2JyZWFrcyAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB0cmFuc19mb3JtYXQgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdHJhbnNfbmV3ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHRyYW5zX3JhbmdlICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB1bml0X2Zvcm1hdCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdmlyaWRpc19wYWwgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdyYXBfZm9ybWF0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB6ZXJvX3JhbmdlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4qKiBidWlsZGluZyBwYWNrYWdlIGluZGljZXNcbioqIHRlc3RpbmcgaWYgaW5zdGFsbGVkIHBhY2thZ2UgY2FuIGJlIGxvYWRlZFxuKioqIGFyY2ggLSBpMzg2XG4qKiogYXJjaCAtIHg2NFxuKiBET05FIChzY2FsZXMpXG5JbiBSIENNRCBJTlNUQUxMXG4ifQ== -->
+<pre><code>* installing *source* package 'scales' ...
+** libs
+
+*** arch - i386
+c:/Rtools/mingw_32/bin/g++  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG  -I&quot;C:/Users/skynetmini/Documents/R/win-library/3.4/Rcpp/include&quot;        -O2 -Wall  -mtune=generic -c RcppExports.cpp -o RcppExports.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_32/bin/g++  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG  -I&quot;C:/Users/skynetmini/Documents/R/win-library/3.4/Rcpp/include&quot;        -O2 -Wall  -mtune=generic -c colors.cpp -o colors.o
+bash.exe: warning: could not find /tmp, please create!
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_32/bin/g++ -shared -s -static-libgcc -o scales.dll tmp.def RcppExports.o colors.o -LC:/PROGRA~1/R/R-34~1.4/bin/i386 -lR
+installing to C:/Users/skynetmini/Documents/R/win-library/3.4/scales/libs/i386
+
+*** arch - x64
+c:/Rtools/mingw_64/bin/g++  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG  -I&quot;C:/Users/skynetmini/Documents/R/win-library/3.4/Rcpp/include&quot;        -O2 -Wall  -mtune=generic -c RcppExports.cpp -o RcppExports.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_64/bin/g++  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG  -I&quot;C:/Users/skynetmini/Documents/R/win-library/3.4/Rcpp/include&quot;        -O2 -Wall  -mtune=generic -c colors.cpp -o colors.o
+bash.exe: warning: could not find /tmp, please create!
+bash.exe: warning: could not find /tmp, please create!
+/usr/bin/sed: -e expression #1, char 1: unknown command: `C'
+c:/Rtools/mingw_64/bin/g++ -shared -s -static-libgcc -o scales.dll tmp.def RcppExports.o colors.o -LC:/PROGRA~1/R/R-34~1.4/bin/x64 -lR
+installing to C:/Users/skynetmini/Documents/R/win-library/3.4/scales/libs/x64
+** R
+** tests
+** preparing package for lazy loading
+** help
+Loading required package: scales
+*** installing help indices
+  converting help for package 'scales'
+    finding HTML links ... done
+    Range                                   html  
+    abs_area                                html  
+    alpha                                   html  
+    area_pal                                html  
+    as.trans                                html  
+    asn_trans                               html  
+    atanh_trans                             html  
+    boxcox_trans                            html  
+    brewer_pal                              html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools92022402655/hadley-scales-d767915/man/brewer_pal.Rd:16: missing file link 'brewer.pal'
+    cbreaks                                 html  
+    censor                                  html  
+    col2hcl                                 html  
+    col_numeric                             html  
+    colour_ramp                             html  
+    comma_format                            html  
+    cscale                                  html  
+    date_breaks                             html  
+    date_format                             html  
+    date_trans                              html  
+    dichromat_pal                           html  
+    discard                                 html  
+    div_gradient_pal                        html  
+    dollar_format                           html  
+    dscale                                  html  
+    exp_trans                               html  
+    expand_range                            html  
+    extended_breaks                         html  
+    format_format                           html  
+    fullseq                                 html  
+    gradient_n_pal                          html  
+    grey_pal                                html  
+    hms_trans                               html  
+    hue_pal                                 html  
+    identity_pal                            html  
+    identity_trans                          html  
+    linetype_pal                            html  
+    log1p_trans                             html  
+    log_breaks                              html  
+    log_trans                               html  
+    manual_pal                              html  
+    math_format                             html  
+    muted                                   html  
+    ordinal_format                          html  
+    package-scales                          html  
+    parse_format                            html  
+    percent_format                          html  
+    pretty_breaks                           html  
+    probability_trans                       html  
+    reciprocal_trans                        html  
+    regular_minor_breaks                    html  
+    rescale                                 html  
+    rescale_max                             html  
+    rescale_mid                             html  
+    rescale_none                            html  
+    rescale_pal                             html  
+    reverse_trans                           html  
+    scientific_format                       html  
+    seq_gradient_pal                        html  
+    shape_pal                               html  
+    show_col                                html  
+    sqrt_trans                              html  
+    squish                                  html  
+    squish_infinite                         html  
+    time_trans                              html  
+    train_continuous                        html  
+    train_discrete                          html  
+    trans_breaks                            html  
+    trans_format                            html  
+    trans_new                               html  
+    trans_range                             html  
+    unit_format                             html  
+    viridis_pal                             html  
+    wrap_format                             html  
+    zero_range                              html  
+** building package indices
+** testing if installed package can be loaded
+*** arch - i386
+*** arch - x64
+* DONE (scales)
+In R CMD INSTALL</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRG93bmxvYWRpbmcgR2l0SHViIHJlcG8gamltaGVzdGVyL3dpdGhyQG1hc3RlclxuZnJvbSBVUkwgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy9qaW1oZXN0ZXIvd2l0aHIvemlwYmFsbC9tYXN0ZXJcbkluc3RhbGxpbmcgd2l0aHJcblwiQzovUFJPR1JBfjEvUi9SLTM0fjEuNC9iaW4veDY0L1JcIiAtLW5vLXNpdGUtZmlsZSAtLW5vLWVudmlyb24gLS1uby1zYXZlIC0tbm8tcmVzdG9yZSAtLXF1aWV0IENNRCBJTlNUQUxMICBcXFxuICBcIkM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjAyOWEyMTU2NS9yLWxpYi13aXRoci03OWQ3YjBkXCIgIFxcXG4gIC0tbGlicmFyeT1cIkM6L1VzZXJzL3NreW5ldG1pbmkvRG9jdW1lbnRzL1Ivd2luLWxpYnJhcnkvMy40XCIgLS1pbnN0YWxsLXRlc3RzIFxuIn0= -->
+<pre><code>Downloading GitHub repo jimhester/withr@master
+from URL https://api.github.com/repos/jimhester/withr/zipball/master
+Installing withr
+&quot;C:/PROGRA~1/R/R-34~1.4/bin/x64/R&quot; --no-site-file --no-environ --no-save --no-restore --quiet CMD INSTALL  \
+  &quot;C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools92029a21565/r-lib-withr-79d7b0d&quot;  \
+  --library=&quot;C:/Users/skynetmini/Documents/R/win-library/3.4&quot; --install-tests </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2UgJ3dpdGhyJyAuLi5cbioqIFJcbioqIHRlc3RzXG4qKiBwcmVwYXJpbmcgcGFja2FnZSBmb3IgbGF6eSBsb2FkaW5nXG4qKiBoZWxwXG4qKiogaW5zdGFsbGluZyBoZWxwIGluZGljZXNcbiAgY29udmVydGluZyBoZWxwIGZvciBwYWNrYWdlICd3aXRocidcbiAgICBmaW5kaW5nIEhUTUwgbGlua3MgLi4uIGRvbmVcbiAgICBkZWZlciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZGV2aWNlcyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNldF9tYWtldmFycyAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3aXRoXyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aF9jb2xsYXRlICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdpdGhfY29ubmVjdGlvbiAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3aXRoX2RiX2Nvbm5lY3Rpb24gICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aF9kaXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdpdGhfZW52dmFyICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3aXRoX2ZpbGUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aF9nY3RvcnR1cmUyICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdpdGhfbGlicGF0aHMgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3aXRoX2xvY2FsZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aF9tYWtldmFycyAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdpdGhfb3B0aW9ucyAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3aXRoX3BhY2thZ2UgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aF9wYXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdpdGhfcGF0aCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3aXRoX3NlZWQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aF9zaW5rICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdpdGhfdGVtcF9saWJwYXRocyAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3aXRoX3RlbXBmaWxlICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aHIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuKiogYnVpbGRpbmcgcGFja2FnZSBpbmRpY2VzXG4qKiBpbnN0YWxsaW5nIHZpZ25ldHRlc1xuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBjYW4gYmUgbG9hZGVkXG4qKiogYXJjaCAtIGkzODZcbioqKiBhcmNoIC0geDY0XG4qIERPTkUgKHdpdGhyKVxuSW4gUiBDTUQgSU5TVEFMTFxuIn0= -->
+<pre><code>* installing *source* package 'withr' ...
+** R
+** tests
+** preparing package for lazy loading
+** help
+*** installing help indices
+  converting help for package 'withr'
+    finding HTML links ... done
+    defer                                   html  
+    devices                                 html  
+    set_makevars                            html  
+    with_                                   html  
+    with_collate                            html  
+    with_connection                         html  
+    with_db_connection                      html  
+    with_dir                                html  
+    with_envvar                             html  
+    with_file                               html  
+    with_gctorture2                         html  
+    with_libpaths                           html  
+    with_locale                             html  
+    with_makevars                           html  
+    with_options                            html  
+    with_package                            html  
+    with_par                                html  
+    with_path                               html  
+    with_seed                               html  
+    with_sink                               html  
+    with_temp_libpaths                      html  
+    with_tempfile                           html  
+    withr                                   html  
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded
+*** arch - i386
+*** arch - x64
+* DONE (withr)
+In R CMD INSTALL</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRG93bmxvYWRpbmcgR2l0SHViIHJlcG8gdGlkeXZlcnNlL3JsYW5nQG1hc3RlclxuZnJvbSBVUkwgaHR0cHM6Ly9hcGkuZ2l0aHViLmNvbS9yZXBvcy90aWR5dmVyc2UvcmxhbmcvemlwYmFsbC9tYXN0ZXJcbkluc3RhbGxpbmcgcmxhbmdcblwiQzovUFJPR1JBfjEvUi9SLTM0fjEuNC9iaW4veDY0L1JcIiAtLW5vLXNpdGUtZmlsZSAtLW5vLWVudmlyb24gLS1uby1zYXZlIC0tbm8tcmVzdG9yZSAtLXF1aWV0IENNRCBJTlNUQUxMICBcXFxuICBcIkM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjBjYTM0YjMvci1saWItcmxhbmctMWI4MTgxNlwiICBcXFxuICAtLWxpYnJhcnk9XCJDOi9Vc2Vycy9za3luZXRtaW5pL0RvY3VtZW50cy9SL3dpbi1saWJyYXJ5LzMuNFwiIC0taW5zdGFsbC10ZXN0cyBcbiJ9 -->
+<pre><code>Downloading GitHub repo tidyverse/rlang@master
+from URL https://api.github.com/repos/tidyverse/rlang/zipball/master
+Installing rlang
+&quot;C:/PROGRA~1/R/R-34~1.4/bin/x64/R&quot; --no-site-file --no-environ --no-save --no-restore --quiet CMD INSTALL  \
+  &quot;C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816&quot;  \
+  --library=&quot;C:/Users/skynetmini/Documents/R/win-library/3.4&quot; --install-tests </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2UgJ3JsYW5nJyAuLi5cbioqIGxpYnNcblxuKioqIGFyY2ggLSBpMzg2XG5jOi9SdG9vbHMvbWluZ3dfMzIvYmluL2djYyAgLUlcIkM6L1BST0dSQX4xL1IvUi0zNH4xLjQvaW5jbHVkZVwiIC1ETkRFQlVHIC1JLi9saWIvICAgICAgICAgLU8zIC1XYWxsICAtc3RkPWdudTk5IC1tdHVuZT1nZW5lcmljIC1jIGNhcHR1cmUuYyAtbyBjYXB0dXJlLm9cbmJhc2guZXhlOiB3YXJuaW5nOiBjb3VsZCBub3QgZmluZCAvdG1wLCBwbGVhc2UgY3JlYXRlIVxuYzovUnRvb2xzL21pbmd3XzMyL2Jpbi9nY2MgIC1JXCJDOi9QUk9HUkF+MS9SL1ItMzR+MS40L2luY2x1ZGVcIiAtRE5ERUJVRyAtSS4vbGliLyAgICAgICAgIC1PMyAtV2FsbCAgLXN0ZD1nbnU5OSAtbXR1bmU9Z2VuZXJpYyAtYyBleHBvcnQuYyAtbyBleHBvcnQub1xuYmFzaC5leGU6IHdhcm5pbmc6IGNvdWxkIG5vdCBmaW5kIC90bXAsIHBsZWFzZSBjcmVhdGUhXG5jOi9SdG9vbHMvbWluZ3dfMzIvYmluL2djYyAgLUlcIkM6L1BST0dSQX4xL1IvUi0zNH4xLjQvaW5jbHVkZVwiIC1ETkRFQlVHIC1JLi9saWIvICAgICAgICAgLU8zIC1XYWxsICAtc3RkPWdudTk5IC1tdHVuZT1nZW5lcmljIC1jIGludGVybmFsLmMgLW8gaW50ZXJuYWwub1xuYmFzaC5leGU6IHdhcm5pbmc6IGNvdWxkIG5vdCBmaW5kIC90bXAsIHBsZWFzZSBjcmVhdGUhXG5jOi9SdG9vbHMvbWluZ3dfMzIvYmluL2djYyAgLUlcIkM6L1BST0dSQX4xL1IvUi0zNH4xLjQvaW5jbHVkZVwiIC1ETkRFQlVHIC1JLi9saWIvICAgICAgICAgLU8zIC1XYWxsICAtc3RkPWdudTk5IC1tdHVuZT1nZW5lcmljIC1jIGxpYi5jIC1vIGxpYi5vXG5iYXNoLmV4ZTogd2FybmluZzogY291bGQgbm90IGZpbmQgL3RtcCwgcGxlYXNlIGNyZWF0ZSFcbmJhc2guZXhlOiB3YXJuaW5nOiBjb3VsZCBub3QgZmluZCAvdG1wLCBwbGVhc2UgY3JlYXRlIVxuQzpcXFJ0b29sc1xcbWluZ3dfMzJcXGJpblxcbm0uZXhlOiBsaWIuYzogRmlsZSBmb3JtYXQgbm90IHJlY29nbml6ZWRcbkM6XFxSdG9vbHNcXG1pbmd3XzMyXFxiaW5cXG5tLmV4ZTogaW50ZXJuYWwuYzogRmlsZSBmb3JtYXQgbm90IHJlY29nbml6ZWRcbkM6XFxSdG9vbHNcXG1pbmd3XzMyXFxiaW5cXG5tLmV4ZTogZXhwb3J0LmM6IEZpbGUgZm9ybWF0IG5vdCByZWNvZ25pemVkXG5jOi9SdG9vbHMvbWluZ3dfMzIvYmluL2crKyAtc2hhcmVkIC1zIC1zdGF0aWMtbGliZ2NjIC1vIHJsYW5nLmRsbCB0bXAuZGVmIGNhcHR1cmUubyBleHBvcnQubyBpbnRlcm5hbC5vIGxpYi5vIC1MQzovUFJPR1JBfjEvUi9SLTM0fjEuNC9iaW4vaTM4NiAtbFJcbmluc3RhbGxpbmcgdG8gQzovVXNlcnMvc2t5bmV0bWluaS9Eb2N1bWVudHMvUi93aW4tbGlicmFyeS8zLjQvcmxhbmcvbGlicy9pMzg2XG5cbioqKiBhcmNoIC0geDY0XG5jOi9SdG9vbHMvbWluZ3dfNjQvYmluL2djYyAgLUlcIkM6L1BST0dSQX4xL1IvUi0zNH4xLjQvaW5jbHVkZVwiIC1ETkRFQlVHIC1JLi9saWIvICAgICAgICAgLU8yIC1XYWxsICAtc3RkPWdudTk5IC1tdHVuZT1nZW5lcmljIC1jIGNhcHR1cmUuYyAtbyBjYXB0dXJlLm9cbmJhc2guZXhlOiB3YXJuaW5nOiBjb3VsZCBub3QgZmluZCAvdG1wLCBwbGVhc2UgY3JlYXRlIVxuYzovUnRvb2xzL21pbmd3XzY0L2Jpbi9nY2MgIC1JXCJDOi9QUk9HUkF+MS9SL1ItMzR+MS40L2luY2x1ZGVcIiAtRE5ERUJVRyAtSS4vbGliLyAgICAgICAgIC1PMiAtV2FsbCAgLXN0ZD1nbnU5OSAtbXR1bmU9Z2VuZXJpYyAtYyBleHBvcnQuYyAtbyBleHBvcnQub1xuYmFzaC5leGU6IHdhcm5pbmc6IGNvdWxkIG5vdCBmaW5kIC90bXAsIHBsZWFzZSBjcmVhdGUhXG5jOi9SdG9vbHMvbWluZ3dfNjQvYmluL2djYyAgLUlcIkM6L1BST0dSQX4xL1IvUi0zNH4xLjQvaW5jbHVkZVwiIC1ETkRFQlVHIC1JLi9saWIvICAgICAgICAgLU8yIC1XYWxsICAtc3RkPWdudTk5IC1tdHVuZT1nZW5lcmljIC1jIGludGVybmFsLmMgLW8gaW50ZXJuYWwub1xuYmFzaC5leGU6IHdhcm5pbmc6IGNvdWxkIG5vdCBmaW5kIC90bXAsIHBsZWFzZSBjcmVhdGUhXG5jOi9SdG9vbHMvbWluZ3dfNjQvYmluL2djYyAgLUlcIkM6L1BST0dSQX4xL1IvUi0zNH4xLjQvaW5jbHVkZVwiIC1ETkRFQlVHIC1JLi9saWIvICAgICAgICAgLU8yIC1XYWxsICAtc3RkPWdudTk5IC1tdHVuZT1nZW5lcmljIC1jIGxpYi5jIC1vIGxpYi5vXG5iYXNoLmV4ZTogd2FybmluZzogY291bGQgbm90IGZpbmQgL3RtcCwgcGxlYXNlIGNyZWF0ZSFcbmJhc2guZXhlOiB3YXJuaW5nOiBjb3VsZCBub3QgZmluZCAvdG1wLCBwbGVhc2UgY3JlYXRlIVxuQzpcXFJ0b29sc1xcbWluZ3dfNjRcXGJpblxcbm0uZXhlOiBsaWIuYzogRmlsZSBmb3JtYXQgbm90IHJlY29nbml6ZWRcbkM6XFxSdG9vbHNcXG1pbmd3XzY0XFxiaW5cXG5tLmV4ZTogaW50ZXJuYWwuYzogRmlsZSBmb3JtYXQgbm90IHJlY29nbml6ZWRcbkM6XFxSdG9vbHNcXG1pbmd3XzY0XFxiaW5cXG5tLmV4ZTogZXhwb3J0LmM6IEZpbGUgZm9ybWF0IG5vdCByZWNvZ25pemVkXG4vdXNyL2Jpbi9zZWQ6IC1lIGV4cHJlc3Npb24gIzEsIGNoYXIgMTogdW5rbm93biBjb21tYW5kOiBgQydcbmM6L1J0b29scy9taW5nd182NC9iaW4vZysrIC1zaGFyZWQgLXMgLXN0YXRpYy1saWJnY2MgLW8gcmxhbmcuZGxsIHRtcC5kZWYgY2FwdHVyZS5vIGV4cG9ydC5vIGludGVybmFsLm8gbGliLm8gLUxDOi9QUk9HUkF+MS9SL1ItMzR+MS40L2Jpbi94NjQgLWxSXG5pbnN0YWxsaW5nIHRvIEM6L1VzZXJzL3NreW5ldG1pbmkvRG9jdW1lbnRzL1Ivd2luLWxpYnJhcnkvMy40L3JsYW5nL2xpYnMveDY0XG4qKiBSXG4qKiB0ZXN0c1xuKiogYnl0ZS1jb21waWxlIGFuZCBwcmVwYXJlIHBhY2thZ2UgZm9yIGxhenkgbG9hZGluZ1xuKiogaGVscFxuKioqIGluc3RhbGxpbmcgaGVscCBpbmRpY2VzXG4gIGNvbnZlcnRpbmcgaGVscCBmb3IgcGFja2FnZSAncmxhbmcnXG4gICAgZmluZGluZyBIVE1MIGxpbmtzIC4uLiBkb25lXG4gICAgYWJvcnQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFyZV9uYSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjBjYTM0YjMvci1saWItcmxhbmctMWI4MTgxNi9tYW4vYXJlX25hLlJkOjMyOiBtaXNzaW5nIGZpbGUgbGluayAnaXMubmEnXG4gICAgYXJnX21hdGNoICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFzX2J5dGVzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhc19kYXRhX21hc2sgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYXNfZW52ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFzX2Vudmlyb25tZW50ICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhc19mdW5jdGlvbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYXNfb3ZlcnNjb3BlICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFzX3BhaXJsaXN0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhc19xdW9zdXJlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYXNfdXRmOF9jaGFyYWN0ZXIgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGJhcmUtdHlwZS1wcmVkaWNhdGVzICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBib3ggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwY2EzNGIzL3ItbGliLXJsYW5nLTFiODE4MTYvbWFuL2JveC5SZDozNzogbWlzc2luZyBmaWxlIGxpbmsgJ0knXG4gICAgY2FsbDIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNhbGxfYXJncyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjYWxsX2ZuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY2FsbF9pbnNwZWN0ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNhbGxfbW9kaWZ5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjYWxsX25hbWUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY2FsbF9zdGFuZGFyZGlzZSAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNhbGxlcl9lbnYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjYWxsZXJfZnJhbWUgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY2F0Y2hfY25kICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNocl91bnNlcmlhbGlzZV91bmljb2RlICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjbmQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY25kX3NpZ25hbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGRlcHJlY2F0ZWQtY25kICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBkaWN0aW9uYXJ5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZG90c19kZWZpbml0aW9ucyAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGRvdHNfbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBkb3RzX3ZhbHVlcyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZHVwbGljYXRlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGVtcHR5X2VudiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbnYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZW52X2JpbmQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuUmQgd2FybmluZzogQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMGNhMzRiMy9yLWxpYi1ybGFuZy0xYjgxODE2L21hbi9lbnZfYmluZC5SZDozMzogbWlzc2luZyBmaWxlIGxpbmsgJ21ha2VBY3RpdmVCaW5kaW5nJ1xuICAgIGVudl9iaW5kX2V4cHJzICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbnZfYmluZGluZ19hcmVfYWN0aXZlICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZW52X2JpbmRpbmdfbG9jayAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGVudl9idXJ5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbnZfY2xvbmUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZW52X2RlcHRoICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGVudl9nZXQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbnZfaGFzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZW52X2luaGVyaXRzICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGVudl9sb2NrICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbnZfbmFtZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZW52X25hbWVzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGVudl9wYXJlbnQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbnZfcG9rZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZW52X3ByaW50ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGVudl91bmJpbmQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbnZfdW5sb2NrICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZXZhbF9iYXJlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGV2YWxfdGlkeSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBldmFsX3RpZHlfICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZXhpdGluZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuUmQgd2FybmluZzogQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMGNhMzRiMy9yLWxpYi1ybGFuZy0xYjgxODE2L21hbi9leGl0aW5nLlJkOjMxOiBtaXNzaW5nIGZpbGUgbGluayAndHJ5Q2F0Y2gnXG4gICAgZXhwcl9pbnRlcnAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGV4cHJfbGFiZWwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBleHByX3ByaW50ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZXhwcnNfYXV0b19uYW1lICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGZfcmhzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmX3RleHQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZmxhdHRlbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGZuX2JvZHkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmbl9lbnYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZm5fZm1scyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGZyYW1lX3Bvc2l0aW9uICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmcmllbmRseV90eXBlICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2V0X2VudiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGhhc19sZW5ndGggICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBoYXNfbmFtZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaW5oZXJpdHNfYW55ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuUmQgd2FybmluZzogQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMGNhMzRiMy9yLWxpYi1ybGFuZy0xYjgxODE2L21hbi9pbmhlcml0c19hbnkuUmQ6MjI6IG1pc3NpbmcgZmlsZSBsaW5rICdpbmhlcml0cydcbiAgICBpbnZva2UgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXNfY2FsbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlzX2NhbGxhYmxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19jb25kaXRpb24gICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXNfY29weWFibGUgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlzX2VtcHR5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19lbnYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXNfZW52aXJvbm1lbnQgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlzX2V4cHIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19leHByZXNzaW9uICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXNfZm9ybXVsYSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlzX2ZyYW1lICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19mdW5jdGlvbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwY2EzNGIzL3ItbGliLXJsYW5nLTFiODE4MTYvbWFuL2lzX2Z1bmN0aW9uLlJkOjY0OiBtaXNzaW5nIGZpbGUgbGluayAnLkludGVybmFsJ1xuICAgIGlzX2luc3RhbGxlZCAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19pbnRlZ2VyaXNoICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwY2EzNGIzL3ItbGliLXJsYW5nLTFiODE4MTYvbWFuL2lzX2ludGVnZXJpc2guUmQ6Mjc6IG1pc3NpbmcgZmlsZSBsaW5rICdpcy5pbnRlZ2VyJ1xuICAgIGlzX2xhbmcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19uYW1lZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXNfbmFtZXNwYWNlICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlzX3BhaXJsaXN0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19xdW9zdXJlaXNoICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXNfcmVmZXJlbmNlICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlzX3N0YWNrICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpc19zeW1ib2wgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXNfdHJ1ZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGxhbmcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBsYW5nX2hlYWQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbGFuZ19tb2RpZnkgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGxpZmVjeWNsZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBtaXNzaW5nICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbWlzc2luZ19hcmcgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG1vZGlmeSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBtdXRfbm9kZV9jYXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbXV0X3V0ZjhfbG9jYWxlICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG5hbWVzMiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBuZXctdmVjdG9yLWFsb25nICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbmV3LXZlY3RvciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG5ld19jYWxsICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBuZXdfZm9ybXVsYSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbmV3X2Z1bmN0aW9uICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuUmQgd2FybmluZzogQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMGNhMzRiMy9yLWxpYi1ybGFuZy0xYjgxODE2L21hbi9uZXdfZnVuY3Rpb24uUmQ6MTY6IG1pc3NpbmcgZmlsZSBsaW5rICdxdW90ZSdcbiAgICBuZXdfbm9kZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwY2EzNGIzL3ItbGliLXJsYW5nLTFiODE4MTYvbWFuL25ld19ub2RlLlJkOjc0OiBtaXNzaW5nIGZpbGUgbGluayAncGFpcmxpc3QnXG4gICAgbnNfZW52ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG9wLWRlZmluaXRpb24gICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBvcC1nZXQtYXR0ciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgb3AtbmEtZGVmYXVsdCAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG9wLW51bGwtZGVmYXVsdCAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBvdmVyc2NvcGVfZXZhbF9uZXh0ICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcGFyc2VfZXhwciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHBhcnNlX3F1b3N1cmUgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBwcmVwZW5kICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcHJpbV9uYW1lICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHF1YXNpcXVvdGF0aW9uICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBxdW9fZXhwciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcXVvX2xhYmVsICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHF1b19zcXVhc2ggICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBxdW9zdXJlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcXVvdGF0aW9uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuUmQgd2FybmluZzogQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMGNhMzRiMy9yLWxpYi1ybGFuZy0xYjgxODE2L21hbi9xdW90YXRpb24uUmQ6MTIwOiBtaXNzaW5nIGZpbGUgbGluayAnYWxpc3QnXG4gICAgcmVzdGFydGluZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHJldHVybl9mcm9tICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjBjYTM0YjMvci1saWItcmxhbmctMWI4MTgxNi9tYW4vcmV0dXJuX2Zyb20uUmQ6MjA6IG1pc3NpbmcgZmlsZSBsaW5rICdyZXR1cm4nXG4gICAgcnN0X2Fib3J0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHJzdF9saXN0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICByc3RfbXVmZmxlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NhbGFyLXR5cGUtcHJlZGljYXRlcyAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNjb3BlZF9iaW5kaW5ncyAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzY29wZWRfZW52ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NvcGVkX29wdGlvbnMgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNlcTIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzZXRfYXR0cnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2V0X2Nocl9lbmNvZGluZyAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNldF9leHByICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzZXRfbmFtZXMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc3BsaWNlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHN0YWNrICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzdGFja190cmltICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc3RyaW5nICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHN3aXRjaF9sYW5nICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjBjYTM0YjMvci1saWItcmxhbmctMWI4MTgxNi9tYW4vc3dpdGNoX2xhbmcuUmQ6MjY6IG1pc3NpbmcgZmlsZSBsaW5rICdJJ1xuICAgIHN3aXRjaF90eXBlICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjBjYTM0YjMvci1saWItcmxhbmctMWI4MTgxNi9tYW4vc3dpdGNoX3R5cGUuUmQ6Mjg6IG1pc3NpbmcgZmlsZSBsaW5rICdJJ1xuICAgIHN5bSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB0aWR5LWRvdHMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdGlkeWV2YWwtZGF0YSAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHR5cGUtcHJlZGljYXRlcyAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB0eXBlX29mICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdmVjX3Bva2VfbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHZlY3Rvci1jb2VyY2lvbiAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjBjYTM0YjMvci1saWItcmxhbmctMWI4MTgxNi9tYW4vdmVjdG9yLWNvZXJjaW9uLlJkOjgwOiBtaXNzaW5nIGZpbGUgbGluayAnYXMubGlzdCdcbiAgICB2ZWN0b3ItY29uc3RydWN0aW9uICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdmVjdG9yLW9sZC1jdG9ycyAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdpdGhfZW52ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjBjYTM0YjMvci1saWItcmxhbmctMWI4MTgxNi9tYW4vd2l0aF9lbnYuUmQ6Mjg6IG1pc3NpbmcgZmlsZSBsaW5rICdsb2NhbCdcbiAgICB3aXRoX2hhbmRsZXJzICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgd2l0aF9yZXN0YXJ0cyAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuKioqIGNvcHlpbmcgZmlndXJlc1xuKiogYnVpbGRpbmcgcGFja2FnZSBpbmRpY2VzXG4qKiB0ZXN0aW5nIGlmIGluc3RhbGxlZCBwYWNrYWdlIGNhbiBiZSBsb2FkZWRcbioqKiBhcmNoIC0gaTM4NlxuKioqIGFyY2ggLSB4NjRcbiogRE9ORSAocmxhbmcpXG5JbiBSIENNRCBJTlNUQUxMXG4ifQ== -->
+<pre><code>* installing *source* package 'rlang' ...
+** libs
+
+*** arch - i386
+c:/Rtools/mingw_32/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O3 -Wall  -std=gnu99 -mtune=generic -c capture.c -o capture.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_32/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O3 -Wall  -std=gnu99 -mtune=generic -c export.c -o export.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_32/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O3 -Wall  -std=gnu99 -mtune=generic -c internal.c -o internal.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_32/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O3 -Wall  -std=gnu99 -mtune=generic -c lib.c -o lib.o
+bash.exe: warning: could not find /tmp, please create!
+bash.exe: warning: could not find /tmp, please create!
+C:\Rtools\mingw_32\bin\nm.exe: lib.c: File format not recognized
+C:\Rtools\mingw_32\bin\nm.exe: internal.c: File format not recognized
+C:\Rtools\mingw_32\bin\nm.exe: export.c: File format not recognized
+c:/Rtools/mingw_32/bin/g++ -shared -s -static-libgcc -o rlang.dll tmp.def capture.o export.o internal.o lib.o -LC:/PROGRA~1/R/R-34~1.4/bin/i386 -lR
+installing to C:/Users/skynetmini/Documents/R/win-library/3.4/rlang/libs/i386
+
+*** arch - x64
+c:/Rtools/mingw_64/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O2 -Wall  -std=gnu99 -mtune=generic -c capture.c -o capture.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_64/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O2 -Wall  -std=gnu99 -mtune=generic -c export.c -o export.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_64/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O2 -Wall  -std=gnu99 -mtune=generic -c internal.c -o internal.o
+bash.exe: warning: could not find /tmp, please create!
+c:/Rtools/mingw_64/bin/gcc  -I&quot;C:/PROGRA~1/R/R-34~1.4/include&quot; -DNDEBUG -I./lib/         -O2 -Wall  -std=gnu99 -mtune=generic -c lib.c -o lib.o
+bash.exe: warning: could not find /tmp, please create!
+bash.exe: warning: could not find /tmp, please create!
+C:\Rtools\mingw_64\bin\nm.exe: lib.c: File format not recognized
+C:\Rtools\mingw_64\bin\nm.exe: internal.c: File format not recognized
+C:\Rtools\mingw_64\bin\nm.exe: export.c: File format not recognized
+/usr/bin/sed: -e expression #1, char 1: unknown command: `C'
+c:/Rtools/mingw_64/bin/g++ -shared -s -static-libgcc -o rlang.dll tmp.def capture.o export.o internal.o lib.o -LC:/PROGRA~1/R/R-34~1.4/bin/x64 -lR
+installing to C:/Users/skynetmini/Documents/R/win-library/3.4/rlang/libs/x64
+** R
+** tests
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+  converting help for package 'rlang'
+    finding HTML links ... done
+    abort                                   html  
+    are_na                                  html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/are_na.Rd:32: missing file link 'is.na'
+    arg_match                               html  
+    as_bytes                                html  
+    as_data_mask                            html  
+    as_env                                  html  
+    as_environment                          html  
+    as_function                             html  
+    as_overscope                            html  
+    as_pairlist                             html  
+    as_quosure                              html  
+    as_utf8_character                       html  
+    bare-type-predicates                    html  
+    box                                     html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/box.Rd:37: missing file link 'I'
+    call2                                   html  
+    call_args                               html  
+    call_fn                                 html  
+    call_inspect                            html  
+    call_modify                             html  
+    call_name                               html  
+    call_standardise                        html  
+    caller_env                              html  
+    caller_frame                            html  
+    catch_cnd                               html  
+    chr_unserialise_unicode                 html  
+    cnd                                     html  
+    cnd_signal                              html  
+    deprecated-cnd                          html  
+    dictionary                              html  
+    dots_definitions                        html  
+    dots_n                                  html  
+    dots_values                             html  
+    duplicate                               html  
+    empty_env                               html  
+    env                                     html  
+    env_bind                                html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/env_bind.Rd:33: missing file link 'makeActiveBinding'
+    env_bind_exprs                          html  
+    env_binding_are_active                  html  
+    env_binding_lock                        html  
+    env_bury                                html  
+    env_clone                               html  
+    env_depth                               html  
+    env_get                                 html  
+    env_has                                 html  
+    env_inherits                            html  
+    env_lock                                html  
+    env_name                                html  
+    env_names                               html  
+    env_parent                              html  
+    env_poke                                html  
+    env_print                               html  
+    env_unbind                              html  
+    env_unlock                              html  
+    eval_bare                               html  
+    eval_tidy                               html  
+    eval_tidy_                              html  
+    exiting                                 html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/exiting.Rd:31: missing file link 'tryCatch'
+    expr_interp                             html  
+    expr_label                              html  
+    expr_print                              html  
+    exprs_auto_name                         html  
+    f_rhs                                   html  
+    f_text                                  html  
+    flatten                                 html  
+    fn_body                                 html  
+    fn_env                                  html  
+    fn_fmls                                 html  
+    frame_position                          html  
+    friendly_type                           html  
+    get_env                                 html  
+    has_length                              html  
+    has_name                                html  
+    inherits_any                            html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/inherits_any.Rd:22: missing file link 'inherits'
+    invoke                                  html  
+    is_call                                 html  
+    is_callable                             html  
+    is_condition                            html  
+    is_copyable                             html  
+    is_empty                                html  
+    is_env                                  html  
+    is_environment                          html  
+    is_expr                                 html  
+    is_expression                           html  
+    is_formula                              html  
+    is_frame                                html  
+    is_function                             html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/is_function.Rd:64: missing file link '.Internal'
+    is_installed                            html  
+    is_integerish                           html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/is_integerish.Rd:27: missing file link 'is.integer'
+    is_lang                                 html  
+    is_named                                html  
+    is_namespace                            html  
+    is_pairlist                             html  
+    is_quosureish                           html  
+    is_reference                            html  
+    is_stack                                html  
+    is_symbol                               html  
+    is_true                                 html  
+    lang                                    html  
+    lang_head                               html  
+    lang_modify                             html  
+    lifecycle                               html  
+    missing                                 html  
+    missing_arg                             html  
+    modify                                  html  
+    mut_node_car                            html  
+    mut_utf8_locale                         html  
+    names2                                  html  
+    new-vector-along                        html  
+    new-vector                              html  
+    new_call                                html  
+    new_formula                             html  
+    new_function                            html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/new_function.Rd:16: missing file link 'quote'
+    new_node                                html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/new_node.Rd:74: missing file link 'pairlist'
+    ns_env                                  html  
+    op-definition                           html  
+    op-get-attr                             html  
+    op-na-default                           html  
+    op-null-default                         html  
+    overscope_eval_next                     html  
+    parse_expr                              html  
+    parse_quosure                           html  
+    prepend                                 html  
+    prim_name                               html  
+    quasiquotation                          html  
+    quo_expr                                html  
+    quo_label                               html  
+    quo_squash                              html  
+    quosure                                 html  
+    quotation                               html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/quotation.Rd:120: missing file link 'alist'
+    restarting                              html  
+    return_from                             html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/return_from.Rd:20: missing file link 'return'
+    rst_abort                               html  
+    rst_list                                html  
+    rst_muffle                              html  
+    scalar-type-predicates                  html  
+    scoped_bindings                         html  
+    scoped_env                              html  
+    scoped_options                          html  
+    seq2                                    html  
+    set_attrs                               html  
+    set_chr_encoding                        html  
+    set_expr                                html  
+    set_names                               html  
+    splice                                  html  
+    stack                                   html  
+    stack_trim                              html  
+    string                                  html  
+    switch_lang                             html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/switch_lang.Rd:26: missing file link 'I'
+    switch_type                             html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/switch_type.Rd:28: missing file link 'I'
+    sym                                     html  
+    tidy-dots                               html  
+    tidyeval-data                           html  
+    type-predicates                         html  
+    type_of                                 html  
+    vec_poke_n                              html  
+    vector-coercion                         html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/vector-coercion.Rd:80: missing file link 'as.list'
+    vector-construction                     html  
+    vector-old-ctors                        html  
+    with_env                                html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920ca34b3/r-lib-rlang-1b81816/man/with_env.Rd:28: missing file link 'local'
+    with_handlers                           html  
+    with_restarts                           html  
+*** copying figures
+** building package indices
+** testing if installed package can be loaded
+*** arch - i386
+*** arch - x64
+* DONE (rlang)
+In R CMD INSTALL</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXCJDOi9QUk9HUkF+MS9SL1ItMzR+MS40L2Jpbi94NjQvUlwiIC0tbm8tc2l0ZS1maWxlIC0tbm8tZW52aXJvbiAtLW5vLXNhdmUgLS1uby1yZXN0b3JlIC0tcXVpZXQgQ01EIElOU1RBTEwgIFxcXG4gIFwiQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMDEyOGEyYmZlL3RpZHl2ZXJzZS1nZ3Bsb3QyLTM5ZTRhM2JcIiAgXFxcbiAgLS1saWJyYXJ5PVwiQzovVXNlcnMvc2t5bmV0bWluaS9Eb2N1bWVudHMvUi93aW4tbGlicmFyeS8zLjRcIiAtLWluc3RhbGwtdGVzdHMgXG4ifQ== -->
+<pre><code>&quot;C:/PROGRA~1/R/R-34~1.4/bin/x64/R&quot; --no-site-file --no-environ --no-save --no-restore --quiet CMD INSTALL  \
+  &quot;C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b&quot;  \
+  --library=&quot;C:/Users/skynetmini/Documents/R/win-library/3.4&quot; --install-tests </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2UgJ2dncGxvdDInIC4uLlxuKiogUlxuKiogZGF0YVxuKioqIG1vdmluZyBkYXRhc2V0cyB0byBsYXp5bG9hZCBEQlxuKiogaW5zdFxuKiogdGVzdHNcbioqIHByZXBhcmluZyBwYWNrYWdlIGZvciBsYXp5IGxvYWRpbmdcbioqIGhlbHBcbioqKiBpbnN0YWxsaW5nIGhlbHAgaW5kaWNlc1xuICBjb252ZXJ0aW5nIGhlbHAgZm9yIHBhY2thZ2UgJ2dncGxvdDInXG4gICAgZmluZGluZyBIVE1MIGxpbmtzIC4uLiBkb25lXG4gICAgYWJzb2x1dGVHcm9iICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFkZF90aGVtZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhZXMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYWVzXyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFlc19hbGwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhZXNfYXV0byAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYWVzX2NvbG91cl9maWxsX2FscGhhICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFlc19ncm91cF9vcmRlciAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhZXNfbGluZXR5cGVfc2l6ZV9zaGFwZSAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYWVzX3Bvc2l0aW9uICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFubm90YXRlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhbm5vdGF0aW9uX2N1c3RvbSAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYW5ub3RhdGlvbl9sb2d0aWNrcyAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFubm90YXRpb25fbWFwICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhbm5vdGF0aW9uX3Jhc3RlciAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYXMubGlzdC5nZ3Byb3RvICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGFzX2xhYmVsbGVyICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBhdXRvbGF5ZXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgYXV0b3Bsb3QgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGJlbmNocGxvdCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBib3JkZXJzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY2FsYyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNhbGNfZWxlbWVudCAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjb21iaW5lX3ZhcnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY29udGludW91c19zY2FsZSAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNvb3JkX2NhcnRlc2lhbiAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjb29yZF9maXhlZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY29vcmRfZmxpcCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNvb3JkX21hcCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjb29yZF9tdW5jaCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgY29vcmRfcG9sYXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGNvb3JkX3RyYW5zICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBjdXRfaW50ZXJ2YWwgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZGlhbW9uZHMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGRpc2NyZXRlX3NjYWxlICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBkcmF3X2tleSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZWNvbm9taWNzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGVsZW1lbnQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBlbGVtZW50X2dyb2IgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZXhwYW5kX2xpbWl0cyAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGV4cGFuZF9zY2FsZSAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmYWNldF9ncmlkICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZmFjZXRfbnVsbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGZhY2V0X3dyYXAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmYWl0aGZ1bGQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZmluZF9wYW5lbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGZvcnRpZnktbXVsdGNvbXAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmb3J0aWZ5ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZm9ydGlmeS5sbSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGZvcnRpZnkubWFwICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmb3J0aWZ5LnNwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9hYmxpbmUgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fYmFyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX2JpbjJkICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9ibGFuayAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fYm94cGxvdCAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX2NvbnRvdXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9jb3VudCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fZGVuc2l0eSAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjAxMjhhMmJmZS90aWR5dmVyc2UtZ2dwbG90Mi0zOWU0YTNiL21hbi9nZW9tX2RlbnNpdHkuUmQ6NjU6IG1pc3NpbmcgZmlsZSBsaW5rICdidy5ucmQnXG4gICAgZ2VvbV9kZW5zaXR5XzJkICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fZG90cGxvdCAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX2Vycm9yYmFyaCAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9oZXggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21faGlzdG9ncmFtICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX2ppdHRlciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9saW5lcmFuZ2UgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fbWFwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX3BhdGggICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9wb2ludCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fcG9seWdvbiAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX3FxICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9xdWFudGlsZSAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fcmliYm9uICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX3J1ZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9zZWdtZW50ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuUmQgd2FybmluZzogQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMDEyOGEyYmZlL3RpZHl2ZXJzZS1nZ3Bsb3QyLTM5ZTRhM2IvbWFuL2dlb21fc2VnbWVudC5SZDo4NTogbWlzc2luZyBmaWxlIGxpbmsgJ2N1cnZlR3JvYidcbiAgICBnZW9tX3Ntb290aCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV9zcG9rZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdlb21fdGV4dCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZW9tX3RpbGUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2VvbV92aW9saW4gICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuUmQgd2FybmluZzogQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMDEyOGEyYmZlL3RpZHl2ZXJzZS1nZ3Bsb3QyLTM5ZTRhM2IvbWFuL2dlb21fdmlvbGluLlJkOjc1OiBtaXNzaW5nIGZpbGUgbGluayAnYncubnJkJ1xuICAgIGdnLWFkZCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZ19kZXAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2dwbG90ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdncGxvdDItZ2dwcm90byAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBmaW5kaW5nIGxldmVsLTIgSFRNTCBsaW5rcyAuLi4gZG9uZVxuXG4gICAgZ2dwbG90Mi1wYWNrYWdlICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdncGxvdEdyb2IgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZ3Bsb3RfYWRkICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2dwbG90X2J1aWxkICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdncGxvdF9ndGFibGUgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZ3Byb3RvICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ2dzYXZlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGdnc2YgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBnZ3RoZW1lICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ3JhcGhpY2FsLXVuaXRzICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGd1aWRlX2NvbG91cmJhciAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBndWlkZV9sZWdlbmQgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgZ3VpZGVzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGhtaXNjICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcblJkIHdhcm5pbmc6IEM6L1VzZXJzL3NreW5ldG1pbmkvQXBwRGF0YS9Mb2NhbC9UZW1wL1J0bXBVTGZuaFAvZGV2dG9vbHM5MjAxMjhhMmJmZS90aWR5dmVyc2UtZ2dwbG90Mi0zOWU0YTNiL21hbi9obWlzYy5SZDozMjogbWlzc2luZyBmaWxlIGxpbmsgJ3NtZWFuLmNsLmJvb3QnXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwMTI4YTJiZmUvdGlkeXZlcnNlLWdncGxvdDItMzllNGEzYi9tYW4vaG1pc2MuUmQ6MzM6IG1pc3NpbmcgZmlsZSBsaW5rICdzbWVhbi5jbC5ub3JtYWwnXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwMTI4YTJiZmUvdGlkeXZlcnNlLWdncGxvdDItMzllNGEzYi9tYW4vaG1pc2MuUmQ6MzQ6IG1pc3NpbmcgZmlsZSBsaW5rICdzbWVhbi5zZGwnXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwMTI4YTJiZmUvdGlkeXZlcnNlLWdncGxvdDItMzllNGEzYi9tYW4vaG1pc2MuUmQ6MzU6IG1pc3NpbmcgZmlsZSBsaW5rICdzbWVkaWFuLmhpbG93J1xuICAgIGlzLkNvb3JkICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpcy5mYWNldCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgaXMuZ2dwbG90ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGlzLnJlbCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBpcy50aGVtZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbGFiZWxfYnF1b3RlICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGxhYmVsbGVyICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBsYWJlbGxlcnMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbGFicyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGxhc3RfcGxvdCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBsYXllciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbGltaXRzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIGxpbXMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBsdXZfY29sb3VycyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbWFwX2RhdGEgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG1heF9oZWlnaHQgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBtZWFuX3NlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbWVyZ2VfZWxlbWVudCAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIG1pZHdlc3QgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBtcGcgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgbXNsZWVwICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHBvc2l0aW9uX2RvZGdlICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBwb3NpdGlvbl9pZGVudGl0eSAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcG9zaXRpb25faml0dGVyICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHBvc2l0aW9uX2ppdHRlcmRvZGdlICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBwb3NpdGlvbl9udWRnZSAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcG9zaXRpb25fc3RhY2sgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHByZXNpZGVudGlhbCAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBwcmludC5nZ3Bsb3QgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcHJpbnQuZ2dwcm90byAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHFwbG90ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICByZWV4cG9ydHMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcmVtb3ZlX21pc3NpbmcgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHJlbmRlcl9heGVzICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICByZW5kZXJfc3RyaXBzICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcmVzb2x1dGlvbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNjYWxlX2FscGhhICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzY2FsZV9icmV3ZXIgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG5SZCB3YXJuaW5nOiBDOi9Vc2Vycy9za3luZXRtaW5pL0FwcERhdGEvTG9jYWwvVGVtcC9SdG1wVUxmbmhQL2RldnRvb2xzOTIwMTI4YTJiZmUvdGlkeXZlcnNlLWdncGxvdDItMzllNGEzYi9tYW4vc2NhbGVfYnJld2VyLlJkOjM1OiBtaXNzaW5nIGZpbGUgbGluayAnYnJld2VyLnBhbCdcbiAgICBzY2FsZV9jb2xvdXJfY29udGludW91cyAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NhbGVfY29udGludW91cyAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNjYWxlX2RhdGUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzY2FsZV9kaXNjcmV0ZSAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NhbGVfZ3JhZGllbnQgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNjYWxlX2dyZXkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzY2FsZV9odWUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NhbGVfaWRlbnRpdHkgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNjYWxlX2xpbmV0eXBlICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzY2FsZV9tYW51YWwgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NhbGVfc2hhcGUgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNjYWxlX3NpemUgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzY2FsZV90eXBlICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2NhbGVfdmlyaWRpcyAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNlYWxzICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzZWNfYXhpcyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc2V0X2xhc3RfcGxvdCAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHNob3VsZF9zdG9wICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzdGF0X2VjZGYgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc3RhdF9lbGxpcHNlICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHN0YXRfZnVuY3Rpb24gICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzdGF0X2lkZW50aXR5ICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc3RhdF9zdW1tYXJ5ICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHN0YXRfc3VtbWFyeV8yZCAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICBzdGF0X3VuaXF1ZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgc3VtbWFyaXNlX3Bsb3QgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHN1bW1hcnkuZ2dwbG90ICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB0aGVtZSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdGhlbWVfZ2V0ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHRyYW5zZm9ybV9wb3NpdGlvbiAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB0cmFuc2xhdGVfcXBsb3RfZ2dwbG90ICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdHJhbnNsYXRlX3FwbG90X2xhdHRpY2UgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHR4aG91c2luZyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB1cGRhdGVfZGVmYXVsdHMgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgdXBkYXRlX2xhYmVscyAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuICAgIHdhaXZlciAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBodG1sICBcbiAgICB3cmFwX2RpbXMgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgemVyb0dyb2IgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGh0bWwgIFxuKioqIGNvcHlpbmcgZmlndXJlc1xuKiogYnVpbGRpbmcgcGFja2FnZSBpbmRpY2VzXG4qKiBpbnN0YWxsaW5nIHZpZ25ldHRlc1xuKiogdGVzdGluZyBpZiBpbnN0YWxsZWQgcGFja2FnZSBjYW4gYmUgbG9hZGVkXG4qKiogYXJjaCAtIGkzODZcbioqKiBhcmNoIC0geDY0XG4qIERPTkUgKGdncGxvdDIpXG5JbiBSIENNRCBJTlNUQUxMXG4ifQ== -->
+<pre><code>* installing *source* package 'ggplot2' ...
+** R
+** data
+*** moving datasets to lazyload DB
+** inst
+** tests
+** preparing package for lazy loading
+** help
+*** installing help indices
+  converting help for package 'ggplot2'
+    finding HTML links ... done
+    absoluteGrob                            html  
+    add_theme                               html  
+    aes                                     html  
+    aes_                                    html  
+    aes_all                                 html  
+    aes_auto                                html  
+    aes_colour_fill_alpha                   html  
+    aes_group_order                         html  
+    aes_linetype_size_shape                 html  
+    aes_position                            html  
+    annotate                                html  
+    annotation_custom                       html  
+    annotation_logticks                     html  
+    annotation_map                          html  
+    annotation_raster                       html  
+    as.list.ggproto                         html  
+    as_labeller                             html  
+    autolayer                               html  
+    autoplot                                html  
+    benchplot                               html  
+    borders                                 html  
+    calc                                    html  
+    calc_element                            html  
+    combine_vars                            html  
+    continuous_scale                        html  
+    coord_cartesian                         html  
+    coord_fixed                             html  
+    coord_flip                              html  
+    coord_map                               html  
+    coord_munch                             html  
+    coord_polar                             html  
+    coord_trans                             html  
+    cut_interval                            html  
+    diamonds                                html  
+    discrete_scale                          html  
+    draw_key                                html  
+    economics                               html  
+    element                                 html  
+    element_grob                            html  
+    expand_limits                           html  
+    expand_scale                            html  
+    facet_grid                              html  
+    facet_null                              html  
+    facet_wrap                              html  
+    faithfuld                               html  
+    find_panel                              html  
+    fortify-multcomp                        html  
+    fortify                                 html  
+    fortify.lm                              html  
+    fortify.map                             html  
+    fortify.sp                              html  
+    geom_abline                             html  
+    geom_bar                                html  
+    geom_bin2d                              html  
+    geom_blank                              html  
+    geom_boxplot                            html  
+    geom_contour                            html  
+    geom_count                              html  
+    geom_density                            html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/geom_density.Rd:65: missing file link 'bw.nrd'
+    geom_density_2d                         html  
+    geom_dotplot                            html  
+    geom_errorbarh                          html  
+    geom_hex                                html  
+    geom_histogram                          html  
+    geom_jitter                             html  
+    geom_linerange                          html  
+    geom_map                                html  
+    geom_path                               html  
+    geom_point                              html  
+    geom_polygon                            html  
+    geom_qq                                 html  
+    geom_quantile                           html  
+    geom_ribbon                             html  
+    geom_rug                                html  
+    geom_segment                            html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/geom_segment.Rd:85: missing file link 'curveGrob'
+    geom_smooth                             html  
+    geom_spoke                              html  
+    geom_text                               html  
+    geom_tile                               html  
+    geom_violin                             html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/geom_violin.Rd:75: missing file link 'bw.nrd'
+    gg-add                                  html  
+    gg_dep                                  html  
+    ggplot                                  html  
+    ggplot2-ggproto                         html  
+    finding level-2 HTML links ... done
+
+    ggplot2-package                         html  
+    ggplotGrob                              html  
+    ggplot_add                              html  
+    ggplot_build                            html  
+    ggplot_gtable                           html  
+    ggproto                                 html  
+    ggsave                                  html  
+    ggsf                                    html  
+    ggtheme                                 html  
+    graphical-units                         html  
+    guide_colourbar                         html  
+    guide_legend                            html  
+    guides                                  html  
+    hmisc                                   html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/hmisc.Rd:32: missing file link 'smean.cl.boot'
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/hmisc.Rd:33: missing file link 'smean.cl.normal'
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/hmisc.Rd:34: missing file link 'smean.sdl'
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/hmisc.Rd:35: missing file link 'smedian.hilow'
+    is.Coord                                html  
+    is.facet                                html  
+    is.ggplot                               html  
+    is.rel                                  html  
+    is.theme                                html  
+    label_bquote                            html  
+    labeller                                html  
+    labellers                               html  
+    labs                                    html  
+    last_plot                               html  
+    layer                                   html  
+    limits                                  html  
+    lims                                    html  
+    luv_colours                             html  
+    map_data                                html  
+    max_height                              html  
+    mean_se                                 html  
+    merge_element                           html  
+    midwest                                 html  
+    mpg                                     html  
+    msleep                                  html  
+    position_dodge                          html  
+    position_identity                       html  
+    position_jitter                         html  
+    position_jitterdodge                    html  
+    position_nudge                          html  
+    position_stack                          html  
+    presidential                            html  
+    print.ggplot                            html  
+    print.ggproto                           html  
+    qplot                                   html  
+    reexports                               html  
+    remove_missing                          html  
+    render_axes                             html  
+    render_strips                           html  
+    resolution                              html  
+    scale_alpha                             html  
+    scale_brewer                            html  
+Rd warning: C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools920128a2bfe/tidyverse-ggplot2-39e4a3b/man/scale_brewer.Rd:35: missing file link 'brewer.pal'
+    scale_colour_continuous                 html  
+    scale_continuous                        html  
+    scale_date                              html  
+    scale_discrete                          html  
+    scale_gradient                          html  
+    scale_grey                              html  
+    scale_hue                               html  
+    scale_identity                          html  
+    scale_linetype                          html  
+    scale_manual                            html  
+    scale_shape                             html  
+    scale_size                              html  
+    scale_type                              html  
+    scale_viridis                           html  
+    seals                                   html  
+    sec_axis                                html  
+    set_last_plot                           html  
+    should_stop                             html  
+    stat_ecdf                               html  
+    stat_ellipse                            html  
+    stat_function                           html  
+    stat_identity                           html  
+    stat_summary                            html  
+    stat_summary_2d                         html  
+    stat_unique                             html  
+    summarise_plot                          html  
+    summary.ggplot                          html  
+    theme                                   html  
+    theme_get                               html  
+    transform_position                      html  
+    translate_qplot_ggplot                  html  
+    translate_qplot_lattice                 html  
+    txhousing                               html  
+    update_defaults                         html  
+    update_labels                           html  
+    waiver                                  html  
+    wrap_dims                               html  
+    zeroGrob                                html  
+*** copying figures
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded
+*** arch - i386
+*** arch - x64
+* DONE (ggplot2)
+In R CMD INSTALL</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiSW5zdGFsbGluZyAxIHBhY2thZ2U6IHJnZGFsXG5JbnN0YWxsaW5nIHBhY2thZ2UgaW50byDjpLzjuLFDOi9Vc2Vycy9za3luZXRtaW5pL0RvY3VtZW50cy9SL3dpbi1saWJyYXJ5LzMuNOOkvOO4slxuKGFzIOOkvOO4sWxpYuOkvOO4siBpcyB1bnNwZWNpZmllZClcbnRyeWluZyBVUkwgJ2h0dHBzOi8vY3Jhbi5yc3R1ZGlvLmNvbS9iaW4vd2luZG93cy9jb250cmliLzMuNC9yZ2RhbF8xLjItMTguemlwJ1xuQ29udGVudCB0eXBlICdhcHBsaWNhdGlvbi96aXAnIGxlbmd0aCAzMjcyNjI1OCBieXRlcyAoMzEuMiBNQilcbmRvd25sb2FkZWQgMzEuMiBNQlxuIn0= -->
+<pre><code>Installing 1 package: rgdal
+Installing package into 㤼㸱C:/Users/skynetmini/Documents/R/win-library/3.4㤼㸲
+(as 㤼㸱lib㤼㸲 is unspecified)
+trying URL 'https://cran.rstudio.com/bin/windows/contrib/3.4/rgdal_1.2-18.zip'
+Content type 'application/zip' length 32726258 bytes (31.2 MB)
+downloaded 31.2 MB</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDigJhyZ2RhbOKAmSBzdWNjZXNzZnVsbHkgdW5wYWNrZWQgYW5kIE1ENSBzdW1zIGNoZWNrZWRcblxuVGhlIGRvd25sb2FkZWQgYmluYXJ5IHBhY2thZ2VzIGFyZSBpblxuXHRDOlxcVXNlcnNcXHNreW5ldG1pbmlcXEFwcERhdGFcXExvY2FsXFxUZW1wXFxSdG1wVUxmbmhQXFxkb3dubG9hZGVkX3BhY2thZ2VzXG4ifQ== -->
+<pre><code>package ‘rgdal’ successfully unpacked and MD5 sums checked
+
+The downloaded binary packages are in
+    C:\Users\skynetmini\AppData\Local\Temp\RtmpULfnhP\downloaded_packages</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXCJDOi9QUk9HUkF+MS9SL1ItMzR+MS40L2Jpbi94NjQvUlwiIC0tbm8tc2l0ZS1maWxlIC0tbm8tZW52aXJvbiAtLW5vLXNhdmUgLS1uby1yZXN0b3JlIC0tcXVpZXQgQ01EIElOU1RBTEwgIFxcXG4gIFwiQzovVXNlcnMvc2t5bmV0bWluaS9BcHBEYXRhL0xvY2FsL1RlbXAvUnRtcFVMZm5oUC9kZXZ0b29sczkyMDZkY2Y2ZjRiL3JleGRvdWdsYXNzLU1lYXN1cmluZ0xhbmRzY2FwZS1hOWRkOWM3XCIgIFxcXG4gIC0tbGlicmFyeT1cIkM6L1VzZXJzL3NreW5ldG1pbmkvRG9jdW1lbnRzL1Ivd2luLWxpYnJhcnkvMy40XCIgLS1pbnN0YWxsLXRlc3RzIFxuIn0= -->
+<pre><code>&quot;C:/PROGRA~1/R/R-34~1.4/bin/x64/R&quot; --no-site-file --no-environ --no-save --no-restore --quiet CMD INSTALL  \
+  &quot;C:/Users/skynetmini/AppData/Local/Temp/RtmpULfnhP/devtools9206dcf6f4b/rexdouglass-MeasuringLandscape-a9dd9c7&quot;  \
+  --library=&quot;C:/Users/skynetmini/Documents/R/win-library/3.4&quot; --install-tests </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiKiBpbnN0YWxsaW5nICpzb3VyY2UqIHBhY2thZ2UgJ01lYXN1cmluZ0xhbmRzY2FwZScgLi4uXG4qKiBSXG5XYXJuaW5nOiB1bmFibGUgdG8gcmUtZW5jb2RlICdzcGF0aWFsX2Z1bmN0aW9ucy5yJyBsaW5lcyAxNSwgMTZcbioqIGluc3RcbioqIHRlc3RzXG4qKiBwcmVwYXJpbmcgcGFja2FnZSBmb3IgbGF6eSBsb2FkaW5nXG5cZioqIGhlbHBcbioqKiBpbnN0YWxsaW5nIGhlbHAgaW5kaWNlc1xuICBjb252ZXJ0aW5nIGhlbHAgZm9yIHBhY2thZ2UgJ01lYXN1cmluZ0xhbmRzY2FwZSdcbiAgICBmaW5kaW5nIEhUTUwgbGlua3MgLi4uIGRvbmVcbiAgICBwcmVkaWN0X21pc3NpbmduZXNzX2R2ICAgICAgICAgICAgICAgICAgaHRtbCAgXG4gICAgcHJlZGljdF9taXNzaW5nbmVzc19yaHMgICAgICAgICAgICAgICAgIGh0bWwgIFxuKiogYnVpbGRpbmcgcGFja2FnZSBpbmRpY2VzXG4qKiB0ZXN0aW5nIGlmIGluc3RhbGxlZCBwYWNrYWdlIGNhbiBiZSBsb2FkZWRcbioqKiBhcmNoIC0gaTM4NlxuKioqIGFyY2ggLSB4NjRcbiogRE9ORSAoTWVhc3VyaW5nTGFuZHNjYXBlKVxuSW4gUiBDTUQgSU5TVEFMTFxuIn0= -->
+<pre><code>* installing *source* package 'MeasuringLandscape' ...
+** R
+Warning: unable to re-encode 'spatial_functions.r' lines 15, 16
+** inst
+** tests
+** preparing package for lazy loading
+** help
+*** installing help indices
+  converting help for package 'MeasuringLandscape'
+    finding HTML links ... done
+    predict_missingness_dv                  html  
+    predict_missingness_rhs                 html  
+** building package indices
+** testing if installed package can be loaded
+*** arch - i386
+*** arch - x64
+* DONE (MeasuringLandscape)
+In R CMD INSTALL</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>You may hit an error “`maximal number of DLLs reached…” This is set by an environmental variable in R. We’ve specifcied it in the included “.Renviron” file “R_MAX_NUM_DLLS = 614”&quot; which should work unless your system has a hard fixed lower level or you specifcy it elsehwere.</p>
 <p>This package is highly dependent on specific package versions. Many packages updated their interfaces just over the course of writing this paper. We use a system called Packrat which records specific version numbers we used and installs them when you install this package.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4jIGluc3RhbGwucGFja2FnZXMoJ3BhY2tyYXQnLCBkZXBlbmRlbmNpZXM9VClcbiMgbGlicmFyeShwYWNrcmF0KVxuIyAjIHBhY2tyYXQ6OmluaXQocHJvamVjdCA9IHBhc3RlMChoZXJlOjpoZXJlKCksIFwiL3BhY2tyYXRcIikpXG5cbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5pbnN0YWxsLnBhY2thZ2VzKCdwYWNrcmF0JywgZGVwZW5kZW5jaWVzPVQpXG5saWJyYXJ5KHBhY2tyYXQpXG4jIHBhY2tyYXQ6OmluaXQocHJvamVjdCA9IHBhc3RlMChoZXJlOjpoZXJlKCksIFwiL3BhY2tyYXRcIikpXG5cbmBgYCJ9 -->
 <pre class="r"><code>
-# install.packages('packrat', dependencies=T)
-# library(packrat)
-# # packrat::init(project = paste0(here::here(), &quot;/packrat&quot;))
+install.packages('packrat', dependencies=T)
+library(packrat)
+# packrat::init(project = paste0(here::here(), &quot;/packrat&quot;))
 </code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
+<p>You should not have to manually install these packages, Packrat should take care of them. If for any reason that fails, these install commands may help you find the correct version of each package.</p>
 <p>In order to use specific fonts in the pdf, we use a system called Cairo. To use Cairo, must also install from <a href="https://www.cairographics.org/download/" class="uri">https://www.cairographics.org/download/</a></p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuaW5zdGFsbC5wYWNrYWdlcygnQ2Fpcm8nLCBkZXBlbmRlbmNpZXM9VClcbmBgYCJ9 -->
 <pre class="r"><code>install.packages('Cairo', dependencies=T)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiSW5zdGFsbGluZyBwYWNrYWdlIGludG8g46S847ixQzovVXNlcnMvc2t5bmV0bWluaS9Eb2N1bWVudHMvUi93aW4tbGlicmFyeS8zLjTjpLzjuLJcbihhcyDjpLzjuLFsaWLjpLzjuLIgaXMgdW5zcGVjaWZpZWQpXG50cnlpbmcgVVJMICdodHRwczovL2NyYW4ucnN0dWRpby5jb20vYmluL3dpbmRvd3MvY29udHJpYi8zLjQvQ2Fpcm9fMS41LTkuemlwJ1xuQ29udGVudCB0eXBlICdhcHBsaWNhdGlvbi96aXAnIGxlbmd0aCAxMDMxMDg0IGJ5dGVzICgxMDA2IEtCKVxuZG93bmxvYWRlZCAxMDA2IEtCXG4ifQ== -->
+<pre><code>Installing package into 㤼㸱C:/Users/skynetmini/Documents/R/win-library/3.4㤼㸲
+(as 㤼㸱lib㤼㸲 is unspecified)
+trying URL 'https://cran.rstudio.com/bin/windows/contrib/3.4/Cairo_1.5-9.zip'
+Content type 'application/zip' length 1031084 bytes (1006 KB)
+downloaded 1006 KB</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoicGFja2FnZSDigJhDYWlyb+KAmSBzdWNjZXNzZnVsbHkgdW5wYWNrZWQgYW5kIE1ENSBzdW1zIGNoZWNrZWRcblxuVGhlIGRvd25sb2FkZWQgYmluYXJ5IHBhY2thZ2VzIGFyZSBpblxuXHRDOlxcVXNlcnNcXHNreW5ldG1pbmlcXEFwcERhdGFcXExvY2FsXFxUZW1wXFxSdG1wVUxmbmhQXFxkb3dubG9hZGVkX3BhY2thZ2VzXG4ifQ== -->
+<pre><code>package ‘Cairo’ successfully unpacked and MD5 sums checked
+
+The downloaded binary packages are in
+    C:\Users\skynetmini\AppData\Local\Temp\RtmpULfnhP\downloaded_packages</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5cblxuaW5zdGFsbC5wYWNrYWdlcygna25pdHInLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2RldnRvb2xzJywgZGVwZW5kZW5jaWVzPVQpXG5kZXZ0b29sczo6aW5zdGFsbF9naXRodWIoXCJ0aWR5dmVyc2UvZ2dwbG90MlwiKSAjIGdlb21fc2YgcmVxdWlyZXMgZ2dwbG90IGluc3RhbGxlZCBvZmYgb2YgdGhlIGRldiBzZXJ2ZXJcbmluc3RhbGwucGFja2FnZXMoJ3RpZHl2ZXJzZScsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnZGF0YS50YWJsZScsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnc2YnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2NhVG9vbHMnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ3hnYm9vc3QnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ3BhY21hbicsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygndW5pdHMnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2RhdGUnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2NhcicsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnc3RyaWdyJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdjb3dwbG90JywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdnZ2pveScsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygncGFydHknLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ01ldHJpY3MnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ01MbWV0cmljcycsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygncHJlY3JlYycsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnZHVtbWllcycsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnamFuaXRvcicsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnRFQnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2dnbWFwJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdtb3NhaWMnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2dnZm9ybXVsYScsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnbWFncml0dHInLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2dsdWUnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ1JBTk4nLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ3JlMnInLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ2R1bW15JywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdkb1BhcmFsbGVsJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdxdWFudGVkYScsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnZ2dyZXBlbCcsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnZGlzc1V0aWxzJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdzdHJpbmdpJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCd4dGFibGUnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ1Nub3diYWxsQycsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygneHRhYmxlJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCd0b29scycsIGRlcGVuZGVuY2llcz1UKVxuaW5zdGFsbC5wYWNrYWdlcygnbHVicmlkYXRlJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdkaWdlc3QnLCBkZXBlbmRlbmNpZXM9VClcbmluc3RhbGwucGFja2FnZXMoJ3JnZGFsJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdzdHJpbmdyJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdmb3JlYWNoJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdwaW5wJywgZGVwZW5kZW5jaWVzPVQpXG5pbnN0YWxsLnBhY2thZ2VzKCdwYXJ0eWtpdCcsIGRlcGVuZGVuY2llcz1UKVxuZGV2dG9vbHM6Omluc3RhbGxfZ2l0aHViKFwiZHNlbGl2YW5vdi9MU0hSXCIpIFxuXG5cbiMgbXVzdCBkb3dubG9hZCBcblxuZGV2dG9vbHM6OmRvY3VtZW50KClcblxuI2xpYnJhcnkoXCJtaW5pQ1JBTlwiKVxuI3RhZ3MgPC0gXCJNZWFzdXJpbmdMYW5kc2NhcGVcIlxuI3BrZ0RlcCh0YWdzLCBhdmFpbFBrZ3MgPSBjcmFuSnVseTIwMTQpXG5cbnJlcXVpcmUoZGV2dG9vbHMpXG4jaW5zdGFsbF92ZXJzaW9uKFwiYmFja3BvcnRzXCIsIHZlcnNpb24gPSBcIjEuMS4wXCIpXG4jbGlicmFyeShiYWNrcG9ydHMpXG5cbmBgYCJ9 -->
-<pre class="r"><code>
-
-
-install.packages('knitr', dependencies=T)
-install.packages('devtools', dependencies=T)
-devtools::install_github(&quot;tidyverse/ggplot2&quot;) # geom_sf requires ggplot installed off of the dev server
-install.packages('tidyverse', dependencies=T)
-install.packages('data.table', dependencies=T)
-install.packages('sf', dependencies=T)
-install.packages('caTools', dependencies=T)
-install.packages('xgboost', dependencies=T)
-install.packages('pacman', dependencies=T)
-install.packages('units', dependencies=T)
-install.packages('date', dependencies=T)
-install.packages('car', dependencies=T)
-install.packages('strigr', dependencies=T)
-install.packages('cowplot', dependencies=T)
-install.packages('ggjoy', dependencies=T)
-install.packages('party', dependencies=T)
-install.packages('Metrics', dependencies=T)
-install.packages('MLmetrics', dependencies=T)
-install.packages('precrec', dependencies=T)
-install.packages('dummies', dependencies=T)
-install.packages('janitor', dependencies=T)
-install.packages('DT', dependencies=T)
-install.packages('ggmap', dependencies=T)
-install.packages('mosaic', dependencies=T)
-install.packages('ggformula', dependencies=T)
-install.packages('magrittr', dependencies=T)
-install.packages('glue', dependencies=T)
-install.packages('RANN', dependencies=T)
-install.packages('re2r', dependencies=T)
-install.packages('dummy', dependencies=T)
-install.packages('doParallel', dependencies=T)
-install.packages('quanteda', dependencies=T)
-install.packages('ggrepel', dependencies=T)
-install.packages('dissUtils', dependencies=T)
-install.packages('stringi', dependencies=T)
-install.packages('xtable', dependencies=T)
-install.packages('SnowballC', dependencies=T)
-install.packages('xtable', dependencies=T)
-install.packages('tools', dependencies=T)
-install.packages('lubridate', dependencies=T)
-install.packages('digest', dependencies=T)
-install.packages('rgdal', dependencies=T)
-install.packages('stringr', dependencies=T)
-install.packages('foreach', dependencies=T)
-install.packages('pinp', dependencies=T)
-install.packages('partykit', dependencies=T)
-devtools::install_github(&quot;dselivanov/LSHR&quot;) 
-
-
-# must download 
-
-devtools::document()
-
-#library(&quot;miniCRAN&quot;)
-#tags &lt;- &quot;MeasuringLandscape&quot;
-#pkgDep(tags, availPkgs = cranJuly2014)
-
-require(devtools)
-#install_version(&quot;backports&quot;, version = &quot;1.1.0&quot;)
-#library(backports)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGFja3JhdDo6c25hcHNob3QoKVxuXG5gYGAifQ== -->
+<pre class="r"><code>packrat::snapshot()
 </code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IFVuYWJsZSB0byByZXRyaWV2ZSBwYWNrYWdlIHJlY29yZHMgZm9yIHRoZSBmb2xsb3dpbmcgcGFja2FnZXM6XG4tIFwiZmlsZTExZjAyMDA0YjFhXCIsIFwiZmlsZTExZjAzMDBlNDQxY1wiXG4ifQ== -->
+<pre><code>Error: Unable to retrieve package records for the following packages:
+- &quot;file11f02004b1a&quot;, &quot;file11f0300e441c&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiMDAgUHJvamVjdCBTZXR1cCIKb3V0cHV0OiBodG1sX25vdGVib29rCmVkaXRvcl9vcHRpb25zOiAKICBjaHVua19vdXRwdXRfdHlwZTogaW5saW5lCi0tLQo8c3R5bGU+CiAgICBib2R5IC5tYWluLWNvbnRhaW5lciB7CiAgICAgICAgbWF4LXdpZHRoOiAxMDAlOwogICAgfQo8L3N0eWxlPgoKClRoaXMgZmlsZSBkZXNjcmliZWQgZGVwZW5kZW5jaWVzIGFuZCBwb3RlbnRpYWwgdHJvdWJsZXNob290aW5nIHRpcHMuCgpUaGlzIHBhcGVyIHdhcyBydW4gdXNpbmcgdjEuMC4wIG9mIHRoZSBNZWFzdXJpbmdMYW5kc2NhcGUgcGFja2FnZS4gVGhpcyByZWxlYXNlIHJlZmxlY3RzIHRoZSBzdGF0ZSBvZiB0aGUgY29kZSBhcyBvZiBwdWJsaWNhdGlvbi4gSXQgaXMgdGhlIGJlc3QgY2hhbmNlIGF0IG9idGFpbmluZyBpZGVudGljYWwgcmVzdWx0cyBhcyBzaG93biBpbiBwcmludC4gRnV0dXJlIHJlbGVhc2VzIHdpbGwgaW1wcm92ZSB0aGUgcHJlc2VudGF0aW9uIG9mIHRoZSBSLU5vdGVib29rcyBhbmQgcmVmYWN0b3IgdGhlIGNvZGUgdG8gYmUgbW9yZSByZWFkYWJsZSBhbmQgcmV1c2FibGUgYW5kIG1heSBub3QgZ2VuZXJhdGUgZXhhY3RseSBpZGVudGljYWwgZmlndXJlcyBvciBtZXNzYWdlcy4gVGhpcyB2ZXJzaW9uIGlzIGFyY2hpdmVkIHNvIHRoYXQgZXZlbiBhcyB0aGUgcGFja2FnZSBpbXByb3ZlcyBvdmVyIHRpbWUsIHRoZSBhbmFseXNpcyBjYW4gYmUgcmVydW4gYWdhaW5zdCB0aGF0IHNwZWNpZmljIHZlcnNpb24gb2YgdGhlIGNvZGUuCgpgYGB7cn0KIyBpbnN0YWxsLnBhY2thZ2VzKCJkZXZ0b29scyIpIApkZXZ0b29sczo6aW5zdGFsbF9naXRodWIoInJleGRvdWdsYXNzL01lYXN1cmluZ0xhbmRzY2FwZSIpICNAdjEuMC4wCmBgYAoKWW91IG1heSBoaXQgYW4gZXJyb3IgImBtYXhpbWFsIG51bWJlciBvZiBETExzIHJlYWNoZWQuLi4iIFRoaXMgaXMgc2V0IGJ5IGFuIGVudmlyb25tZW50YWwgdmFyaWFibGUgaW4gUi4gV2UndmUgc3BlY2lmY2llZCBpdCBpbiB0aGUgaW5jbHVkZWQgIi5SZW52aXJvbiIgZmlsZSAiUl9NQVhfTlVNX0RMTFMgPSA2MTQiIiB3aGljaCBzaG91bGQgd29yayB1bmxlc3MgeW91ciBzeXN0ZW0gaGFzIGEgaGFyZCBmaXhlZCBsb3dlciBsZXZlbCBvciB5b3Ugc3BlY2lmY3kgaXQgZWxzZWh3ZXJlLgoKClRoaXMgcGFja2FnZSBpcyBoaWdobHkgZGVwZW5kZW50IG9uIHNwZWNpZmljIHBhY2thZ2UgdmVyc2lvbnMuIE1hbnkgcGFja2FnZXMgdXBkYXRlZCB0aGVpciBpbnRlcmZhY2VzIGp1c3Qgb3ZlciB0aGUgY291cnNlIG9mIHdyaXRpbmcgdGhpcyBwYXBlci4gV2UgdXNlIGEgc3lzdGVtIGNhbGxlZCBQYWNrcmF0IHdoaWNoIHJlY29yZHMgc3BlY2lmaWMgdmVyc2lvbiBudW1iZXJzIHdlIHVzZWQgYW5kIGluc3RhbGxzIHRoZW0gd2hlbiB5b3UgaW5zdGFsbCB0aGlzIHBhY2thZ2UuCgpgYGB7cn0KCiMgaW5zdGFsbC5wYWNrYWdlcygncGFja3JhdCcsIGRlcGVuZGVuY2llcz1UKQojIGxpYnJhcnkocGFja3JhdCkKIyAjIHBhY2tyYXQ6OmluaXQocHJvamVjdCA9IHBhc3RlMChoZXJlOjpoZXJlKCksICIvcGFja3JhdCIpKQoKYGBgCgpJbiBvcmRlciB0byB1c2Ugc3BlY2lmaWMgZm9udHMgaW4gdGhlIHBkZiwgd2UgdXNlIGEgc3lzdGVtIGNhbGxlZCBDYWlyby4gVG8gdXNlIENhaXJvLCBtdXN0IGFsc28gaW5zdGFsbCBmcm9tIGh0dHBzOi8vd3d3LmNhaXJvZ3JhcGhpY3Mub3JnL2Rvd25sb2FkLwpgYGB7cn0KaW5zdGFsbC5wYWNrYWdlcygnQ2Fpcm8nLCBkZXBlbmRlbmNpZXM9VCkKYGBgCgoKYGBge3J9CgoKCmluc3RhbGwucGFja2FnZXMoJ2tuaXRyJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ2RldnRvb2xzJywgZGVwZW5kZW5jaWVzPVQpCmRldnRvb2xzOjppbnN0YWxsX2dpdGh1YigidGlkeXZlcnNlL2dncGxvdDIiKSAjIGdlb21fc2YgcmVxdWlyZXMgZ2dwbG90IGluc3RhbGxlZCBvZmYgb2YgdGhlIGRldiBzZXJ2ZXIKaW5zdGFsbC5wYWNrYWdlcygndGlkeXZlcnNlJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ2RhdGEudGFibGUnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnc2YnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnY2FUb29scycsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCd4Z2Jvb3N0JywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ3BhY21hbicsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCd1bml0cycsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdkYXRlJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ2NhcicsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdzdHJpZ3InLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnY293cGxvdCcsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdnZ2pveScsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdwYXJ0eScsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdNZXRyaWNzJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ01MbWV0cmljcycsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdwcmVjcmVjJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ2R1bW1pZXMnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnamFuaXRvcicsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdEVCcsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdnZ21hcCcsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdtb3NhaWMnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnZ2dmb3JtdWxhJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ21hZ3JpdHRyJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ2dsdWUnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnUkFOTicsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdyZTJyJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ2R1bW15JywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ2RvUGFyYWxsZWwnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygncXVhbnRlZGEnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnZ2dyZXBlbCcsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdkaXNzVXRpbHMnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnc3RyaW5naScsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCd4dGFibGUnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnU25vd2JhbGxDJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ3h0YWJsZScsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCd0b29scycsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdsdWJyaWRhdGUnLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnZGlnZXN0JywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ3JnZGFsJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ3N0cmluZ3InLCBkZXBlbmRlbmNpZXM9VCkKaW5zdGFsbC5wYWNrYWdlcygnZm9yZWFjaCcsIGRlcGVuZGVuY2llcz1UKQppbnN0YWxsLnBhY2thZ2VzKCdwaW5wJywgZGVwZW5kZW5jaWVzPVQpCmluc3RhbGwucGFja2FnZXMoJ3BhcnR5a2l0JywgZGVwZW5kZW5jaWVzPVQpCmRldnRvb2xzOjppbnN0YWxsX2dpdGh1YigiZHNlbGl2YW5vdi9MU0hSIikgCgoKIyBtdXN0IGRvd25sb2FkIAoKZGV2dG9vbHM6OmRvY3VtZW50KCkKCiNsaWJyYXJ5KCJtaW5pQ1JBTiIpCiN0YWdzIDwtICJNZWFzdXJpbmdMYW5kc2NhcGUiCiNwa2dEZXAodGFncywgYXZhaWxQa2dzID0gY3Jhbkp1bHkyMDE0KQoKcmVxdWlyZShkZXZ0b29scykKI2luc3RhbGxfdmVyc2lvbigiYmFja3BvcnRzIiwgdmVyc2lvbiA9ICIxLjEuMCIpCiNsaWJyYXJ5KGJhY2twb3J0cykKCmBgYAo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIjAwIFByb2plY3QgU2V0dXAiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCmVkaXRvcl9vcHRpb25zOiANCiAgY2h1bmtfb3V0cHV0X3R5cGU6IGlubGluZQ0KLS0tDQo8c3R5bGU+DQogICAgYm9keSAubWFpbi1jb250YWluZXIgew0KICAgICAgICBtYXgtd2lkdGg6IDEwMCU7DQogICAgfQ0KPC9zdHlsZT4NCg0KDQpUaGlzIGZpbGUgZGVzY3JpYmVkIGRlcGVuZGVuY2llcyBhbmQgcG90ZW50aWFsIHRyb3VibGVzaG9vdGluZyB0aXBzLg0KDQpUaGlzIHBhcGVyIHdhcyBydW4gdXNpbmcgdjEuMC4wIG9mIHRoZSBNZWFzdXJpbmdMYW5kc2NhcGUgcGFja2FnZS4gVGhpcyByZWxlYXNlIHJlZmxlY3RzIHRoZSBzdGF0ZSBvZiB0aGUgY29kZSBhcyBvZiBwdWJsaWNhdGlvbi4gSXQgaXMgdGhlIGJlc3QgY2hhbmNlIGF0IG9idGFpbmluZyBpZGVudGljYWwgcmVzdWx0cyBhcyBzaG93biBpbiBwcmludC4gRnV0dXJlIHJlbGVhc2VzIHdpbGwgaW1wcm92ZSB0aGUgcHJlc2VudGF0aW9uIG9mIHRoZSBSLU5vdGVib29rcyBhbmQgcmVmYWN0b3IgdGhlIGNvZGUgdG8gYmUgbW9yZSByZWFkYWJsZSBhbmQgcmV1c2FibGUgYW5kIG1heSBub3QgZ2VuZXJhdGUgZXhhY3RseSBpZGVudGljYWwgZmlndXJlcyBvciBtZXNzYWdlcy4gVGhpcyB2ZXJzaW9uIGlzIGFyY2hpdmVkIHNvIHRoYXQgZXZlbiBhcyB0aGUgcGFja2FnZSBpbXByb3ZlcyBvdmVyIHRpbWUsIHRoZSBhbmFseXNpcyBjYW4gYmUgcmVydW4gYWdhaW5zdCB0aGF0IHNwZWNpZmljIHZlcnNpb24gb2YgdGhlIGNvZGUuDQoNCmBgYHtyfQ0KIyBpbnN0YWxsLnBhY2thZ2VzKCJkZXZ0b29scyIpIA0KI2RldnRvb2xzOjppbnN0YWxsX2dpdGh1YigicmV4ZG91Z2xhc3MvTWVhc3VyaW5nTGFuZHNjYXBlIikgI0B2MS4wLjANCmBgYA0KDQpZb3UgbWF5IGhpdCBhbiBlcnJvciAiYG1heGltYWwgbnVtYmVyIG9mIERMTHMgcmVhY2hlZC4uLiIgVGhpcyBpcyBzZXQgYnkgYW4gZW52aXJvbm1lbnRhbCB2YXJpYWJsZSBpbiBSLiBXZSd2ZSBzcGVjaWZjaWVkIGl0IGluIHRoZSBpbmNsdWRlZCAiLlJlbnZpcm9uIiBmaWxlICJSX01BWF9OVU1fRExMUyA9IDYxNCIiIHdoaWNoIHNob3VsZCB3b3JrIHVubGVzcyB5b3VyIHN5c3RlbSBoYXMgYSBoYXJkIGZpeGVkIGxvd2VyIGxldmVsIG9yIHlvdSBzcGVjaWZjeSBpdCBlbHNlaHdlcmUuDQoNCg0KVGhpcyBwYWNrYWdlIGlzIGhpZ2hseSBkZXBlbmRlbnQgb24gc3BlY2lmaWMgcGFja2FnZSB2ZXJzaW9ucy4gTWFueSBwYWNrYWdlcyB1cGRhdGVkIHRoZWlyIGludGVyZmFjZXMganVzdCBvdmVyIHRoZSBjb3Vyc2Ugb2Ygd3JpdGluZyB0aGlzIHBhcGVyLiBXZSB1c2UgYSBzeXN0ZW0gY2FsbGVkIFBhY2tyYXQgd2hpY2ggcmVjb3JkcyBzcGVjaWZpYyB2ZXJzaW9uIG51bWJlcnMgd2UgdXNlZCBhbmQgaW5zdGFsbHMgdGhlbSB3aGVuIHlvdSBpbnN0YWxsIHRoaXMgcGFja2FnZS4NCg0KYGBge3J9DQoNCmluc3RhbGwucGFja2FnZXMoJ3BhY2tyYXQnLCBkZXBlbmRlbmNpZXM9VCkNCmxpYnJhcnkocGFja3JhdCkNCiMgcGFja3JhdDo6aW5pdChwcm9qZWN0ID0gcGFzdGUwKGhlcmU6OmhlcmUoKSwgIi9wYWNrcmF0IikpDQoNCmBgYA0KDQpZb3Ugc2hvdWxkIG5vdCBoYXZlIHRvIG1hbnVhbGx5IGluc3RhbGwgdGhlc2UgcGFja2FnZXMsIFBhY2tyYXQgc2hvdWxkIHRha2UgY2FyZSBvZiB0aGVtLiBJZiBmb3IgYW55IHJlYXNvbiB0aGF0IGZhaWxzLCB0aGVzZSBpbnN0YWxsIGNvbW1hbmRzIG1heSBoZWxwIHlvdSBmaW5kIHRoZSBjb3JyZWN0IHZlcnNpb24gb2YgZWFjaCBwYWNrYWdlLg0KDQoNCkluIG9yZGVyIHRvIHVzZSBzcGVjaWZpYyBmb250cyBpbiB0aGUgcGRmLCB3ZSB1c2UgYSBzeXN0ZW0gY2FsbGVkIENhaXJvLiBUbyB1c2UgQ2Fpcm8sIG11c3QgYWxzbyBpbnN0YWxsIGZyb20gaHR0cHM6Ly93d3cuY2Fpcm9ncmFwaGljcy5vcmcvZG93bmxvYWQvDQpgYGB7cn0NCmluc3RhbGwucGFja2FnZXMoJ0NhaXJvJywgZGVwZW5kZW5jaWVzPVQpDQpgYGANCg0KDQpgYGB7cn0NCg0KaW5zdGFsbC5wYWNrYWdlcygnZGV2dG9vbHMnLCBkZXBlbmRlbmNpZXM9VCkNCmRldnRvb2xzOjppbnN0YWxsX2dpdGh1YigiZHNlbGl2YW5vdi9MU0hSIikgDQpkZXZ0b29sczo6aW5zdGFsbF9naXRodWIoInRpZHl2ZXJzZS9nZ3Bsb3QyIikgIyBnZW9tX3NmIHJlcXVpcmVzIGdncGxvdCBpbnN0YWxsZWQgb2ZmIG9mIHRoZSBkZXYgc2VydmVyDQoNCmluc3RhbGwucGFja2FnZXMoJ2tuaXRyJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCd0aWR5dmVyc2UnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ2RhdGEudGFibGUnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ3NmJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdjYVRvb2xzJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCd4Z2Jvb3N0JywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdwYWNtYW4nLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ3VuaXRzJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdkYXRlJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdjYXInLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ3N0cmlncicsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygnY293cGxvdCcsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygnZ2dqb3knLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ3BhcnR5JywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdNZXRyaWNzJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdNTG1ldHJpY3MnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ3ByZWNyZWMnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ2R1bW1pZXMnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ2phbml0b3InLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ0RUJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdnZ21hcCcsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygnbW9zYWljJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdnZ2Zvcm11bGEnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ21hZ3JpdHRyJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdnbHVlJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdSQU5OJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdyZTJyJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdkdW1teScsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygnZG9QYXJhbGxlbCcsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygncXVhbnRlZGEnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ2dncmVwZWwnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ2Rpc3NVdGlscycsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygnZGlnZXN0JywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdzdHJpbmdpJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCd4dGFibGUnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ1Nub3diYWxsQycsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygneHRhYmxlJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCd0b29scycsIGRlcGVuZGVuY2llcz1UKQ0KaW5zdGFsbC5wYWNrYWdlcygnbHVicmlkYXRlJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdkaWdlc3QnLCBkZXBlbmRlbmNpZXM9VCkNCmluc3RhbGwucGFja2FnZXMoJ3JnZGFsJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdzdHJpbmdyJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdmb3JlYWNoJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdwaW5wJywgZGVwZW5kZW5jaWVzPVQpDQppbnN0YWxsLnBhY2thZ2VzKCdwYXJ0eWtpdCcsIGRlcGVuZGVuY2llcz1UKQ0KDQoNCiMgbXVzdCBkb3dubG9hZCANCg0KZGV2dG9vbHM6OmRvY3VtZW50KCkNCg0KI2xpYnJhcnkoIm1pbmlDUkFOIikNCiN0YWdzIDwtICJNZWFzdXJpbmdMYW5kc2NhcGUiDQojcGtnRGVwKHRhZ3MsIGF2YWlsUGtncyA9IGNyYW5KdWx5MjAxNCkNCg0KcmVxdWlyZShkZXZ0b29scykNCiNpbnN0YWxsX3ZlcnNpb24oImJhY2twb3J0cyIsIHZlcnNpb24gPSAiMS4xLjAiKQ0KI2xpYnJhcnkoYmFja3BvcnRzKQ0KDQpgYGANCg==</div>
 
 
 
