@@ -95,6 +95,8 @@ install.packages('pinp', dependencies=T)
 install.packages('partykit', dependencies=T)
 
 
+packrat::snapshot()
+
 # must download 
 
 devtools::document()

@@ -9,6 +9,9 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/rexdouglass/MeasuringLandscapeCivilWar
 BugReports: https://github.com/rexdouglass/MeasuringLandscapeCivilWar/issues
+Depends:
+  ggplot2 (>= 2.2.1.9),
+  magrittr
 Imports:
   here,
   packrat,
@@ -16,7 +19,6 @@ Imports:
   devtools,
   knitr,
   tidyverse,
-  ggplot2 (>= 2.2.1.9),
   sf,
   data.table,
   caTools,
@@ -56,5 +58,5 @@ Imports:
   quanteda,
   ggrepel,
   partykit
-Suggests: fst, ggridges, proxy
+Suggests:
 RoxygenNote: 6.0.1

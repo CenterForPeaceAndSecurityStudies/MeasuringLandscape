@@ -22,8 +22,7 @@ rm(list=ls()); gc()
 # Hiding output and warnings
 # !diagnostics off
 library(MeasuringLandscape)
-
-devtools::load_all()
+#devtools::load_all()
 dir_figures <- glue::glue(getwd(), "/../paper/figures/")
 dir_package_files <- glue::glue(getwd(), "/inst/extdata/")
 
@@ -64,7 +63,7 @@ lat_min <- -1.43285
 lat_max <- 0.54543
 
 # Bounding Box Spatial Object
-region_of_interest_sf_utm <- create_roi(
+region_of_interest_sf_utm <- MeasuringLandscape:::create_roi(
   bottom_left_x = long_min,
   bottom_left_y = lat_min,
   top_right_x = long_max,
@@ -84,28 +83,28 @@ events_sf_roi <- events_sf %>% subset_roi(region_of_interest_sf_utm) %>%
                  distinct()
 
 # Moderate Size Point Sources
-nga_sf_roi <- load_nga(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-geonames_sf_roi <- load_geonames(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-historical_sf_roi <- load_historical(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+nga_sf_roi <- MeasuringLandscape::load_nga(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+geonames_sf_roi <- MeasuringLandscape::load_geonames(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+historical_sf_roi <- MeasuringLandscape::load_historical(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 # Small API Sources
-googlemaps_sf_roi <- load_googlemaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-bingmaps_sf_roi <- load_bingmaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+googlemaps_sf_roi <- MeasuringLandscape::load_googlemaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+bingmaps_sf_roi <- MeasuringLandscape::load_bingmaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 # Moderate Size mixed or polygon sources
-KEN_adm_sf_roi <- load_ken_adm(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-livestock_sf_roi <- load_livestock(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-kenya_districts1962_sf_roi <- load_kenya_districts1962(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-kenya_cadastral_district_sf_roi <- load_kenya_cadastral_district(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-kenya_cadastral_sf_roi <- load_kenya_cadastral(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+KEN_adm_sf_roi <- MeasuringLandscape::load_ken_adm(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+livestock_sf_roi <- MeasuringLandscape::load_livestock(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_districts1962_sf_roi <- MeasuringLandscape::load_kenya_districts1962(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_cadastral_district_sf_roi <- MeasuringLandscape::load_kenya_cadastral_district(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_cadastral_sf_roi <- MeasuringLandscape::load_kenya_cadastral(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 # Very Large Sources
-wikidata_sf_roi <- load_wikidata(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
-tgn_sf_roi <- load_tgn(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
-openstreetmap_sf_roi <- load_openstreetmap(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+wikidata_sf_roi <- MeasuringLandscape::load_wikidata(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
+tgn_sf_roi <- MeasuringLandscape::load_tgn(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
+openstreetmap_sf_roi <- MeasuringLandscape::load_openstreetmap(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 if (fromscratch) {
