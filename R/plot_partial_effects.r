@@ -1,7 +1,8 @@
 
 
-p_load(data.table)
-p_load(ggridges)
+
+
+
 plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
                                  outcome="mapcoordinate_clean_missing",
                                  var="document_district_clean",
@@ -10,12 +11,18 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
                                  histogram=F,
                                  scale=4) {
   
-  p_load(Hmisc)
-  sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+  #p_load(Hmisc)
+  sentence_case <- function(x) Hmisc::capitalize(tolower(gsub("_"," ",x)))
   
   
-  x_all <- dummy.data.frame(pred_cords$x_all_pre_dummy)
-  dtrain <- xgb.DMatrix(data=as.matrix( x_all ),  missing = NA )
+  #Dummies packagr broke
+  #options(na.action='na.pass')
+  #x_all <-  model.matrix(~ . - 1, pred_cords$x_all_pre_dummy)
+  #options(na.action='na.omit')
+  
+  x_all <- dummies::dummy.data.frame(pred_cords$x_all_pre_dummy,
+              dummy.classes=c('character','factor','ordered'))
+  dtrain <- xgboost::xgb.DMatrix(data=as.matrix( x_all ),  missing = NA )
   #hist(predict(rf, dtrain)) #ok very different results
   
   uniquevalues <- table(train[,var])
@@ -26,7 +33,12 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
   for(q in uniquevalues){
     print(q)
     
-    testdata_dummy <- dummy.data.frame(train)
+    #options(na.action='na.pass')
+    #testdata_dummy <-  model.matrix(~ . - 1, train)
+    #options(na.action='na.omit')
+    
+    testdata_dummy <- dummies::dummy.data.frame(train,
+      dummy.classes=c('character','factor','ordered'))
     #dtest <- xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA )
     #hist(  predict(rf, dtest )  )
     
@@ -45,7 +57,7 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
     #hist(predict(rf, dtest)) #ok very different results
     
     
-    dtest <- xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA )
+    dtest <- xgboost::xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA )
     predictions_list[[q]] <- data.frame( predict(rf, dtest ) )
     predictions_list[[q]]$xvar <- q
     predictions_list[[q]]$yvar <- outcome
@@ -58,8 +70,7 @@ plot_partial_effects <- function(rf=rf_mapcoordinate_clean_missing,
   predictions$xvar_ordered <- factor(sentence_case(predictions$xvar),
                                      levels=  sentence_case(temp$xvar[order(temp$predict.rf..dtest.)])
   )
-  p_load(ggplot2)
-  
+ 
   if(histogram){
     p <- predictions %>% 
             ggplot(  aes(x=xvar_ordered,

@@ -93,6 +93,7 @@ install.packages('stringr', dependencies=T)
 install.packages('foreach', dependencies=T)
 install.packages('pinp', dependencies=T)
 install.packages('partykit', dependencies=T)
+install.packages('raster', dependencies=T)
 
 
 packrat::snapshot()

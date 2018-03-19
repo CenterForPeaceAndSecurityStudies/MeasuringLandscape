@@ -148,7 +148,7 @@ pred_source_dataset_list <- list()
 for( q in na.omit(unique(georef_all_dt_bysource$source_dataset)) ){
   print(q)
   y <- events_sf$event_hash %in% georef_all_dt_bysource[source_dataset==q ]$event_hash
-  pred_source_dataset_list[[as.character(q)]] <- predict_missingness_dv(y)
+  pred_source_dataset_list[[as.character(q)]] <- MeasuringLandscape:::predict_missingness_dv(y)
 }
 auc_source_dataset <- sapply(pred_source_dataset_list, FUN=function(q) Metrics::auc(q$label, q$xb))
 recall_source_dataset <- sapply(pred_source_dataset_list, FUN=function(q) sum(q$label) )
@@ -164,7 +164,7 @@ pred_geometry_type_list <- list()
 for( q in na.omit(unique(georef_all_dt_bygeometry_type$geometry_type)) ){
   print(q)
   y <- events_sf$event_hash %in% georef_all_dt_bygeometry_type[geometry_type==q ]$event_hash
-  pred_geometry_type_list[[as.character(q)]] <- predict_missingness_dv(y)
+  pred_geometry_type_list[[as.character(q)]] <- MeasuringLandscape:::predict_missingness_dv(y)
 }
 auc_geometry_type <- sapply(pred_geometry_type_list, FUN=function(q) Metrics::auc(q$label, q$xb))
 recall_geometry_type <- sapply(pred_geometry_type_list, FUN=function(q) sum(q$label) )
@@ -180,7 +180,7 @@ pred_selfreference_list <- list()
 for( q in na.omit(unique(georef_all_dt_byselfreference$SelfReference)) ){
   print(q)
   y <- events_sf$event_hash %in% georef_all_dt_byselfreference[SelfReference==q]$event_hash
-  pred_selfreference_list[[as.character(q)]] <- predict_missingness_dv(y)
+  pred_selfreference_list[[as.character(q)]] <- MeasuringLandscape:::predict_missingness_dv(y)
 }
 auc_selfreference <- sapply(pred_selfreference_list, FUN=function(q) Metrics::auc(q$label, q$xb))
 recall_selfreference <- sapply(pred_selfreference_list, FUN=function(q) sum(q$label) )
@@ -236,7 +236,7 @@ Plot
 
 
 #p_load(Hmisc)
-sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+sentence_case <- function(x) Hmisc::capitalize(tolower(gsub("_"," ",x)))
 #install.packages("extrafont");
 #library(extrafont)
 #library(extrafont)

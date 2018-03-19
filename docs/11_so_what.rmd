@@ -24,7 +24,6 @@ rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscape)
 
-devtools::load_all()
 dir_figures <- glue::glue(getwd(), "/../paper/figures/")
 
 gc()
@@ -39,15 +38,15 @@ options(width = 160)
 
 ```{r}
 
-covariate_list <-  prep_covariates()
+covariate_list <-  MeasuringLandscape:::prep_covariates()
 
-region_of_interest_sf <- create_roi(bottom_left_x=35.67,
+region_of_interest_sf <- MeasuringLandscape:::create_roi(bottom_left_x=35.67,
                                         bottom_left_y=-1.43285,
                                         top_right_x=38.19,
                                         top_right_y=0.54543,
                                         crs_out=4326)
 
-hex <- create_hexagon_df(cellsize_km=10,
+hex <- MeasuringLandscape:::create_hexagon_df(cellsize_km=10,
                             region_of_interest=region_of_interest_sf,
                             type="hexagonal",
                             crs=4326 )
@@ -61,11 +60,11 @@ hex <- create_hexagon_df(cellsize_km=10,
 #hex$cadastral <- new_over(st_centroid(hex) , covariate_list[[2]]  , 'name' )
 #hex$language <- new_over(st_centroid(hex) , covariate_list[[3]]  , 'LANGUAGE' )
 #hex$tribe <- new_over(st_centroid(hex) , covariate_list[[4]]  , 'Tribe' )
-hex$rain <- log( new_over(st_centroid(hex) , covariate_list[['raster_rain']]  , 'Tribe' ) + 1)
-hex$population <- log(  new_over(st_centroid(hex) , covariate_list[['pop_raster_roi']]  , '' ) + 1)
-hex$treecover <-log(  new_over(st_centroid(hex) , covariate_list[['forest_raster_roi']]  , '' ) + 1)
-hex$ruggedness <- log(  new_over(st_centroid(hex) , covariate_list[['ruggedness_raster_roi']]  , '' ) + 1)
-hex$roads_distance <-log(  new_over(st_centroid(hex) , covariate_list[['roads_distance_to']]  , '' ) + 1)
+hex$rain <- log( MeasuringLandscape:::new_over(st_centroid(hex) , covariate_list[['raster_rain']]  , 'Tribe' ) + 1)
+hex$population <- log(  MeasuringLandscape:::new_over(st_centroid(hex) , covariate_list[['pop_raster_roi']]  , '' ) + 1)
+hex$treecover <-log(  MeasuringLandscape:::new_over(st_centroid(hex) , covariate_list[['forest_raster_roi']]  , '' ) + 1)
+hex$ruggedness <- log(  MeasuringLandscape:::new_over(st_centroid(hex) , covariate_list[['ruggedness_raster_roi']]  , '' ) + 1)
+hex$roads_distance <-log(  MeasuringLandscape:::new_over(st_centroid(hex) , covariate_list[['roads_distance_to']]  , '' ) + 1)
 #hex$landuse <- new_over(st_centroid(hex) , covariate_list[[9]]  , 'LANDUSE' )
 
 ```
@@ -91,9 +90,7 @@ lm1 <- lm(dv ~ ., data=as.data.frame(hex)[,vars_all])
 
 temp <- georef_all_dt_events_sf %>% filter(!duplicated(event_hash))
 hex$dv <-  sapply( st_covers(hex, temp), length) 
-library(MASS)
-library(broom)
-tidy(lm1)
+broom::tidy(lm1)
 
 ```
 
@@ -113,8 +110,8 @@ condition <- paste(georef_all_dt_events_sf$event_hash, georef_all_dt_events_sf$p
              paste(georef_all_dt_ensemble$event_hash, georef_all_dt_ensemble$place_hash) #table(condition)
 temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
 hex$dv <- sapply( st_covers(hex, temp), length) 
-lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
-temp_results <- tidy(lm1)
+lm1 <- MASS::glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+temp_results <- broom::tidy(lm1)
 temp_results$Type="Rule"
 temp_results$label <- "Hand Rule"
 lm_results_list0[[as.character("Hand Rule")]] <- temp_results
@@ -127,8 +124,8 @@ condition <- paste(georef_all_dt_events_sf$event_hash, georef_all_dt_events_sf$p
              paste(georef_all_dt_ensemble$event_hash, georef_all_dt_ensemble$place_hash) #table(condition)
 temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
 hex$dv <- sapply( st_covers(hex, temp), length) 
-lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
-temp_results <- tidy(lm1)
+lm1 <- MASS::glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+temp_results <- broom::tidy(lm1)
 temp_results$Type="Rule"
 temp_results$label <- "Ensemble Rule"
 lm_results_list0[[as.character("Ensemble Rule")]] <- temp_results
@@ -145,10 +142,10 @@ for(q in unique(georef_all_dt_events_sf$source_dataset)){
   condition <- georef_all_dt_events_sf$source_dataset==q
   temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
   hex$dv <- sapply( st_covers(hex, temp), length) 
-  lm1 <- glm.nb(dv ~ .,
+  lm1 <- MASS::glm.nb(dv ~ .,
                 data= na.omit(as.data.frame(hex)[,vars_all]) 
                 )
-  temp_results <- tidy(lm1)
+  temp_results <- broom::tidy(lm1)
   temp_results$Type="Source Dataset"
   temp_results$label <- q
   lm_results_list[[as.character(q)]] <- temp_results
@@ -164,10 +161,10 @@ for(q in unique(georef_all_dt_events_sf$geometry_type)){
     condition <- georef_all_dt_events_sf$geometry_type==q
     temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
     hex$dv <- sapply( st_covers(hex, temp), length) 
-    lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) ,
+    lm1 <- MASS::glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) ,
                   control=glm.control(maxit=100) #Up the number of iterations so it converges
                   ) 
-    temp_results <- tidy(lm1)
+    temp_results <- broom::tidy(lm1)
     temp_results$Type="Geometry Type"
     temp_results$label <- q
     lm_results_list2[[as.character(q)]] <- temp_results
@@ -181,8 +178,8 @@ for(q in unique(georef_all_dt_events_sf$fuzzy)){
   condition <- georef_all_dt_events_sf$fuzzy==q
   temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
   hex$dv <- sapply( st_covers(hex, temp), length) 
-  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
-  temp_results <- tidy(lm1)
+  lm1 <- MASS::glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+  temp_results <- broom::tidy(lm1)
   temp_results$Type="Match Type"
   temp_results$label <- q
   lm_results_list3[[as.character(q)]] <- temp_results
@@ -195,8 +192,8 @@ for(q in unique(georef_all_dt_events_sf$SelfReference)){
   condition <- georef_all_dt_events_sf$SelfReference==q
   temp <- georef_all_dt_events_sf[condition,] %>% filter(!duplicated(event_hash))
   hex$dv <- sapply( st_covers(hex, temp), length) 
-  lm1 <- glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
-  temp_results <- tidy(lm1)
+  lm1 <- MASS::glm.nb(dv ~ ., data= na.omit(as.data.frame(hex)[,vars_all]) )
+  temp_results <- broom::tidy(lm1)
   temp_results$Type="SelfReference"
   temp_results$label <- q
   lm_results_list4[[as.character(q)]] <- temp_results
@@ -224,7 +221,7 @@ lm_results_dt <- rbindlist( list(  rbindlist(lm_results_list0),
 lm_results_dt <- lm_results_dt %>% mutate(rate= round(exp(estimate),2) )
 
 #p_load(Hmisc)
-sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+sentence_case <- function(x) Hmisc::capitalize(tolower(gsub("_"," ",x)))
 
 
 #install.packages("extrafont");
@@ -242,7 +239,6 @@ fonts <- c('Times New Roman',
            "Tunga")
            #'serif','Helvetica','Bookman','Palatino')
 
-library(ggplot2)
 #qplot(1:10)+theme(text=element_text(family="Gill Sans Ultra Bold"))
 #qplot(1:10)+theme(text=element_text(family=fonts[1]))
 #qplot(1:10)+theme(text=element_text(family=fonts[2]))

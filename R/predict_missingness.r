@@ -29,10 +29,11 @@ predict_missingness_dv <- function(label, print_every_n=20) {
   x_all_pre_dummy <- x_all
 
   #The dummies package broke
-  #x_all <- dummies::dummy.data.frame(x_all)
-  options(na.action='na.pass')
-  x_all <-  model.matrix(~ . - 1, x_all)
-  options(na.action='na.omit')
+  x_all <- dummies::dummy.data.frame(x_all,
+          dummy.classes=c('character','factor','ordered'))
+  #options(na.action='na.pass')
+  #x_all <-  model.matrix(~ . - 1, x_all)
+  #options(na.action='na.omit')
   
   # label= label #
   sumwneg <- sum(label == 0)
@@ -123,10 +124,11 @@ predict_missingness_rhs <- function(condition) {
 
   x_all <- xy_all[, vars_x]
   #The dummies package broke
-  #x_all <- dummies::dummy.data.frame(x_all)
-  options(na.action='na.pass')
-  x_all <-  model.matrix(~ . - 1, x_all)
-  options(na.action='na.omit')
+  x_all <- dummies::dummy.data.frame(x_all,
+   dummy.classes=c('character','factor','ordered'))
+  #options(na.action='na.pass')
+  #x_all <-  model.matrix(~ . - 1, x_all)
+  #options(na.action='na.omit')
   
   # label= label #
   sumwneg <- sum(label == 0)

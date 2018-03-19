@@ -15,6 +15,7 @@ Depends:
   data.table,
   tidyverse
 Imports:
+  broom,
   car,
   caTools,
   cowplot,
@@ -28,7 +29,7 @@ Imports:
   foreach,
   fst,
   ggformula,
-  ggjoy,
+  ggridges,
   ggmap,
   ggrepel,
   glue,
@@ -36,6 +37,7 @@ Imports:
   janitor,
   knitr,
   lubridate,
+  MASS,
   Metrics,
   MLmetrics,
   mosaic,
@@ -46,6 +48,7 @@ Imports:
   precrec,
   quanteda,
   RANN,
+  raster,
   re2r,
   rgdal,
   sf,

@@ -23,7 +23,6 @@ rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscape)
 
-devtools::load_all()
 dir_figures <- glue::glue(getwd(), "/../paper/figures/")
 
 gc()
@@ -33,7 +32,7 @@ knitr::opts_chunk$set(fig.width=12, fig.height=8,  warning=FALSE, message=FALSE,
 options(width = 160)
 
 #p_load(Hmisc)
-sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+sentence_case <- function(x) Hmisc::capitalize(tolower(gsub("_"," ",x)))
 
 
 ```
@@ -58,7 +57,7 @@ Plot the predicted effects for a single model, Mil. Coords or no Mil. Coords
 ```{R }
 
 
-pred_cords <- predict_missingness_dv(is.na(events_sf$map_coordinate_clean_latitude))
+pred_cords <- MeasuringLandscape:::predict_missingness_dv(is.na(events_sf$map_coordinate_clean_latitude))
 rf <- pred_cords$xb_model
 train <- pred_cords$x_all_pre_dummy
 label <- pred_cords$label
@@ -67,20 +66,25 @@ x_all <- dummies::dummy.data.frame(pred_cords$x_all_pre_dummy,
                                    all=T,
                                    dummy.classes=c('character','factor','ordered'))
 
-dtrain <- xgb.DMatrix(data=as.matrix( x_all ), 
+dtrain <- xgboost::xgb.DMatrix(data=as.matrix( x_all ), 
                       label = label, missing = NA )
-testdata_dummy <- dummy.data.frame(pred_cords$x_all_pre_dummy, drop=F)
-dtest <- xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA ) 
-dtest <- xgb.DMatrix(data=as.matrix( pred_cords$postdummy ),  missing = NA )
+
+#options(na.action='na.pass')
+#testdata_dummy <-  model.matrix(~ . - 1, pred_cords$x_all_pre_dummy)
+#options(na.action='na.omit')
+testdata_dummy <- dummies::dummy.data.frame(pred_cords$x_all_pre_dummy, drop=F,
+                                   dummy.classes=c('character','factor','ordered'))
+dtest <- xgboost::xgb.DMatrix(data=as.matrix( testdata_dummy ),  missing = NA ) 
+dtest <- xgboost::xgb.DMatrix(data=as.matrix( pred_cords$postdummy ),  missing = NA )
 
 ```
 
 Importance scores for each variable, predicting the missingness of exact map coordinates as a function of each event's details.
 
 ```{r}
-importance_importance <- xgb.importance(feature_names=names(pred_cords$x_all_pre_dummy),
+importance_importance <- xgboost::xgb.importance(feature_names=names(pred_cords$x_all_pre_dummy),
                                         model = rf)
-xgb.plot.importance(importance_importance)
+xgboost::xgb.plot.importance(importance_importance)
 
 
 ```
@@ -91,40 +95,40 @@ xgb.plot.importance(importance_importance)
 
 histogram=T
 scale=2
-a <- plot_partial_effects(rf=pred_cords$xb_model,
+a <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="document_date_type",minsize=100,
                   scale=scale,histogram=T)
 
-b <- plot_partial_effects(rf=pred_cords$xb_model,
+b <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="document_date_best_year",minsize=100,
                   scale=scale,histogram=T)
 
-c <- plot_partial_effects(rf=pred_cords$xb_model,
+c <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="initiator_clean_1_aggmed",minsize=100,
                   scale=scale,histogram=T)
 
 
 
-d <- plot_partial_effects(rf=pred_cords$xb_model,
+d <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="target_clean_1_aggmed",minsize=100,
                   scale=scale,histogram=T)
 
-e <- plot_partial_effects(rf=pred_cords$xb_model,
+e <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="type_clean_aggmed",minsize=100,
                   scale=scale,histogram=T)
 
 
-f <- plot_partial_effects(rf=pred_cords$xb_model,
+f <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="document_unit_type",minsize=100,
                   scale=scale,histogram=T)
 
 
-g <- plot_partial_effects(rf=pred_cords$xb_model,
+g <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing", var="document_district_clean",
                   minsize=100, train=pred_cords$x_all_pre_dummy ,
                   scale=scale,histogram=T)
 
-h <- plot_partial_effects(rf=pred_cords$xb_model,
+h <- MeasuringLandscape:::plot_partial_effects(rf=pred_cords$xb_model,
                   outcome="mapcoordinate_clean_missing",var="event_date_clean_year",minsize=100,
                   scale=scale,histogram=T)
 
@@ -149,6 +153,7 @@ final_histogram <- cowplot::plot_grid(
   h+ggtitle(sentence_case('Event Year')) + ylab(sentence_case("Probability of Missing Military Coordinates")),
   #i+ggtitle('Reporting Office'),
   ncol = 3, align = "hv" ) #,rel_heights=heights)
+final_histogram
 
 ggsave(
   filename = glue::glue(dir_figures, "rf_mapcoordinate_clean_missing.pdf"),
@@ -157,79 +162,8 @@ ggsave(
 
 ```
 
-```{r}
-print(final_histogram)
-```
 
 
 
 
-```{r, echo=F,eval=F}
-
-scale=2
-a <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing",var="document_date_type",minsize=100,
-                  scale=scale)
-
-b <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing",var="document_date_best_year",minsize=100,
-                  scale=scale)
-
-c <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing",var="initiator_clean_1_aggmed",minsize=100,
-                  scale=scale)
-
-
-
-d <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing",var="target_clean_1_aggmed",minsize=100,
-                  scale=scale)
-
-e <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing",var="type_clean_aggmed",minsize=100,
-                  scale=scale)
-
-
-f <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing",var="document_unit_type",minsize=100,
-                  scale=scale)
-
-
-g <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing", var="document_district_clean",
-                  minsize=100, train=pred_cords$x_all_pre_dummy ,
-                  scale=scale)
-
-h <- plot_partial_effects(rf=pred_cords$xb_model,
-                  outcome="mapcoordinate_clean_missing",var="event_date_clean_year",minsize=100,
-                  scale=scale)
-
-#e <- plot_partial_effects(rf=pred_cords$xb_model,
-#                  outcome="mapcoordinate_clean_missing",var="locationtext_ruleclean_suffix",minsize=100)
-
-
-
-
-#p_load(cowplot)
-final <- cowplot::plot_grid(
-  a+ggtitle('Document Date Type'),
-  b+ggtitle('Document Year'),
-  c+ggtitle('Initiator'),
-  d+ggtitle('Target'),
-  e+ggtitle('Act Type'),
-  f+ggtitle('Document Unit'),
-  g+ggtitle('Document District'),
-  h+ggtitle('Event Year') + xlab("Prob. of Missing Military Coords."),
-  #i+ggtitle('Reporting Office'),
-  ncol = 3, align = "hv" ) #,rel_heights=heights)
-final
-
-ggsave(
-  filename = glue::glue(dir_figures, "rf_mapcoordinate_clean_missing_ridgeplot.pdf"),
-  plot = final, width = 10, height = 8,
-    device = cairo_pdf #have to use cairo to correctly embed the fonts
-
-)
-
-```
 

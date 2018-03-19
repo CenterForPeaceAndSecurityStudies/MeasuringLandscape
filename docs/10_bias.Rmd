@@ -23,7 +23,6 @@ rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscape)
 
-devtools::load_all()
 dir_figures <- glue::glue(getwd(), "/../paper/figures/")
 
 gc()
@@ -94,7 +93,7 @@ georef_all_dt_covariates_gaz_sf$imputed <- 1
 
 
 #covariate_list <- readRDS( '/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar/inst/extdata/covariate_list.Rds' )
-covariate_list <-  prep_covariates()
+covariate_list <-  MeasuringLandscape:::prep_covariates()
 
 sapply(covariate_list, FUN=function(q) class(q)[1])
 
@@ -110,15 +109,15 @@ sapply(covariate_list, FUN=function(q) class(q)[1])
 #georef_all_dt_covariates_events_sf$cadastral <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[2]]  , 'name' )
 #georef_all_dt_covariates_events_sf$language <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[3]]  , 'LANGUAGE' )
 #georef_all_dt_covariates_events_sf$tribe <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[4]]  , 'Tribe' )
-georef_all_dt_covariates_events_sf$rain <- new_over(georef_all_dt_covariates_events_sf ,
+georef_all_dt_covariates_events_sf$rain <- MeasuringLandscape:::new_over(georef_all_dt_covariates_events_sf ,
                                                     covariate_list[['raster_rain']]  , 'Tribe' )
-georef_all_dt_covariates_events_sf$population <- new_over(georef_all_dt_covariates_events_sf ,
+georef_all_dt_covariates_events_sf$population <- MeasuringLandscape:::new_over(georef_all_dt_covariates_events_sf ,
                                                           covariate_list[['pop_raster_roi']]  , '' )
-georef_all_dt_covariates_events_sf$treecover <- new_over(georef_all_dt_covariates_events_sf ,
+georef_all_dt_covariates_events_sf$treecover <- MeasuringLandscape:::new_over(georef_all_dt_covariates_events_sf ,
                                                          covariate_list[['forest_raster_roi']]  , '' )
-georef_all_dt_covariates_events_sf$ruggedness <- new_over(georef_all_dt_covariates_events_sf ,
+georef_all_dt_covariates_events_sf$ruggedness <- MeasuringLandscape:::new_over(georef_all_dt_covariates_events_sf ,
                                                           covariate_list[['ruggedness_raster_roi']]  , '' )
-georef_all_dt_covariates_events_sf$roads_distance <- new_over(georef_all_dt_covariates_events_sf ,
+georef_all_dt_covariates_events_sf$roads_distance <- MeasuringLandscape:::new_over(georef_all_dt_covariates_events_sf ,
                                                               covariate_list[['roads_distance_to']]  , '' )
 
 #georef_all_dt_covariates_events_sf$landuse <- new_over(georef_all_dt_covariates_events_sf , covariate_list[[9]]  , 'LANDUSE' )
@@ -140,7 +139,7 @@ georef_all_dt_covariates_events_sf$roads_distance <- new_over(georef_all_dt_cova
 ```{r}
 
 #p_load(Hmisc)
-sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+sentence_case <- function(x) Hmisc::capitalize(tolower(gsub("_"," ",x)))
 
 
 #Make that bias in the coef plot
