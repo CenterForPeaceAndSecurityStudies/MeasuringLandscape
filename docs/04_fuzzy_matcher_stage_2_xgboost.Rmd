@@ -26,8 +26,6 @@ This file develops Stage 2 of the fuzzy toponym matcher. Its job is to refine th
 rm(list=ls()); gc()
 library(MeasuringLandscape)
 
-devtools::load_all()
-
 dir_figures <- glue::glue(getwd(), "/../paper/figures/")
 
 knitr::opts_knit$set(progress = TRUE, verbose = TRUE)
@@ -183,7 +181,7 @@ vars_x_string_and_stem <- c(vars_x_string, vars_x_stem)
 
 ```{r}
 
-handlabeled <- toponym_training_dataset_load()
+handlabeled <- MeasuringLandscape:::toponym_training_dataset_load()
 
 fromscratch=F
 if(fromscratch){    
@@ -243,7 +241,7 @@ global_test <- toponym_training_dataset[['xy_all']] %>% filter(test %in% T  & !i
 
 sumwneg=sum(toponym_training_dataset[['xy_train']]$rex_match==0)
 sumwpos=sum(toponym_training_dataset[['xy_train']]$rex_match==1)
-param2 <- list("objective" = logregobj, #"objective" ="binary:logistic", #
+param2 <- list("objective" = MeasuringLandscape:::logregobj, #"objective" ="binary:logistic", #
               "scale_pos_weight" = sumwneg / sumwpos,
               "eta" = 0.3,
               "max_depth" = 6,
@@ -254,7 +252,7 @@ param2 <- list("objective" = logregobj, #"objective" ="binary:logistic", #
               "nthread" = 48,
               'maximize'=T)
 
-toponym_xb_everything2 <- train_an_xb(toponym_training_dataset[['xy_train']],
+toponym_xb_everything2 <- MeasuringLandscape:::train_an_xb(toponym_training_dataset[['xy_train']],
                                      toponym_training_dataset[['xy_test']] ,
                                      vars_x=vars_x_everything,
                                      param=param2,
@@ -264,7 +262,7 @@ xgb.save(toponym_xb_everything2,
        glue::glue(getwd(), "/../inst/extdata/toponym_xb_everything2.bin")
          ) #Have to save separately for some reason
 
-toponym_xb_onlystring <- train_an_xb(toponym_training_dataset[['xy_train']],
+toponym_xb_onlystring <- MeasuringLandscape:::train_an_xb(toponym_training_dataset[['xy_train']],
                                      toponym_training_dataset[['xy_test']] ,
                                      vars_x=vars_x_onlystring,
                                      param=param2,
@@ -277,7 +275,7 @@ xgb.save(toponym_xb_onlystring,
 
 
 
-toponym_xb_string_and_stem <- train_an_xb(toponym_training_dataset[['xy_train']],
+toponym_xb_string_and_stem <- MeasuringLandscape:::train_an_xb(toponym_training_dataset[['xy_train']],
                                      toponym_training_dataset[['xy_test']] ,
                                      vars_x=vars_x_string_and_stem,
                                      param=param2,

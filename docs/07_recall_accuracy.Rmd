@@ -22,8 +22,6 @@ Demonstrates that georeferencing options vary terms of recall (how many event lo
 rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscape)
-
-devtools::load_all()
 dir_figures <- glue::glue(getwd(), "/../paper/figures/")
 
 gc()
@@ -238,7 +236,7 @@ Combine and plot the results for every specific decision and the ensembles.
 ```{r}
 
 #p_load(Hmisc)
-sentence_case <- function(x) capitalize(tolower(gsub("_"," ",x)))
+sentence_case <- function(x) Hmisc::capitalize(tolower(gsub("_"," ",x)))
 
 #The first time you run this, you'll need to install these additional fonts
 #install.packages("extrafont");

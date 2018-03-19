@@ -27,7 +27,6 @@ rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscape)
 
-devtools::load_all()
 dir_figures <- paste0(here::here(), "/paper/figures/")
 
 gc()
@@ -72,7 +71,7 @@ We load a pretrained toponym matcher based on XGBoost and many string distance f
 
 #Load toponym model
 #p_load(xgboost)
-toponym_xb_model <- xgb.load(system.file("extdata", "toponym_xb_onlystring.bin", package = "MeasuringLandscape"))
+toponym_xb_model <- xgboost::xgb.load(system.file("extdata", "toponym_xb_onlystring.bin", package = "MeasuringLandscape"))
 
 ```
 
@@ -103,7 +102,7 @@ Our first move is to stem each location string of prefixes and common suffixes s
 #Step 1  Get Suggestions for Stems
 
 #Stem the gazetteer names
-temp <- strip_postfixes(flatfiles_sf_roi$name_cleaner)
+temp <- MeasuringLandscape:::strip_postfixes(flatfiles_sf_roi$name_cleaner)
 flatfiles_sf_roi$name_cleaner_stem <- temp[[1]]
 flatfiles_sf_roi$name_cleaner_postfix <- temp[[2]]
 
@@ -115,7 +114,7 @@ There are `r length(unique(flatfiles_sf_roi$name_cleaner_stem))` unique location
 
 ```{r}
 #Stem the event names
-temp <- strip_postfixes(events_sf$name_cleaner)
+temp <- MeasuringLandscape:::strip_postfixes(events_sf$name_cleaner)
 events_sf$name_cleaner_stem <- temp[[1]]
 events_sf$name_cleaner_postfix <- temp[[2]]
 

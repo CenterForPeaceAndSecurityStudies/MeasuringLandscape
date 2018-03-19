@@ -29,7 +29,6 @@ rm(list=ls()); gc()
 # !diagnostics off
 library(MeasuringLandscape)
 
-devtools::load_all()
 dir_figures <- glue::glue(getwd(), "/../paper/figures/")
 
 gc()
@@ -204,8 +203,8 @@ folds <- list(fold1,fold2,fold3,fold4,fold5)
 
 #label= label #
 condition <- !is.na(label)
-dtrain <- xgb.DMatrix(data=as.matrix( x_train ), label = label, missing = NA )
-dpredict <- xgb.DMatrix(data=as.matrix( x_all ), missing = NA )
+dtrain <- xgboost::xgb.DMatrix(data=as.matrix( x_train ), label = label, missing = NA )
+dpredict <- xgboost::xgb.DMatrix(data=as.matrix( x_all ), missing = NA )
 
 param <- list("objective" ="reg:linear", #"objective" = logregobj,
               #"scale_pos_weight" = sumwneg / sumwpos,
@@ -218,15 +217,15 @@ param <- list("objective" ="reg:linear", #"objective" = logregobj,
 
 #choose folds by name so we're not cheating
 #First cross validation to get credible out of sample accuracy
-xb <- xgb.cv(params=param,
+xb <- xgboost::xgb.cv(params=param,
              data=dtrain,
              nrounds = 100,
              early_stopping_rounds=10, 
              #nfold=5,
              folds=folds,
              prediction=T)
-
-xb2 <- xgb.train(params=param,
+#Then fit a single model for variable importance
+xb2 <- xgboost::xgb.train(params=param,
                  data=dtrain,
                  nrounds = 100,
                  #early_stopping_rounds=10, 
@@ -280,15 +279,15 @@ ggsave(
 Variable importance (Appendix Figure 8)
 ```{r}
 
-importance_importance <- xgb.importance(feature_names=colnames(dtrain), model = xb2) #won't calculate on cv
+importance_importance <- xgboost::xgb.importance(feature_names=colnames(dtrain), model = xb2) #won't calculate on cv
 
 pdf(file=glue::glue(dir_figures, "p_variable_importance_supervised_ensemble.pdf"), width=5.5, height=6)
-xgb.plot.importance(importance_importance %>% 
+xgboost::xgb.plot.importance(importance_importance %>% 
                       head(50) #Top 50 features
                     )
 #autoplot(uauc1)
 dev.off()
-xgb.plot.importance(importance_importance %>% 
+xgboost::xgb.plot.importance(importance_importance %>% 
                       head(50) #Top 50 features
                     )
 ```

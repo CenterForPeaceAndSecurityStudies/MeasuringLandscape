@@ -40,7 +40,7 @@ options(width = 160)
 
 ```{r}
 
-events <- MeasuringLandscape::prep_events(fromscratch = F)
+events <- MeasuringLandscape:::prep_events(fromscratch = F)
 
 ```
 
@@ -1023,7 +1023,7 @@ for(i in 1:nrow(events)){
   #The “exposition” pipe operator, %$% exposes the names within the left-hand side object to the right-hand side expression. Essentially, it is a short-hand for using the with functions 
   suppressMessages({
     temp <- with(events[i,] ,
-                 EAGS2LatLong(band=map_coordinate_clean_text_band,
+                 MeasuringLandscape:::EAGS2LatLong(band=map_coordinate_clean_text_band,
                                         block=map_coordinate_clean_text_block,
                                         subblock=map_coordinate_clean_text_subblock,
                                         easting=map_coordinate_clean_number_easting , 

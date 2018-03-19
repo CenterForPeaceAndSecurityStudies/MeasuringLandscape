@@ -73,38 +73,39 @@ region_of_interest_sf_utm <- MeasuringLandscape:::create_roi(
 #Event locations
 events_sf <- readRDS(system.file("extdata", "events_sf.Rdata", package = "MeasuringLandscape")) 
 
-events_sf_roi <- events_sf %>% subset_roi(region_of_interest_sf_utm) %>% 
-                 select("name_cleaner","map_coordinate_clean_latitude","map_coordinate_clean_longitude","geometry") %>%
-                 setNames(c("name","latitude","longitude","geometry")) %>% 
-                 mutate(feature_code="event",
+events_sf_roi <- events_sf %>% 
+                 MeasuringLandscape:::subset_roi(region_of_interest_sf_utm) %>% 
+                 dplyr::select("name_cleaner","map_coordinate_clean_latitude","map_coordinate_clean_longitude","geometry") %>%
+                 stats::setNames(c("name","latitude","longitude","geometry")) %>% 
+                 dplyr::mutate(feature_code="event",
                         timeperiod="1952-01-01",
                         source_dataset="events") %>% 
-                 filter(!is.na(name) & name !="" & !is.na(latitude) & !is.na(longitude)) %>%
-                 distinct()
+                 dplyr::filter(!is.na(name) & name !="" & !is.na(latitude) & !is.na(longitude)) %>%
+                 dplyr::distinct()
 
 # Moderate Size Point Sources
-nga_sf_roi <- MeasuringLandscape::load_nga(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-geonames_sf_roi <- MeasuringLandscape::load_geonames(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-historical_sf_roi <- MeasuringLandscape::load_historical(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+nga_sf_roi <- MeasuringLandscape:::load_nga(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+geonames_sf_roi <- MeasuringLandscape:::load_geonames(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+historical_sf_roi <- MeasuringLandscape:::load_historical(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 # Small API Sources
-googlemaps_sf_roi <- MeasuringLandscape::load_googlemaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-bingmaps_sf_roi <- MeasuringLandscape::load_bingmaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+googlemaps_sf_roi <- MeasuringLandscape:::load_googlemaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+bingmaps_sf_roi <- MeasuringLandscape:::load_bingmaps(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 # Moderate Size mixed or polygon sources
-KEN_adm_sf_roi <- MeasuringLandscape::load_ken_adm(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-livestock_sf_roi <- MeasuringLandscape::load_livestock(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-kenya_districts1962_sf_roi <- MeasuringLandscape::load_kenya_districts1962(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-kenya_cadastral_district_sf_roi <- MeasuringLandscape::load_kenya_cadastral_district(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
-kenya_cadastral_sf_roi <- MeasuringLandscape::load_kenya_cadastral(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+KEN_adm_sf_roi <- MeasuringLandscape:::load_ken_adm(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+livestock_sf_roi <- MeasuringLandscape:::load_livestock(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_districts1962_sf_roi <- MeasuringLandscape:::load_kenya_districts1962(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_cadastral_district_sf_roi <- MeasuringLandscape:::load_kenya_cadastral_district(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+kenya_cadastral_sf_roi <- MeasuringLandscape:::load_kenya_cadastral(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 # Very Large Sources
-wikidata_sf_roi <- MeasuringLandscape::load_wikidata(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
-tgn_sf_roi <- MeasuringLandscape::load_tgn(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
-openstreetmap_sf_roi <- MeasuringLandscape::load_openstreetmap(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
+wikidata_sf_roi <- MeasuringLandscape:::load_wikidata(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
+tgn_sf_roi <- MeasuringLandscape:::load_tgn(long_min, long_max, lat_min, lat_max, fromscratch = fromscratch)
+openstreetmap_sf_roi <- MeasuringLandscape:::load_openstreetmap(roi = region_of_interest_sf_utm, fromscratch = fromscratch)
 
 
 if (fromscratch) {
@@ -389,9 +390,9 @@ temp <- flatfiles_sf_roi %>%
   group_by(source_dataset) %>%
   mutate(longitude_trunc = longitude - round(longitude))
 
-temp %>% filter(source_dataset %in% "historical") %>% ungroup() %>% select("longitude_trunc") %>% as.vector() %>% table()
+#temp %>% filter(source_dataset %in% "historical") %>% ungroup() %>% select("longitude_trunc") %>% as.vector() %>% table()
 
-temp %>% filter(source_dataset %in% "geonames") %>% ungroup() %>% select("longitude_trunc") %>% as.vector() %>% round(5) %>% table() %>% sort(decreasing = T) %>% as.data.frame() %>% filter(Freq > 10)
+#temp %>% filter(source_dataset %in% "geonames") %>% ungroup() %>% select("longitude_trunc") %>% as.vector() %>% round(5) %>% table() %>% sort(decreasing = T) %>% as.data.frame() %>% filter(Freq > 10)
 
 
 temp <- flatfiles_sf_roi %>%

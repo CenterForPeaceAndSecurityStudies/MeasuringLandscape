@@ -12,7 +12,6 @@
 #' A model predicting that missingness
 #' Tries to predict in terms of properties of each event, e.g. DV
 predict_missingness_dv <- function(label, print_every_n=20) {
-  p_load(xgboost, dummies)
 
   vars_x <- c(
     "document_district_clean",
@@ -28,13 +27,18 @@ predict_missingness_dv <- function(label, print_every_n=20) {
   setdiff(vars_x, names(events_sf))
   x_all <- as.data.frame(events_sf)[, vars_x]
   x_all_pre_dummy <- x_all
-  x_all <- dummy.data.frame(x_all)
 
+  #The dummies package broke
+  #x_all <- dummies::dummy.data.frame(x_all)
+  options(na.action='na.pass')
+  x_all <-  model.matrix(~ . - 1, x_all)
+  options(na.action='na.omit')
+  
   # label= label #
   sumwneg <- sum(label == 0)
   sumwpos <- sum(label == 1)
 
-  dtrain <- xgb.DMatrix(data = as.matrix(x_all), label = label, missing = NA)
+  dtrain <- xgboost::xgb.DMatrix(data = as.matrix(x_all), label = label, missing = NA)
 
   param <- list(
     "objective" = "binary:logistic", # "objective" = logregobj,
@@ -47,7 +51,7 @@ predict_missingness_dv <- function(label, print_every_n=20) {
     "maximize" = T
   )
 
-  xb <- xgb.cv(
+  xb <- xgboost::xgb.cv(
     params = param,
     data = dtrain,
     nrounds = 50,
@@ -57,7 +61,7 @@ predict_missingness_dv <- function(label, print_every_n=20) {
     print_every_n=print_every_n
   )
 
-  xb2 <- xgb.train(
+  xb2 <- xgboost::xgb.train(
     params = param,
     data = dtrain,
     nrounds = 100,
@@ -78,7 +82,6 @@ predict_missingness_dv <- function(label, print_every_n=20) {
   # area_under_prc <- attr(msmdat1,"aucs")$aucs[2]
   # area_under_prc
 
-  p_load(Metrics)
   return(list(label = label,  #Original Y
               xb = xb$pred,   #Cross validated hold out predicted probaiblity
               xb_model = xb2, #Single model
@@ -115,18 +118,21 @@ predict_missingness_rhs <- function(condition) {
   )
   xy_all <- as.data.frame(xy_all)
 
-  p_load(xgboost, dummies)
 
   label <- xy_all$imputed
 
   x_all <- xy_all[, vars_x]
-  x_all <- dummy.data.frame(x_all)
-
+  #The dummies package broke
+  #x_all <- dummies::dummy.data.frame(x_all)
+  options(na.action='na.pass')
+  x_all <-  model.matrix(~ . - 1, x_all)
+  options(na.action='na.omit')
+  
   # label= label #
   sumwneg <- sum(label == 0)
   sumwpos <- sum(label == 1)
 
-  dtrain <- xgb.DMatrix(data = as.matrix(x_all), label = label, missing = NA)
+  dtrain <- xgboost::xgb.DMatrix(data = as.matrix(x_all), label = label, missing = NA)
 
   param <- list(
     "objective" = "binary:logistic", # "objective" = logregobj,
@@ -139,7 +145,7 @@ predict_missingness_rhs <- function(condition) {
     "maximize" = T
   )
 
-  xb <- xgb.cv(
+  xb <- xgboost::xgb.cv(
     params = param,
     data = dtrain,
     nrounds = 200,

@@ -103,10 +103,10 @@ load_wikidata <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
   wikidata_roi$name_alternates <- wikinames_en
   wikidata_roi$names <- wikinames_en
   wikidata_sf_roi <- wikidata_roi %>%
-    select("names", "mainsnak.datavalue.value.latitude", "mainsnak.datavalue.value.longitude", "name_alternates") %>%
+    dplyr::select("names", "mainsnak.datavalue.value.latitude", "mainsnak.datavalue.value.longitude", "name_alternates") %>%
     setNames(c("name", "latitude", "longitude", "name_alternates")) %>%
-    mutate(source_dataset = "wikidata") %>%
-    mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
+    dplyr::mutate(source_dataset = "wikidata") %>%
+    dplyr::mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
    tidyr::unnest(name) %>%
     as.data.frame() %>%
     sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
@@ -119,11 +119,10 @@ load_wikidata <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
 
 
 load_tgn <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
-  p_load(fst)
   if (fromscratch) {
 
     # Start with the full global gazeteer
-    getty_tgn_wide <- read.fst("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/getty_tgn_wide.fst", as.data.table = T)
+    getty_tgn_wide <- data.table::read.fst("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/getty_tgn_wide.fst", as.data.table = T)
     dim(getty_tgn_wide) # 2,505,494      71
 
     names(getty_tgn_wide) <- gsub(" <http://creativecommons.org/", "", names(getty_tgn_wide), fixed = T)
@@ -183,18 +182,18 @@ load_tgn <- function(long_min, long_max, lat_min, lat_max, fromscratch=F) {
   }
 
   tgn_sf <- fread(system.file("extdata", "tgn_kenya.csv", package = "MeasuringLandscape")) %>%
-    mutate(name_alternates = paste(prefLabel, altLabel, sep = ";")) %>%
-    mutate(location_text = paste(prefLabel, altLabel, sep = ";")) %>%
-    select("location_text", "latitude", "longitude", "name_alternates") %>%
+    dplyr::mutate(name_alternates = paste(prefLabel, altLabel, sep = ";")) %>%
+    dplyr::mutate(location_text = paste(prefLabel, altLabel, sep = ";")) %>%
+    dplyr::select("location_text", "latitude", "longitude", "name_alternates") %>%
     setNames(c("name", "latitude", "longitude", "name_alternates")) %>%
-    mutate(source_dataset = "tgn") %>%
-    mutate(name = gsub("\"| \\.|", "", name)) %>%
-    filter(!is.na(longitude) & !is.na(latitude)) %>%
-    mutate_at(c("latitude", "longitude"), as.numeric) %>%
-    mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
-   tidyr::unnest(name) %>%
+    dplyr::mutate(source_dataset = "tgn") %>%
+    dplyr::mutate(name = gsub("\"| \\.|", "", name)) %>%
+    dplyr::filter(!is.na(longitude) & !is.na(latitude)) %>%
+    dplyr::mutate_at(c("latitude", "longitude"), as.numeric) %>%
+    dplyr::mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
+    tidyr::unnest(name) %>%
     sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F) %>%
-    mutate(timeperiod = "2017-01-01")
+    dplyr::mutate(timeperiod = "2017-01-01")
 
   return(tgn_sf)
 }
@@ -205,12 +204,12 @@ load_historical <- function(roi, fromscratch=F) {
   if (fromscratch) {
     historical_sf <- read_csv(glue("/home/rexdouglass/Dropbox (rex)/Kenya Article Drafts/MeasuringLandscapeCivilWar_TooBig/", "kenya_streamperfect_REX_Pages_1_to_381_final_clean.csv")) %>%
       common_cleaning() %>%
-      select(c("locationtype", "locationname", "latitude", "longitude")) %>%
+      dplyr::select(c("locationtype", "locationname", "latitude", "longitude")) %>%
       setNames(c("feature_code", "name", "latitude", "longitude")) %>%
-      mutate(source_dataset = "historical") %>%
-      mutate(timeperiod = "1964-01-01") %>%
-      mutate(name_alternates = sapply(strsplit(name, ";| see | SEE | check if same as "), FUN = function(x) paste(x, collapse = ";"))) %>%
-      mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
+      dplyr::mutate(source_dataset = "historical") %>%
+      dplyr::mutate(timeperiod = "1964-01-01") %>%
+      dplyr::mutate(name_alternates = sapply(strsplit(name, ";| see | SEE | check if same as "), FUN = function(x) paste(x, collapse = ";"))) %>%
+      dplyr::mutate(name = strsplit(name, ";| see | SEE | check if same as ")) %>%
      tidyr::unnest(name) %>%
       sf::st_as_sf(coords = c("longitude", "latitude"), crs = 4326, agr = "constant", remove = F)
 
